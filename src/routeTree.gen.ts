@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OsintRouteImport } from './routes/osint'
+import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const OsintRoute = OsintRouteImport.update({
   path: '/osint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ThreatIntelRoute = ThreatIntelRouteImport.update({
+  id: '/threat-intel',
+  path: '/threat-intel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkflowsRoute = WorkflowsRouteImport.update({
   id: '/workflows',
   path: '/workflows',
@@ -32,30 +38,34 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/osint': typeof OsintRoute
+  '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/osint': typeof OsintRoute
+  '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/osint': typeof OsintRoute
+  '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/osint' | '/workflows'
+  fullPaths: '/' | '/osint' | '/threat-intel' | '/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/osint' | '/workflows'
-  id: '__root__' | '/' | '/osint' | '/workflows'
+  to: '/' | '/osint' | '/threat-intel' | '/workflows'
+  id: '__root__' | '/' | '/osint' | '/threat-intel' | '/workflows'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OsintRoute: typeof OsintRoute
+  ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OsintRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/threat-intel': {
+      id: '/threat-intel'
+      path: '/threat-intel'
+      fullPath: '/threat-intel'
+      preLoaderRoute: typeof ThreatIntelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workflows': {
       id: '/workflows'
       path: '/workflows'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OsintRoute: OsintRoute,
+  ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
 }
 export const routeTree = rootRouteImport
