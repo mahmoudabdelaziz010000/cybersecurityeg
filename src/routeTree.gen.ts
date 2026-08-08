@@ -14,6 +14,10 @@ import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundRouteImport } from './routes/refund'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 
@@ -42,6 +46,26 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundRoute = RefundRouteImport.update({
+  id: '/refund',
+  path: '/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ThreatIntelRoute = ThreatIntelRouteImport.update({
   id: '/threat-intel',
   path: '/threat-intel',
@@ -59,6 +83,10 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
@@ -68,6 +96,10 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
@@ -78,6 +110,10 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
@@ -89,6 +125,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/osint'
     | '/pricing'
+    | '/privacy'
+    | '/refund'
+    | '/sitemap.xml'
+    | '/terms'
     | '/threat-intel'
     | '/workflows'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +138,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/osint'
     | '/pricing'
+    | '/privacy'
+    | '/refund'
+    | '/sitemap.xml'
+    | '/terms'
     | '/threat-intel'
     | '/workflows'
   id:
@@ -107,6 +151,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/osint'
     | '/pricing'
+    | '/privacy'
+    | '/refund'
+    | '/sitemap.xml'
+    | '/terms'
     | '/threat-intel'
     | '/workflows'
   fileRoutesById: FileRoutesById
@@ -117,6 +165,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundRoute: typeof RefundRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
 }
@@ -158,6 +210,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund': {
+      id: '/refund'
+      path: '/refund'
+      fullPath: '/refund'
+      preLoaderRoute: typeof RefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/threat-intel': {
       id: '/threat-intel'
       path: '/threat-intel'
@@ -181,9 +261,23 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundRoute: RefundRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
