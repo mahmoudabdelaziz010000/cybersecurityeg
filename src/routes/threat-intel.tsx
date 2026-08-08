@@ -23,7 +23,7 @@ export const Route = createFileRoute("/threat-intel")({
     ],
     links: [{ rel: "canonical", href: "/threat-intel" }],
   }),
-  component: ThreatIntel;
+  component: ThreatIntel,
 });
 
 const SEVERITY_CLASS: Record<CveItem["severity"], string> = {
