@@ -58,7 +58,7 @@ const STATUS_COLOR = {
 
 function Workflows() {
   const execute = useServerFn(runPlaybook);
-  const [slug, setSlug] = useState(PLAYBOOKS[0].slug);
+  const [slug, setSlug] = useState(PLAYBOOKS[0]!.slug);
   const [target, setTarget] = useState("example.com");
 
   const active = PLAYBOOKS.find((p) => p.slug === slug)!;
