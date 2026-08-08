@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 
@@ -19,9 +22,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
+  id: '/attack-surface',
+  path: '/attack-surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OsintRoute = OsintRouteImport.update({
   id: '/osint',
   path: '/osint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThreatIntelRoute = ThreatIntelRouteImport.update({
@@ -37,34 +55,68 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/attack-surface': typeof AttackSurfaceRoute
+  '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/pricing': typeof PricingRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/attack-surface': typeof AttackSurfaceRoute
+  '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/pricing': typeof PricingRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/attack-surface': typeof AttackSurfaceRoute
+  '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/pricing': typeof PricingRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/osint' | '/threat-intel' | '/workflows'
+  fullPaths:
+    | '/'
+    | '/attack-surface'
+    | '/contact'
+    | '/osint'
+    | '/pricing'
+    | '/threat-intel'
+    | '/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/osint' | '/threat-intel' | '/workflows'
-  id: '__root__' | '/' | '/osint' | '/threat-intel' | '/workflows'
+  to:
+    | '/'
+    | '/attack-surface'
+    | '/contact'
+    | '/osint'
+    | '/pricing'
+    | '/threat-intel'
+    | '/workflows'
+  id:
+    | '__root__'
+    | '/'
+    | '/attack-surface'
+    | '/contact'
+    | '/osint'
+    | '/pricing'
+    | '/threat-intel'
+    | '/workflows'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AttackSurfaceRoute: typeof AttackSurfaceRoute
+  ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
+  PricingRoute: typeof PricingRoute
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
 }
@@ -78,11 +130,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/attack-surface': {
+      id: '/attack-surface'
+      path: '/attack-surface'
+      fullPath: '/attack-surface'
+      preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/osint': {
       id: '/osint'
       path: '/osint'
       fullPath: '/osint'
       preLoaderRoute: typeof OsintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/threat-intel': {
@@ -104,7 +177,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AttackSurfaceRoute: AttackSurfaceRoute,
+  ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
+  PricingRoute: PricingRoute,
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
 }
