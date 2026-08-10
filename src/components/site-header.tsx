@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, ShieldHalf, X } from "lucide-react";
+import { LayoutDashboard, Menu, ShieldHalf, X } from "lucide-react";
 import { useState } from "react";
+import { useSession } from "@/hooks/use-session";
 
 const NAV = [
   { to: "/osint", label: "OSINT Hub" },
@@ -12,6 +13,7 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user, loading } = useSession();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -39,18 +41,29 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            to="/contact"
-            className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Talk to sales
-          </Link>
-          <Link
-            to="/osint"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Run a free scan
-          </Link>
+          {!loading && user ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <LayoutDashboard className="size-4" aria-hidden="true" /> Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/auth"
+                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/auth"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Start free
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -80,11 +93,11 @@ export function SiteHeader() {
             ))}
           </ul>
           <Link
-            to="/osint"
+            to={!loading && user ? "/dashboard" : "/auth"}
             onClick={() => setOpen(false)}
             className="mt-3 block rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
           >
-            Run a free scan
+            {!loading && user ? "Open dashboard" : "Start free"}
           </Link>
         </nav>
       )}

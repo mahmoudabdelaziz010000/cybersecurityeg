@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -20,15 +22,25 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   id: '/attack-surface',
   path: '/attack-surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -76,10 +88,16 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
   path: '/workflows',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
@@ -89,10 +107,12 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
@@ -102,11 +122,14 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/pricing': typeof PricingRoute
@@ -116,12 +139,14 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/pricing'
@@ -131,10 +156,12 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/pricing'
@@ -144,10 +171,13 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/pricing'
@@ -157,11 +187,14 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/_authenticated/dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AttackSurfaceRoute: typeof AttackSurfaceRoute
+  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
   PricingRoute: typeof PricingRoute
@@ -182,11 +215,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attack-surface': {
       id: '/attack-surface'
       path: '/attack-surface'
       fullPath: '/attack-surface'
       preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -252,12 +299,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AttackSurfaceRoute: AttackSurfaceRoute,
+  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
   PricingRoute: PricingRoute,
@@ -271,13 +338,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

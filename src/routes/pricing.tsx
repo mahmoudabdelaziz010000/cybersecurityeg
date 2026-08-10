@@ -81,7 +81,7 @@ function Pricing() {
               </ul>
 
               <Link
-                to={t.id === "recon" ? "/osint" : "/contact"}
+                to={t.id === "recon" ? "/auth" : t.id === "team" ? "/auth" : "/contact"}
                 className={`mt-7 rounded-md px-4 py-2.5 text-center text-sm font-semibold ${
                   t.featured
                     ? "bg-primary text-primary-foreground hover:opacity-90"
