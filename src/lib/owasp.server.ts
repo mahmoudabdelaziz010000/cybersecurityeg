@@ -46,7 +46,16 @@ function finding(
   remediation: string,
   snippet?: { lang: string; code: string },
 ): Finding {
-  return { id, severity, title, owasp, evidence, description, remediation, snippet };
+  return {
+    id,
+    severity,
+    title,
+    owasp,
+    evidence,
+    description,
+    remediation,
+    ...(snippet ? { snippet } : {}),
+  };
 }
 
 const HEADER_SNIPPET = {
