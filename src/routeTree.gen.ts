@@ -15,6 +15,7 @@ import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
+import { Route as OwaspRouteImport } from './routes/owasp'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundRouteImport } from './routes/refund'
@@ -51,6 +52,11 @@ const ContactRoute = ContactRouteImport.update({
 const OsintRoute = OsintRouteImport.update({
   id: '/osint',
   path: '/osint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwaspRoute = OwaspRouteImport.update({
+  id: '/owasp',
+  path: '/owasp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/owasp': typeof OwaspRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/owasp': typeof OwaspRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/owasp': typeof OwaspRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/osint'
+    | '/owasp'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/osint'
+    | '/owasp'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/osint'
+    | '/owasp'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
+  OwaspRoute: typeof OwaspRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
@@ -248,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/osint'
       fullPath: '/osint'
       preLoaderRoute: typeof OsintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owasp': {
+      id: '/owasp'
+      path: '/owasp'
+      fullPath: '/owasp'
+      preLoaderRoute: typeof OwaspRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
+  OwaspRoute: OwaspRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
