@@ -5,6 +5,7 @@ import { useSession } from "@/hooks/use-session";
 
 const NAV = [
   { to: "/osint", label: "OSINT Hub" },
+  { to: "/owasp", label: "OWASP Scanner" },
   { to: "/workflows", label: "Workflows" },
   { to: "/attack-surface", label: "Attack Surface" },
   { to: "/threat-intel", label: "Threat Intel" },
