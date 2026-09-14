@@ -23,6 +23,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiPublicStreampayWebhookRouteImport } from './routes/api/public/streampay-webhook'
 
@@ -95,6 +96,11 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
   path: '/workflows',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/streampay-webhook': typeof ApiPublicStreampayWebhookRoute
 }
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/streampay-webhook': typeof ApiPublicStreampayWebhookRoute
 }
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/streampay-webhook': typeof ApiPublicStreampayWebhookRoute
 }
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/billing'
     | '/dashboard'
     | '/api/public/streampay-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/billing'
     | '/dashboard'
     | '/api/public/streampay-webhook'
   id:
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/_authenticated/billing'
     | '/_authenticated/dashboard'
     | '/api/public/streampay-webhook'
   fileRoutesById: FileRoutesById
@@ -333,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -351,10 +370,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
