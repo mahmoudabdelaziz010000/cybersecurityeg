@@ -8,6 +8,8 @@ export interface QuotaStatus {
   maxTargetsPerRun: number;
   used: number;
   remaining: number | null;
+  /** Purchased scan credits usable once the plan allowance runs out. */
+  credits: number;
   periodResetsAt: string;
 }
 
