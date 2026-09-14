@@ -49,6 +49,9 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
   const used = count ?? 0;
   const monthlyScanLimit = plan?.monthly_scan_limit ?? null;
 
+  const { getCreditBalance } = await import("./billing.server");
+  const credits = await getCreditBalance(userId);
+
   return {
     planId,
     planName: plan?.name ?? "Recon",
@@ -56,6 +59,7 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
     maxTargetsPerRun: plan?.max_targets_per_run ?? GUEST_MAX_TARGETS_PER_RUN,
     used,
     remaining: monthlyScanLimit === null ? null : Math.max(0, monthlyScanLimit - used),
+    credits,
     periodResetsAt: startOfNextMonthUtc().toISOString(),
   };
 }
