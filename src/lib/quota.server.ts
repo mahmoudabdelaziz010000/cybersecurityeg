@@ -94,9 +94,9 @@ export async function authorizeScan(
     );
   }
 
-  if (quota.remaining !== null && requestedTargets > quota.remaining) {
+  if (quota.remaining !== null && requestedTargets > quota.remaining + quota.credits) {
     throw new Error(
-      `Monthly scan quota reached (${quota.used}/${quota.monthlyScanLimit}). It resets on the 1st, or upgrade your plan.`,
+      `Monthly scan quota reached (${quota.used}/${quota.monthlyScanLimit}). It resets on the 1st — buy a credit pack or upgrade your plan to keep scanning now.`,
     );
   }
 
