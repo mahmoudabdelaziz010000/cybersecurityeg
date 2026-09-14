@@ -114,5 +114,16 @@ export interface ScanRunRecord {
 export async function recordScanRuns(userId: string | null, runs: ScanRunRecord[]) {
   if (!userId || !runs.length) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // Anything above the plan allowance is paid for with purchased credits.
+  const before = await getQuotaStatus(userId);
   await supabaseAdmin.from("scan_runs").insert(runs.map((r) => ({ ...r, user_id: userId })));
+
+  if (before.remaining !== null) {
+    const overage = Math.max(0, runs.length - before.remaining);
+    if (overage > 0) {
+      const { consumeCredits } = await import("./billing.server");
+      await consumeCredits(userId, Math.min(overage, before.credits), "Scan overage");
+    }
+  }
 }
