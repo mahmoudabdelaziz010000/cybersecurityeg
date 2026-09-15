@@ -138,13 +138,57 @@ function Contact() {
               <c.icon className="size-4 text-primary" aria-hidden="true" />
               <h2 className="mt-3 text-sm font-semibold">{c.title}</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">{c.body}</p>
+              {"email" in c && c.email ? (
+                <a
+                  href={`mailto:${c.email}`}
+                  className="mt-2 inline-block text-sm text-primary hover:underline"
+                >
+                  {c.email}
+                </a>
+              ) : null}
             </div>
           ))}
           <div className="surface p-5">
-            <h2 className="label-mono">Response time</h2>
+            <h2 className="label-mono">Direct contact</h2>
+            <ul className="mt-3 space-y-3 text-sm">
+              <li className="flex items-center gap-2">
+                <Phone className="size-4 text-primary" aria-hidden="true" />
+                <a href="tel:+201000033316" className="text-primary hover:underline">
+                  +20 1000 033 316
+                </a>
+                <span className="text-muted-foreground">(Phone / WhatsApp)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Mail className="size-4 text-primary" aria-hidden="true" />
+                <a
+                  href="mailto:mahmoudabdelaziz@live.com"
+                  className="text-primary hover:underline"
+                >
+                  mahmoudabdelaziz@live.com
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Linkedin className="size-4 text-primary" aria-hidden="true" />
+                <span className="text-muted-foreground">Mahmoud Abdelaziz | LinkedIn</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Facebook className="size-4 text-primary" aria-hidden="true" />
+                <a
+                  href="https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  SentinelGrid on Facebook
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div className="surface p-5">
+            <h2 className="label-mono">Business hours</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Sales within one business day. Team SOC support within eight business hours. Enterprise
-              per SLA.
+              Egypt time, 11:00 AM – 3:00 PM. Sales within one business day. Team SOC support within
+              eight business hours. Enterprise per SLA.
             </p>
           </div>
         </aside>
