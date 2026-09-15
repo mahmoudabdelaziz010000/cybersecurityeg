@@ -24,10 +24,12 @@ export const Route = createFileRoute("/_authenticated/billing")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    order: typeof search["order"] === "string" ? search["order"] : undefined,
-    cancelled: typeof search["cancelled"] === "string" ? search["cancelled"] : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { order?: string; cancelled?: string } => {
+    const out: { order?: string; cancelled?: string } = {};
+    if (typeof search["order"] === "string") out.order = search["order"];
+    if (typeof search["cancelled"] === "string") out.cancelled = search["cancelled"];
+    return out;
+  },
   component: Billing,
 });
 
