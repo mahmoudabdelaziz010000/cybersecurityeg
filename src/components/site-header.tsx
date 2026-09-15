@@ -82,7 +82,7 @@ export function SiteHeader() {
       {open && (
         <nav className="border-t border-border bg-panel px-4 py-3 lg:hidden" aria-label="Mobile">
           <ul className="space-y-1">
-            {[...NAV, { to: "/contact", label: "Contact" } as const].map((item) => (
+            {NAV.map((item) => (
               <li key={item.to}>
                 <Link
                   to={item.to}
