@@ -10,6 +10,7 @@ const NAV = [
   { to: "/attack-surface", label: "Attack Surface" },
   { to: "/threat-intel", label: "Threat Intel" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {
