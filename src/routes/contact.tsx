@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, MessagesSquare, ShieldQuestion } from "lucide-react";
+import { Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
 
 const TITLE = "Contact SentinelGrid — Sales, Support & Security Reports";
 const DESCRIPTION =
@@ -25,7 +25,12 @@ export const Route = createFileRoute("/contact")({
 
 const CHANNELS = [
   { icon: Mail, title: "Sales", body: "Enterprise pricing, procurement paperwork and pilots." },
-  { icon: MessagesSquare, title: "Support", body: "Plan questions, billing and connector issues." },
+  {
+    icon: MessagesSquare,
+    title: "Support",
+    body: "Plan questions, billing and connector issues.",
+    email: "mahmoudabdelaziz@live.com",
+  },
   { icon: ShieldQuestion, title: "Disclosure", body: "Found something in our platform? Tell us first." },
 ];
 
