@@ -81,7 +81,7 @@ function Pricing() {
               </ul>
 
               <Link
-                to={t.id === "recon" ? "/auth" : t.id === "team" ? "/auth" : "/contact"}
+                to={t.id === "recon" ? "/auth" : t.id === "team" ? "/billing" : "/contact"}
                 className={`mt-7 rounded-md px-4 py-2.5 text-center text-sm font-semibold ${
                   t.featured
                     ? "bg-primary text-primary-foreground hover:opacity-90"
@@ -99,6 +99,13 @@ function Pricing() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
           <h2 className="label-mono">Add-ons</h2>
           <p className="mt-3 font-display text-3xl font-semibold">Attach revenue to what you use</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Buy any add-on or credit pack from{" "}
+            <Link to="/billing" className="text-primary hover:underline">
+              your billing page
+            </Link>{" "}
+            — checkout is handled securely by StreamPay.
+          </p>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {ADD_ONS.map((a) => (
               <article key={a.name} className="surface flex flex-col gap-2 p-6">
