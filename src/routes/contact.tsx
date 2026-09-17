@@ -39,6 +39,9 @@ const CHANNELS = [
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const send = useServerFn(submitContactMessage);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -55,10 +58,10 @@ function Contact() {
         <section className="surface-raised p-7">
           {sent ? (
             <div className="py-10 text-center">
-              <h2 className="font-display text-xl font-semibold">Message queued</h2>
+              <h2 className="font-display text-xl font-semibold">Message received</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Nothing is transmitted yet — connect a backend to deliver this form to your inbox or
-                CRM.
+                Thanks — your message reached the SentinelGrid team. We reply within one business
+                day during Egypt business hours.
               </p>
               <button
                 type="button"
@@ -71,11 +74,35 @@ function Contact() {
           ) : (
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setSent(true);
+                const form = e.currentTarget;
+                const fd = new FormData(form);
+                setError(null);
+                setSending(true);
+                try {
+                  await send({
+                    data: {
+                      name: String(fd.get("name") ?? ""),
+                      email: String(fd.get("email") ?? ""),
+                      topic: String(fd.get("topic") ?? ""),
+                      message: String(fd.get("message") ?? ""),
+                    },
+                  });
+                  form.reset();
+                  setSent(true);
+                } catch (err) {
+                  setError(
+                    err instanceof Error
+                      ? err.message
+                      : "We couldn't deliver your message. Please email us directly.",
+                  );
+                } finally {
+                  setSending(false);
+                }
               }}
             >
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="label-mono">
