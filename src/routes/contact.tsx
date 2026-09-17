@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
+
+import { submitContactMessage } from "@/lib/contact.functions";
 
 const TITLE = "Contact SentinelGrid — Sales, Support & Security Reports";
 const DESCRIPTION =
@@ -36,6 +39,9 @@ const CHANNELS = [
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const send = useServerFn(submitContactMessage);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -52,10 +58,10 @@ function Contact() {
         <section className="surface-raised p-7">
           {sent ? (
             <div className="py-10 text-center">
-              <h2 className="font-display text-xl font-semibold">Message queued</h2>
+              <h2 className="font-display text-xl font-semibold">Message received</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Nothing is transmitted yet — connect a backend to deliver this form to your inbox or
-                CRM.
+                Thanks — your message reached the SentinelGrid team. We reply within one business
+                day during Egypt business hours.
               </p>
               <button
                 type="button"
@@ -68,11 +74,35 @@ function Contact() {
           ) : (
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setSent(true);
+                const form = e.currentTarget;
+                const fd = new FormData(form);
+                setError(null);
+                setSending(true);
+                try {
+                  await send({
+                    data: {
+                      name: String(fd.get("name") ?? ""),
+                      email: String(fd.get("email") ?? ""),
+                      topic: String(fd.get("topic") ?? ""),
+                      message: String(fd.get("message") ?? ""),
+                    },
+                  });
+                  form.reset();
+                  setSent(true);
+                } catch (err) {
+                  setError(
+                    err instanceof Error
+                      ? err.message
+                      : "We couldn't deliver your message. Please email us directly.",
+                  );
+                } finally {
+                  setSending(false);
+                }
               }}
             >
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="label-mono">
@@ -80,6 +110,7 @@ function Contact() {
                   </label>
                   <input
                     id="name"
+                    name="name"
                     required
                     className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                   />
@@ -90,6 +121,7 @@ function Contact() {
                   </label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     required
                     className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
@@ -102,6 +134,8 @@ function Contact() {
                 </label>
                 <select
                   id="topic"
+                  name="topic"
+                  defaultValue="Enterprise pricing"
                   className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                 >
                   <option>Enterprise pricing</option>
@@ -117,16 +151,24 @@ function Contact() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows={6}
                   required
+                  minLength={10}
                   className="mt-2 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                 />
               </div>
+              {error ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              ) : null}
               <button
                 type="submit"
-                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                disabled={sending}
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
               >
-                Send message
+                {sending ? "Sending…" : "Send message"}
               </button>
             </form>
           )}

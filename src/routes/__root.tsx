@@ -75,12 +75,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SentinelGrid — OSINT & Attack Surface Intelligence" },
-      {
-        name: "description",
-        content:
-          "Passive OSINT lookups, attack-surface monitoring and automated triage playbooks for security teams.",
-      },
       { property: "og:site_name", content: "SentinelGrid" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
