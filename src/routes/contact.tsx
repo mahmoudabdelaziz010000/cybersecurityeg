@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
+
+import { submitContactMessage } from "@/lib/contact.functions";
 
 const TITLE = "Contact SentinelGrid — Sales, Support & Security Reports";
 const DESCRIPTION =
