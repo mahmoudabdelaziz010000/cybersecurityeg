@@ -110,6 +110,7 @@ function Contact() {
                   </label>
                   <input
                     id="name"
+                    name="name"
                     required
                     className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                   />
@@ -120,6 +121,7 @@ function Contact() {
                   </label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     required
                     className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
@@ -132,6 +134,8 @@ function Contact() {
                 </label>
                 <select
                   id="topic"
+                  name="topic"
+                  defaultValue="Enterprise pricing"
                   className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                 >
                   <option>Enterprise pricing</option>
@@ -147,16 +151,24 @@ function Contact() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows={6}
                   required
+                  minLength={10}
                   className="mt-2 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring"
                 />
               </div>
+              {error ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              ) : null}
               <button
                 type="submit"
-                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                disabled={sending}
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
               >
-                Send message
+                {sending ? "Sending…" : "Send message"}
               </button>
             </form>
           )}
