@@ -78,6 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "SentinelGrid" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
+      { name: "yandex-verification", content: "ca5f786b3a2a1c14" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
