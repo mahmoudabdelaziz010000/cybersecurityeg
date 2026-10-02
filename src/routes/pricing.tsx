@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { ADD_ONS, FAQS, TIERS } from "@/lib/pricing";
+import { useLanguage } from "@/lib/language";
 
 const TITLE = "Pricing — Free OSINT Tier, Team SOC & Enterprise | SentinelGrid";
 const DESCRIPTION =
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function Pricing() {
+  const { t } = useLanguage();
   return (
     <div>
       <section className="hero-surface border-b border-border">
@@ -81,14 +83,14 @@ function Pricing() {
               </ul>
 
               <Link
-                to={t.id === "recon" ? "/auth" : t.id === "team" ? "/billing" : "/contact"}
+                to={t.id === "recon" ? "/osint" : t.id === "team" ? "/billing" : "/contact"}
                 className={`mt-7 rounded-md px-4 py-2.5 text-center text-sm font-semibold ${
                   t.featured
                     ? "bg-primary text-primary-foreground hover:opacity-90"
                     : "border border-border hover:bg-accent"
                 }`}
               >
-                {t.cta}
+                {t.id === "recon" ? (t("Start scanning")) : t.cta}
               </Link>
             </article>
           ))}

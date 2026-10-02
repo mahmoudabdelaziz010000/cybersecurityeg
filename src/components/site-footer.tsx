@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ShieldHalf } from "lucide-react";
+import { useLanguage } from "@/lib/language";
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   {
@@ -29,6 +30,7 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
 ];
 
 export function SiteFooter() {
+  const { t } = useLanguage();
   return (
     <footer className="border-t border-border bg-panel">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
@@ -42,14 +44,13 @@ export function SiteFooter() {
             </span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-            Passive OSINT, attack-surface monitoring and decision-ready automation for security
-            teams that are drowning in alerts.
+            {t("Passive OSINT, attack-surface monitoring and decision-ready automation for security teams that are drowning in alerts.")}
           </p>
         </div>
 
         {COLUMNS.map((col) => (
           <div key={col.title}>
-            <h2 className="label-mono">{col.title}</h2>
+            <h2 className="label-mono">{t(col.title)}</h2>
             <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.to}>
@@ -57,7 +58,7 @@ export function SiteFooter() {
                     to={l.to}
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    {l.label}
+                    {t(l.label)}
                   </Link>
                 </li>
               ))}
@@ -68,8 +69,8 @@ export function SiteFooter() {
 
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} SentinelGrid. Passive reconnaissance only.</p>
-          <p className="font-mono">Zero-key connectors · Evidence-first output</p>
+          <p>© {new Date().getFullYear()} SentinelGrid. {t("Passive reconnaissance only.")}</p>
+          <p className="font-mono">{t("Zero-key connectors · Evidence-first output")}</p>
         </div>
       </div>
     </footer>

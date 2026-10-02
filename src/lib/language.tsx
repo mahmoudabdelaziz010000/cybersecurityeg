@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type Language = "en" | "ar";
 
@@ -186,6 +186,35 @@ const ARABIC: Record<string, string> = {
   "Create one free": "أنشئ حساباً مجانياً",
   "Sign in instead": "سجل الدخول بدلاً من ذلك",
   Terms: "الشروط",
+  "Tell us what you're trying to defend": "أخبرنا بما تحاول حمايته",
+  "Enterprise pricing, procurement paperwork and pilots.": "أسعار المؤسسات وإجراءات الشراء والتجارب الأولية.",
+  "Plan questions, billing and connector issues.": "أسئلة الخطط والفوترة ومشكلات مصادر البيانات.",
+  "Found something in our platform? Tell us first.": "وجدت مشكلة أمنية في منصتنا؟ أخبرنا أولاً.",
+  "Egypt time, 11:00 AM – 3:00 PM.": "بتوقيت مصر، من 11:00 صباحاً إلى 3:00 مساءً.",
+  "For Enterprise pricing, pilots and procurement.": "لأسعار المؤسسات والتجارب وإجراءات الشراء.",
+  "For account, plan and technical questions.": "لأسئلة الحساب والخطة والدعم التقني.",
+  "Report a vulnerability responsibly and privately.": "أبلغ عن ثغرة أمنية بمسؤولية وخصوصية.",
+  "Priced by volume, not by seat panic": "سعر يعتمد على حجم الاستخدام، لا عدد المقاعد",
+  "Start free with every keyless connector. Upgrade when triage becomes a daily habit rather than an occasional errand.": "ابدأ مجاناً مع جميع المصادر التي لا تحتاج إلى مفاتيح. انتقل لخطة أكبر عندما يصبح الفرز جزءاً من عملك اليومي.",
+  "Most popular": "الأكثر شيوعاً",
+  "Add-ons": "الإضافات",
+  "Attach revenue to what you use": "ادفع مقابل ما تستخدمه",
+  "Pricing questions": "أسئلة الأسعار",
+  "Need a quote for a regulated estate?": "تحتاج إلى عرض سعر لبيئة منظّمة؟",
+  "Enterprise terms cover SSO, data residency, custom connectors and an uptime SLA.": "تشمل شروط المؤسسات SSO وموقع تخزين البيانات ومصادر مخصصة واتفاقية توفر الخدمة.",
+  "One indicator, every connector queried concurrently, normalised into a single verdict with the raw evidence kept alongside it.": "مؤشر واحد، وفحص متزامن عبر كل المصادر، ثم نتيجة موحدة مع الاحتفاظ بالأدلة الأصلية.",
+  "Playbooks chain lookups into a decision — phishing triage, vendor due diligence, incident enrichment — and return a recommendation, not a data dump.": "تجمع مسارات العمل عمليات البحث للوصول إلى قرار — من فرز التصيد إلى تقييم الموردين وإثراء الحوادث — وتقدم توصية لا مجرد بيانات.",
+  "Track ports, CVEs, certificates and subdomain sprawl across your estate, and get alerted on the diff instead of the inventory.": "راقب المنافذ وCVEs والشهادات والنطاقات الفرعية، واحصل على تنبيه عند التغيير بدلاً من مراجعة قائمة ثابتة.",
+  "A live view of newly disclosed vulnerabilities so you know whether today's CVE touches anything you actually run.": "عرض مباشر للثغرات المُعلن عنها حديثاً لتعرف إن كانت CVE اليوم تؤثر على أنظمتك.",
+  "Every source below is queried in parallel and works without an account or API key.": "يتم فحص كل مصدر بالتوازي ويعمل من دون حساب أو مفتاح API.",
+  "No signup, no keys, no intrusive testing — just passive public data, normalised.": "بلا تسجيل أو مفاتيح أو اختبارات تدخّلية — فقط بيانات عامة سلبية ومنظمة.",
+  "Passive OSINT, attack-surface monitoring and decision-ready automation for security teams that are drowning in alerts.": "OSINT سلبي ومراقبة لسطح الهجوم وأتمتة جاهزة للقرار لفرق الأمن المثقلة بالتنبيهات.",
+  "Open the OSINT hub": "فتح مركز OSINT",
+  "No route to host": "الصفحة غير موجودة",
+  "That page doesn't exist or has been retired. Try the OSINT hub instead.": "هذه الصفحة غير موجودة أو أُزيلت. جرّب مركز OSINT بدلاً منها.",
+  "This page didn't load": "تعذر تحميل الصفحة",
+  "Try again": "حاول مرة أخرى",
+  "Go home": "العودة للرئيسية",
 };
 
 interface LanguageContextValue {
@@ -197,17 +226,23 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function translateText(text: string): string {
+export function translateText(text: string): string {
   const exact = ARABIC[text];
   if (exact) return exact;
   const leading = text.match(/^\s*/)?.[0] ?? "";
   const trailing = text.match(/\s*$/)?.[0] ?? "";
   const core = text.trim();
-  return ARABIC[core] ? `${leading}${ARABIC[core]}${trailing}` : text;
+  if (ARABIC[core]) return `${leading}${ARABIC[core]}${trailing}`;
+  let translated = core;
+  for (const [english, arabic] of Object.entries(ARABIC).sort(([a], [b]) => b.length - a.length)) {
+    if (english.length > 5 && translated.includes(english)) translated = translated.replaceAll(english, arabic);
+  }
+  return translated === core ? text : `${leading}${translated}${trailing}`;
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
+  const originals = useRef(new Map<Text, string>());
 
   useEffect(() => {
     const stored = window.localStorage.getItem("sentinelgrid-language");
@@ -218,6 +253,36 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem("sentinelgrid-language", language);
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
+
+  useEffect(() => {
+    const translateNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const textNode = node as Text;
+        const parent = textNode.parentElement;
+        if (!parent || parent.closest("code, pre, textarea, [data-no-translate]")) return;
+        const original = originals.current.get(textNode) ?? textNode.data;
+        if (!originals.current.has(textNode)) originals.current.set(textNode, original);
+        textNode.data = language === "ar" ? translateText(original) : original;
+        return;
+      }
+      node.childNodes.forEach(translateNode);
+    };
+
+    translateNode(document.body);
+    const title = document.title;
+    if (language === "ar") document.title = translateText(title);
+    document.querySelectorAll<HTMLMetaElement>('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[name="twitter:title"], meta[name="twitter:description"]').forEach((meta) => {
+      const original = meta.dataset.originalContent ?? meta.content;
+      meta.dataset.originalContent = original;
+      meta.content = language === "ar" ? translateText(original) : original;
+    });
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) mutation.addedNodes.forEach(translateNode);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [language]);
 
   const value = useMemo<LanguageContextValue>(
