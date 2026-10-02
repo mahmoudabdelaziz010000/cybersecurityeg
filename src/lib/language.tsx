@@ -279,9 +279,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     });
 
     const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) mutation.addedNodes.forEach(translateNode);
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach(translateNode);
+        if (language === "ar" && mutation.target instanceof HTMLTitleElement) {
+          mutation.target.textContent = translateText(mutation.target.textContent ?? "");
+        }
+      }
     });
     observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.head, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [language]);
 

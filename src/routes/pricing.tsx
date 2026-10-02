@@ -39,7 +39,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function Pricing() {
-  const { t } = useLanguage();
+  const { t: translate } = useLanguage();
   return (
     <div>
       <section className="hero-surface border-b border-border">
@@ -90,7 +90,7 @@ function Pricing() {
                     : "border border-border hover:bg-accent"
                 }`}
               >
-                {t.id === "recon" ? (t("Start scanning")) : t.cta}
+                {t.id === "recon" ? translate("Start scanning") : t.cta}
               </Link>
             </article>
           ))}
