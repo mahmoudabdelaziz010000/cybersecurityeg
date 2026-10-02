@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, Menu, ShieldHalf, X } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "@/hooks/use-session";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/lib/language";
 
 const NAV = [
   { to: "/osint", label: "OSINT Hub" },
@@ -16,6 +18,7 @@ const NAV = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { user, loading } = useSession();
+  const { t, isArabic } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -29,7 +32,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label={isArabic ? "التنقل الرئيسي" : "Main"}>
           {NAV.map((item) => (
             <Link
               key={item.to}
@@ -37,18 +40,19 @@ export function SiteHeader() {
               className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               activeProps={{ className: "text-foreground bg-accent" }}
             >
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <LanguageToggle />
           {!loading && user ? (
             <Link
               to="/dashboard"
               className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              <LayoutDashboard className="size-4" aria-hidden="true" /> Dashboard
+              <LayoutDashboard className="size-4" aria-hidden="true" /> {t("Dashboard")}
             </Link>
           ) : (
             <>
@@ -56,13 +60,13 @@ export function SiteHeader() {
                 to="/auth"
                 className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Sign in
+                {t("Sign in")}
               </Link>
               <Link
                 to="/auth"
                 className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               >
-                Start free
+                {t("Start free")}
               </Link>
             </>
           )}
@@ -71,7 +75,7 @@ export function SiteHeader() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? (isArabic ? "إغلاق القائمة" : "Close menu") : isArabic ? "فتح القائمة" : "Open menu"}
           aria-expanded={open}
           className="rounded-md border border-border p-2 lg:hidden"
         >
@@ -80,7 +84,8 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="border-t border-border bg-panel px-4 py-3 lg:hidden" aria-label="Mobile">
+        <nav className="border-t border-border bg-panel px-4 py-3 lg:hidden" aria-label={isArabic ? "قائمة الهاتف" : "Mobile"}>
+          <div className="mb-3 flex justify-end"><LanguageToggle /></div>
           <ul className="space-y-1">
             {NAV.map((item) => (
               <li key={item.to}>
@@ -89,7 +94,7 @@ export function SiteHeader() {
                   onClick={() => setOpen(false)}
                   className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               </li>
             ))}
@@ -99,7 +104,7 @@ export function SiteHeader() {
             onClick={() => setOpen(false)}
             className="mt-3 block rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
           >
-            {!loading && user ? "Open dashboard" : "Start free"}
+            {t(!loading && user ? "Open dashboard" : "Start free")}
           </Link>
         </nav>
       )}

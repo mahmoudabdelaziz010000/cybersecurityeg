@@ -125,13 +125,28 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   ::selection {
     background: var(--signal);
     color: var(--signal-foreground);
   }
+}
+
+html[dir="rtl"] body {
+  font-family: "Noto Sans Arabic", "Tahoma", var(--font-sans);
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4 {
+  font-family: "Noto Sans Arabic", "Tahoma", var(--font-display);
+}
+
+html[dir="rtl"] .label-mono {
+  letter-spacing: 0;
 }
 
 @utility surface {
