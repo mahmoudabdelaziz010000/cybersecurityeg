@@ -273,8 +273,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const title = document.title;
     if (language === "ar") document.title = translateText(title);
     document.querySelectorAll<HTMLMetaElement>('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[name="twitter:title"], meta[name="twitter:description"]').forEach((meta) => {
-      const original = meta.dataset.originalContent ?? meta.content;
-      meta.dataset.originalContent = original;
+      const original = meta.dataset["originalContent"] ?? meta.content;
+      meta.dataset["originalContent"] = original;
       meta.content = language === "ar" ? translateText(original) : original;
     });
 
