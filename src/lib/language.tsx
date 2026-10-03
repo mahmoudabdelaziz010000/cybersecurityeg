@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 
 export type Language = "en" | "ar";
 
@@ -298,6 +299,7 @@ export function translateText(text: string): string {
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
   const originals = useRef(new Map<Text, string>());
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   useEffect(() => {
     const stored = window.localStorage.getItem("sentinelgrid-language");
@@ -308,7 +310,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem("sentinelgrid-language", language);
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-  }, [language]);
+  }, [language, pathname]);
 
   useEffect(() => {
     const translateNode = (node: Node) => {
