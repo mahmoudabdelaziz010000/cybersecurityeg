@@ -3,9 +3,9 @@ import { Check } from "lucide-react";
 import { ADD_ONS, FAQS, TIERS } from "@/lib/pricing";
 import { useLanguage } from "@/lib/language";
 
-const TITLE = "Pricing — Free OSINT Tier, Team SOC & Enterprise | SentinelGrid";
+const TITLE = "Pricing — Free OSINT Scanning | SentinelGrid";
 const DESCRIPTION =
-  "Transparent security tooling pricing: free forever for 25 scans a month, $149/mo for a full SOC workspace, custom enterprise terms. Credit packs and monitoring add-ons included.";
+  "Start free with 25 passive OSINT scans a month — every keyless connector included, no credit card required. Credit packs and monitoring add-ons available.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -47,24 +47,19 @@ function Pricing() {
           <p className="label-mono">Pricing</p>
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Priced by volume, not by seat panic</h1>
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Start free with every keyless connector. Upgrade when triage becomes a daily habit rather
-            than an occasional errand.
+            Start free with every keyless connector. Credit packs and add-ons are available whenever
+            your scan volume grows.
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <div className="grid gap-5 lg:grid-cols-3">
-          {TIERS.map((t) => (
+        <div className="mx-auto grid max-w-md gap-5">
+          {TIERS.filter((t) => t.id === "recon").map((t) => (
             <article
               key={t.id}
-              className={`flex flex-col p-7 ${t.featured ? "surface-raised ring-1 ring-primary/40" : "surface"}`}
+              className="flex flex-col p-7 surface"
             >
-              {t.featured && (
-                <span className="mb-4 w-fit rounded-full bg-primary px-2.5 py-0.5 font-mono text-[10px] tracking-wider text-primary-foreground uppercase">
-                  Most popular
-                </span>
-              )}
               <h2 className="font-display text-lg font-semibold">{t.name}</h2>
               <p className="mt-3">
                 <span className="font-display text-4xl font-semibold">{t.price}</span>{" "}
@@ -83,14 +78,10 @@ function Pricing() {
               </ul>
 
               <Link
-                to={t.id === "recon" ? "/osint" : t.id === "team" ? "/billing" : "/contact"}
-                className={`mt-7 rounded-md px-4 py-2.5 text-center text-sm font-semibold ${
-                  t.featured
-                    ? "bg-primary text-primary-foreground hover:opacity-90"
-                    : "border border-border hover:bg-accent"
-                }`}
+                to="/osint"
+                className="mt-7 rounded-md px-4 py-2.5 text-center text-sm font-semibold border border-border hover:bg-accent"
               >
-                {t.id === "recon" ? translate("Start scanning") : t.cta}
+                {translate("Start scanning")}
               </Link>
             </article>
           ))}
@@ -133,18 +124,6 @@ function Pricing() {
           ))}
         </dl>
 
-        <div className="surface-raised mt-12 p-8 text-center">
-          <h2 className="font-display text-xl font-semibold">Need a quote for a regulated estate?</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enterprise terms cover SSO, data residency, custom connectors and an uptime SLA.
-          </p>
-          <Link
-            to="/contact"
-            className="mt-6 inline-flex rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-          >
-            Talk to sales
-          </Link>
-        </div>
       </section>
     </div>
   );
