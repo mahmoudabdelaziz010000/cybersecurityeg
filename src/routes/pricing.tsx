@@ -47,8 +47,8 @@ function Pricing() {
           <p className="label-mono">Pricing</p>
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Priced by volume, not by seat panic</h1>
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Start free with every keyless connector. Upgrade when triage becomes a daily habit rather
-            than an occasional errand.
+            Start free with every keyless connector. Credit packs and add-ons are available whenever
+            your scan volume grows.
           </p>
         </div>
       </section>
