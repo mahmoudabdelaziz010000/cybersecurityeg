@@ -40,7 +40,7 @@ const SECTIONS = [
   },
   {
     h: "How to request",
-    p: "Email the billing address on your invoice or use the contact form and select Support. Refunds are issued to the original payment method within 10 business days.",
+    p: "Email the billing address on your invoice or contact Support. Refunds are issued to the original payment method within 10 business days.",
   },
 ];
 
