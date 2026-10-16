@@ -149,6 +149,13 @@ html[dir="rtl"] .label-mono {
   letter-spacing: 0;
 }
 
+html[dir="rtl"] .lucide-arrow-right,
+html[dir="rtl"] .lucide-chevron-right,
+html[dir="rtl"] .lucide-arrow-left,
+html[dir="rtl"] .lucide-chevron-left {
+  transform: scaleX(-1);
+}
+
 @utility surface {
   background-color: var(--panel);
   border: 1px solid var(--border);
