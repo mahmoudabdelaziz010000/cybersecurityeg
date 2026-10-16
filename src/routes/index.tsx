@@ -237,7 +237,7 @@ function Home() {
           </div>
 
           {TIERS.filter((t) => t.id === "recon").map((t) => (
-            <article key={t.id} className="surface-raised mt-10 max-w-2xl p-7 ring-1 ring-primary/40">
+            <article key={t.id} className="surface-raised mx-auto mt-10 max-w-2xl p-7 ring-1 ring-primary/40">
               <div className="flex flex-wrap items-baseline justify-between gap-3">
                 <h3 className="font-display text-lg font-semibold">{t.name}</h3>
                 <p className="flex items-baseline gap-2">
