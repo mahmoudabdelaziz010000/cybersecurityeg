@@ -5,3 +5,4 @@
 - [x] Remove the contact submission form and keep the five information sections.
 - [x] Make the free Recon pricing action open scanning without requiring sign-in.
 - [x] Verify desktop and mobile behavior and metadata.
+- [x] Remove the Team SOC pricing teaser from the home page and the StreamPay payment wording from the pricing page.
