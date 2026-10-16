@@ -93,11 +93,11 @@ function Pricing() {
           <h2 className="label-mono">Add-ons</h2>
           <p className="mt-3 font-display text-3xl font-semibold">Attach revenue to what you use</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Buy any add-on or credit pack from{" "}
-            <Link to="/billing" className="text-primary hover:underline">
-              your billing page
+            Add-ons and credit packs are rolling out.{" "}
+            <Link to="/contact" className="text-primary hover:underline">
+              Tell us what you need
             </Link>{" "}
-            — checkout is handled securely by StreamPay.
+            and we can arrange it for you.
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {ADD_ONS.map((a) => (
