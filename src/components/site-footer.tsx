@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShieldHalf } from "lucide-react";
+import { Facebook, ShieldHalf } from "lucide-react";
 import { useLanguage } from "@/lib/language";
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
@@ -46,6 +46,15 @@ export function SiteFooter() {
           <p className="mt-4 max-w-xs text-sm text-muted-foreground">
             {t("Passive OSINT, attack-surface monitoring and decision-ready automation for security teams that are drowning in alerts.")}
           </p>
+          <a
+            href="https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Facebook className="size-4 text-primary" aria-hidden="true" />
+            {t("SentinelGrid on Facebook")}
+          </a>
         </div>
 
         {COLUMNS.map((col) => (

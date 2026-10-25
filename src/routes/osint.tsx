@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Download, Loader2, Play } from "lucide-react";
+import { Download, Facebook, Loader2, Play } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import type { HubResult } from "@/lib/osint-catalog";
 import { runHubScan } from "@/lib/osint.functions";
@@ -145,6 +145,16 @@ function OsintHub() {
                 >
                   <Download className="size-3.5" aria-hidden="true" /> JSON
                 </button>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    "https://cybersecurityeg.lovable.app/osint?utm_source=facebook&utm_medium=share&utm_campaign=scan_result",
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent"
+                >
+                  <Facebook className="size-3.5" aria-hidden="true" /> Share
+                </a>
               </>
             )}
           </div>
