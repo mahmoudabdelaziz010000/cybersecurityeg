@@ -10,6 +10,7 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/workflows", label: "Automation Workflows" },
       { to: "/attack-surface", label: "Attack Surface Monitoring" },
       { to: "/threat-intel", label: "Threat Intelligence" },
+      { to: "/recon-guide", label: "Web Recon Guide" },
     ],
   },
   {

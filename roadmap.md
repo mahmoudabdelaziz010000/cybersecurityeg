@@ -6,3 +6,5 @@
 - [x] Make the free Recon pricing action open scanning without requiring sign-in.
 - [x] Verify desktop and mobile behavior and metadata.
 - [x] Remove the Team SOC pricing teaser from the home page and the StreamPay payment wording from the pricing page.
+- [x] Add the Advanced Web Reconnaissance guide page (/recon-guide) with Facebook follow/share calls to action, and list it in the sitemap and footer.
+- [x] Lock `plan_id` from user writes; add Facebook follow link, share button and OG image.

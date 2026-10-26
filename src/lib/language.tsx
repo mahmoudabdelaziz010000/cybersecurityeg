@@ -152,6 +152,7 @@ const ARABIC: Record<string, string> = {
   "Phone / WhatsApp": "هاتف / واتساب",
   "SentinelGrid on Facebook": "SentinelGrid على Facebook",
   "Share": "مشاركة",
+  "Web Recon Guide": "دليل الاستطلاع على الويب",
   "Free Recon plan": "خطة Recon المجانية",
   "Start scanning": "ابدأ الفحص",
   "No account or payment required": "لا تحتاج إلى حساب أو وسيلة دفع",
