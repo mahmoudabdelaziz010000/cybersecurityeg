@@ -8,8 +8,6 @@ export interface QuotaStatus {
   maxTargetsPerRun: number;
   used: number;
   remaining: number | null;
-  /** Purchased scan credits usable once the plan allowance runs out. */
-  credits: number;
   periodResetsAt: string;
 }
 
@@ -49,9 +47,6 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
   const used = count ?? 0;
   const monthlyScanLimit = plan?.monthly_scan_limit ?? null;
 
-  const { getCreditBalance } = await import("./billing.server");
-  const credits = await getCreditBalance(userId);
-
   return {
     planId,
     planName: plan?.name ?? "Recon",
@@ -59,7 +54,6 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
     maxTargetsPerRun: plan?.max_targets_per_run ?? GUEST_MAX_TARGETS_PER_RUN,
     used,
     remaining: monthlyScanLimit === null ? null : Math.max(0, monthlyScanLimit - used),
-    credits,
     periodResetsAt: startOfNextMonthUtc().toISOString(),
   };
 }
@@ -90,13 +84,13 @@ export async function authorizeScan(
 
   if (requestedTargets > quota.maxTargetsPerRun) {
     throw new Error(
-      `Your ${quota.planName} plan allows ${quota.maxTargetsPerRun} targets per run. Upgrade for larger batches.`,
+      `Your ${quota.planName} plan allows ${quota.maxTargetsPerRun} targets per run.`,
     );
   }
 
-  if (quota.remaining !== null && requestedTargets > quota.remaining + quota.credits) {
+  if (quota.remaining !== null && requestedTargets > quota.remaining) {
     throw new Error(
-      `Monthly scan quota reached (${quota.used}/${quota.monthlyScanLimit}). It resets on the 1st — buy a credit pack or upgrade your plan to keep scanning now.`,
+      `Monthly scan quota reached (${quota.used}/${quota.monthlyScanLimit}). It resets on the 1st.`,
     );
   }
 
@@ -115,15 +109,5 @@ export async function recordScanRuns(userId: string | null, runs: ScanRunRecord[
   if (!userId || !runs.length) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // Anything above the plan allowance is paid for with purchased credits.
-  const before = await getQuotaStatus(userId);
   await supabaseAdmin.from("scan_runs").insert(runs.map((r) => ({ ...r, user_id: userId })));
-
-  if (before.remaining !== null) {
-    const overage = Math.max(0, runs.length - before.remaining);
-    if (overage > 0) {
-      const { consumeCredits } = await import("./billing.server");
-      await consumeCredits(userId, Math.min(overage, before.credits), "Scan overage");
-    }
-  }
 }

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 const TITLE = "Terms of Service | SentinelGrid";
 const DESCRIPTION =
-  "Acceptable use, passive-collection limits, subscription terms and liability for the SentinelGrid OSINT platform.";
+  "Acceptable use, passive-collection limits and liability for the SentinelGrid OSINT platform.";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -33,10 +33,6 @@ const SECTIONS = [
   {
     h: "Accuracy",
     p: "Results are derived from third-party public sources and reflect what those sources published at query time. Verdicts are decision support, not a warranty about a target's security.",
-  },
-  {
-    h: "Subscriptions",
-    p: "Paid plans renew monthly unless cancelled. Usage above your plan's scan allowance is either throttled or drawn from credit packs, at your choice.",
   },
   {
     h: "Liability",
