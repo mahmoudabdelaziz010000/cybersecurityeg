@@ -21,11 +21,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/attack-surface", changefreq: "monthly", priority: "0.8" },
           { path: "/threat-intel", changefreq: "daily", priority: "0.8" },
           { path: "/recon-guide", changefreq: "monthly", priority: "0.8" },
-          { path: "/pricing", changefreq: "monthly", priority: "0.8" },
           { path: "/contact", changefreq: "yearly", priority: "0.5" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
-          { path: "/refund", changefreq: "yearly", priority: "0.3" },
         ];
 
         const urls = entries.map((e) =>

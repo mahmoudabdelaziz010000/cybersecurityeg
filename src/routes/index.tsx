@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Activity, ArrowRight, Boxes, Check, GitBranch, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
+import { Activity, ArrowRight, Boxes, GitBranch, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import { PLAYBOOKS } from "@/lib/playbooks";
-import { TIERS } from "@/lib/pricing";
 
 const TITLE = "SentinelGrid — OSINT Data Hub & Attack Surface Intelligence";
 const DESCRIPTION =
@@ -112,12 +111,6 @@ function Home() {
               >
                 Run a free scan <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
-              <Link
-                to="/pricing"
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-panel px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
-              >
-                See pricing
-              </Link>
             </div>
 
             <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-6 sm:grid-cols-4">
@@ -221,49 +214,6 @@ function Home() {
         >
           Explore workflows <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
-      </section>
-
-      {/* Free plan */}
-      <section className="border-t border-border bg-panel">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 className="label-mono">Pricing</h2>
-              <p className="mt-3 font-display text-3xl font-semibold">Free to start, no card required</p>
-            </div>
-            <Link to="/pricing" className="text-sm font-medium text-primary hover:underline">
-              See the full plan details →
-            </Link>
-          </div>
-
-          {TIERS.filter((t) => t.id === "recon").map((t) => (
-            <article key={t.id} className="surface-raised mx-auto mt-10 max-w-2xl p-7 ring-1 ring-primary/40">
-              <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <h3 className="font-display text-lg font-semibold">{t.name}</h3>
-                <p className="flex items-baseline gap-2">
-                  <span className="font-display text-3xl font-semibold">{t.price}</span>{" "}
-                  <span className="text-xs text-muted-foreground">{t.cadence}</span>
-                </p>
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">{t.pitch}</p>
-              <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
-                {t.features.map((f) => (
-                  <li key={f} className="flex gap-2 text-sm">
-                    <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 font-mono text-[11px] text-muted-foreground">{t.limits}</p>
-              <Link
-                to="/osint"
-                className="mt-7 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                Run a free scan <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </article>
-          ))}
-        </div>
       </section>
 
       {/* Closing CTA */}

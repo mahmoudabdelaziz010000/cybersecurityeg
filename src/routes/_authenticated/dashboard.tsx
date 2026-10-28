@@ -8,9 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { VerdictBadge } from "@/components/verdict-badge";
 import type { Verdict } from "@/lib/osint-catalog";
 
-const TITLE = "Analyst Dashboard — Plan, Scan Quota & History | SentinelGrid";
+const TITLE = "Analyst Dashboard — Scan Quota & History | SentinelGrid";
 const DESCRIPTION =
-  "Track your monthly scan quota, plan limits and the full history of OSINT lookups and playbook runs in your SentinelGrid workspace.";
+  "Track your monthly scan quota and the full history of OSINT lookups and playbook runs in your SentinelGrid workspace.";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -116,30 +116,13 @@ function Dashboard() {
         </article>
 
         <article className="surface p-6">
-          <h2 className="label-mono">Current plan</h2>
+          <h2 className="label-mono">Scan allowance</h2>
           <p className="mt-3 font-display text-2xl font-semibold">{quota.planName}</p>
           <p className="mt-2 text-sm text-muted-foreground">
             {quota.remaining === null
               ? "Unlimited scans on your agreement."
               : `${quota.remaining} scans left this period.`}
           </p>
-          <p className="mt-1 font-mono text-xs text-muted-foreground">
-            {quota.credits.toLocaleString()} purchased credits in reserve
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              to="/billing"
-              className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-            >
-              Upgrade or buy credits
-            </Link>
-            <Link
-              to="/pricing"
-              className="inline-flex rounded-md border border-border px-4 py-2 text-sm hover:bg-accent"
-            >
-              Compare plans
-            </Link>
-          </div>
         </article>
       </section>
 

@@ -16,7 +16,6 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   {
     title: "Company",
     links: [
-      { to: "/pricing", label: "Pricing" },
       { to: "/contact", label: "Contact" },
     ],
   },
@@ -25,7 +24,6 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
     links: [
       { to: "/privacy", label: "Privacy Policy" },
       { to: "/terms", label: "Terms of Service" },
-      { to: "/refund", label: "Refund Policy" },
     ],
   },
 ];
