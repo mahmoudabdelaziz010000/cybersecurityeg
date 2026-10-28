@@ -6,8 +6,6 @@ import { Download, Facebook, Loader2, Play } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import type { HubResult } from "@/lib/osint-catalog";
 import { runHubScan } from "@/lib/osint.functions";
-import { useSession } from "@/hooks/use-session";
-import { Link } from "@tanstack/react-router";
 import { VerdictBadge } from "@/components/verdict-badge";
 
 const TITLE = "OSINT Data Hub — Multi-Source Indicator Lookup | SentinelGrid";
@@ -50,7 +48,6 @@ function download(name: string, content: string, mime: string) {
 
 function OsintHub() {
   const scan = useServerFn(runHubScan);
-  const { user } = useSession();
   const [targets, setTargets] = useState("8.8.8.8\nexample.com");
   const [selected, setSelected] = useState<string[]>(SOURCE_CATALOG.map((s) => s.id));
   const [openTarget, setOpenTarget] = useState<string | null>(null);
@@ -86,16 +83,6 @@ function OsintHub() {
           registries, DNS, certificate transparency and published HTTP responses only.
         </p>
       </header>
-
-      {!user && (
-        <p className="surface mt-6 p-4 text-sm text-muted-foreground">
-          You're scanning as a guest — limited to 2 targets per run and no saved history.{" "}
-          <Link to="/auth" className="text-primary hover:underline">
-            Create a free account
-          </Link>{" "}
-          for 25 scans a month, bulk runs and evidence history.
-        </p>
-      )}
 
       <form onSubmit={submit} className="mt-10 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <div className="surface-raised p-5">

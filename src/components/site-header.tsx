@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, Menu, ShieldHalf, X } from "lucide-react";
+import { Menu, ShieldHalf, X } from "lucide-react";
 import { useState } from "react";
-import { useSession } from "@/hooks/use-session";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/lib/language";
 
@@ -16,7 +15,6 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { user, loading } = useSession();
   const { t, isArabic } = useLanguage();
 
   return (
@@ -46,29 +44,6 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-2 lg:flex">
           <LanguageToggle />
-          {!loading && user ? (
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              <LayoutDashboard className="size-4" aria-hidden="true" /> {t("Dashboard")}
-            </Link>
-          ) : (
-            <>
-              <Link
-                to="/auth"
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {t("Sign in")}
-              </Link>
-              <Link
-                to="/auth"
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                {t("Start free")}
-              </Link>
-            </>
-          )}
         </div>
 
         <button
@@ -98,13 +73,6 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <Link
-            to={!loading && user ? "/dashboard" : "/auth"}
-            onClick={() => setOpen(false)}
-            className="mt-3 block rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
-          >
-            {t(!loading && user ? "Open dashboard" : "Start free")}
-          </Link>
         </nav>
       )}
     </header>

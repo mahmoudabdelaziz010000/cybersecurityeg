@@ -74,7 +74,7 @@ export async function authorizeScan(
   if (!userId) {
     if (requestedTargets > GUEST_MAX_TARGETS_PER_RUN) {
       throw new Error(
-        `Sign in to scan more than ${GUEST_MAX_TARGETS_PER_RUN} targets at once — free accounts include 25 scans a month.`,
+        `You can scan up to ${GUEST_MAX_TARGETS_PER_RUN} targets per run.`,
       );
     }
     return { userId: null, allowedTargets: GUEST_MAX_TARGETS_PER_RUN };

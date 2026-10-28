@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, Loader2, ShieldAlert, Play } from "lucide-react";
@@ -12,7 +12,6 @@ import {
   type Severity,
 } from "@/lib/owasp-catalog";
 import { recordOwaspScan, runOwaspCheck, startOwaspScan } from "@/lib/owasp.functions";
-import { useSession } from "@/hooks/use-session";
 
 const TITLE = "OWASP Web Security Scanner — Headers, CORS, Injection | SentinelGrid";
 const DESCRIPTION =
@@ -121,7 +120,6 @@ function OwaspScanner() {
   const start = useServerFn(startOwaspScan);
   const check = useServerFn(runOwaspCheck);
   const record = useServerFn(recordOwaspScan);
-  const { user } = useSession();
 
   const [target, setTarget] = useState("example.com");
   const [running, setRunning] = useState(false);
@@ -212,16 +210,6 @@ function OwaspScanner() {
           signatures. Every finding comes back severity-ranked with the fix.
         </p>
       </header>
-
-      {!user && (
-        <p className="surface mt-6 p-4 text-sm text-muted-foreground">
-          You're scanning as a guest — results aren't saved.{" "}
-          <Link to="/auth" className="text-primary hover:underline">
-            Create a free account
-          </Link>{" "}
-          to keep a history of every scan.
-        </p>
-      )}
 
       <form onSubmit={runScan} className="surface-raised mt-8 p-5">
         <label htmlFor="owasp-target" className="label-mono">

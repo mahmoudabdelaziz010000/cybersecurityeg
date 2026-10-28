@@ -9,3 +9,4 @@
 - [x] Add the Advanced Web Reconnaissance guide page (/recon-guide) with Facebook follow/share calls to action, and list it in the sitemap and footer.
 - [x] Lock `plan_id` from user writes; add Facebook follow link, share button and OG image.
 - [x] Remove all finance features: billing, checkout (StreamPay), pricing, refund policy, scan credits and related navigation, sitemap and translation entries.
+- [x] Remove all login options: sign in, sign up, Start free, Google login, the account dashboard and guest-account banners. Scans are open to everyone.
