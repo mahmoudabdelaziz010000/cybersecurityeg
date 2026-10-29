@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { FacebookCta } from "@/components/facebook-cta";
 import { LanguageProvider } from "@/lib/language";
 import { FACEBOOK_PAGE_URL, SITE_URL } from "@/lib/seo";
 
@@ -82,6 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0a1218" },
       { property: "og:site_name", content: "SentinelGrid" },
       { property: "og:locale", content: "en_US" },
+      { property: "article:publisher", content: FACEBOOK_PAGE_URL },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
       { name: "yandex-verification", content: "ca5f786b3a2a1c14" },
@@ -160,6 +162,7 @@ function RootComponent() {
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </main>
+          <FacebookCta />
           <SiteFooter />
         </div>
       </LanguageProvider>

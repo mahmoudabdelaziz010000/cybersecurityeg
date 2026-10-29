@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, ogImageMeta } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/workflows")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/workflows") },
+      ...ogImageMeta("workflows", "SentinelGrid automation playbooks: triage in under 60 seconds"),
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],

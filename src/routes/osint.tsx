@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, facebookShareUrl, ogImageMeta } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/osint")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/osint") },
+      ...ogImageMeta("osint", "SentinelGrid OSINT Data Hub: check any IP or domain across five sources"),
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
@@ -134,9 +135,7 @@ function OsintHub() {
                   <Download className="size-3.5" aria-hidden="true" /> JSON
                 </button>
                 <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                    "https://cybersecurityeg.lovable.app/osint?utm_source=facebook&utm_medium=share&utm_campaign=scan_result",
-                  )}`}
+                  href={facebookShareUrl("/osint", "scan_result")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent"

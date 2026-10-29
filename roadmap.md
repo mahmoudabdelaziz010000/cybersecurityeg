@@ -11,3 +11,4 @@
 - [x] Remove all finance features: billing, checkout (StreamPay), pricing, refund policy, scan credits and related navigation, sitemap and translation entries.
 - [x] Remove all login options: sign in, sign up, Start free, Google login, the account dashboard and guest-account banners. Scans are open to everyone.
 - [x] SEO pass: absolute canonical and og:url on every page, shorter keyword-focused titles and descriptions, Organization and WebSite structured data, robots and theme-color meta, and removal of stale free-tier claims.
+- [x] Facebook traffic pass: link to the real Page (facebook.com/cybersecurityeg), Follow and Share strip on every public page with UTM-tagged share links, article:publisher meta, and a distinct share card per key page.

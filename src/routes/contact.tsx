@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, FACEBOOK_PAGE_URL } from "@/lib/seo";
 import { Clock3, Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
 import { useLanguage } from "@/lib/language";
 
@@ -90,7 +90,7 @@ function Contact() {
               <li className="flex items-center gap-2">
                 <Facebook className="size-4 text-primary" aria-hidden="true" />
                 <a
-                  href="https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr"
+                  href={FACEBOOK_PAGE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"

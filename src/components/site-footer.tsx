@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, ShieldHalf } from "lucide-react";
 import { useLanguage } from "@/lib/language";
+import { FACEBOOK_PAGE_URL } from "@/lib/seo";
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   {
@@ -46,7 +47,7 @@ export function SiteFooter() {
             {t("Passive OSINT, attack-surface monitoring and decision-ready automation for security teams that are drowning in alerts.")}
           </p>
           <a
-            href="https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr"
+            href={FACEBOOK_PAGE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"

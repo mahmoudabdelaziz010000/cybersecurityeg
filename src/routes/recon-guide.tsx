@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Facebook, ShieldCheck, TriangleAlert } from "lucide-react";
+import { FACEBOOK_PAGE_URL, SITE_URL as SITE, facebookShareUrl, ogImageMeta } from "@/lib/seo";
 
-const SITE = "https://cybersecurityeg.lovable.app";
-const FACEBOOK_PAGE = "https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr";
 const TITLE = "Web Reconnaissance Guide for Kali Linux | SentinelGrid";
 const DESCRIPTION =
   "A 10-step web reconnaissance guide for Kali Linux: passive OSINT, subdomain enumeration, live hosts, hidden paths and reporting. Authorized testing only.";
@@ -100,6 +99,7 @@ export const Route = createFileRoute("/recon-guide")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { property: "og:url", content: `${SITE}/recon-guide` },
+      ...ogImageMeta("recon-guide", "Web reconnaissance on Kali Linux: a 10-step guide from SentinelGrid"),
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
@@ -126,9 +126,7 @@ export const Route = createFileRoute("/recon-guide")({
 });
 
 function ReconGuide() {
-  const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-    `${SITE}/recon-guide?utm_source=facebook&utm_medium=share&utm_campaign=recon_guide`,
-  )}`;
+  const shareUrl = facebookShareUrl("/recon-guide", "recon_guide");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
@@ -147,7 +145,7 @@ function ReconGuide() {
             Run a free passive scan
           </Link>
           <a
-            href={FACEBOOK_PAGE}
+            href={FACEBOOK_PAGE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm font-medium hover:bg-accent"

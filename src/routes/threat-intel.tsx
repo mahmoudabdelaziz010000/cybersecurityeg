@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, ogImageMeta } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/threat-intel")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/threat-intel") },
+      ...ogImageMeta("threat-intel", "SentinelGrid threat intelligence: CVEs disclosed in the last 72 hours"),
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],

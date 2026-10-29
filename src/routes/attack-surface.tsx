@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, ogImageMeta } from "@/lib/seo";
 import { AlertTriangle, Fingerprint, Globe2, Lock, Radar, ServerCog } from "lucide-react";
 
 const TITLE = "Attack Surface Monitoring for External Assets | SentinelGrid";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/attack-surface")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/attack-surface") },
+      ...ogImageMeta("attack-surface", "SentinelGrid attack surface monitoring: see your estate the way attackers do"),
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],

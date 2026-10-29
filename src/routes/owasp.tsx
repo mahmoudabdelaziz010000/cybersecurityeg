@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, ogImageMeta } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, Loader2, ShieldAlert, Play } from "lucide-react";
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/owasp")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/owasp") },
+      ...ogImageMeta("owasp", "SentinelGrid OWASP scanner: ten checks, fixes included"),
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
