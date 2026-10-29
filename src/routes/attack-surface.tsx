@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { AlertTriangle, Fingerprint, Globe2, Lock, Radar, ServerCog } from "lucide-react";
 
 const TITLE = "Attack Surface Monitoring for External Assets | SentinelGrid";
 const DESCRIPTION =
-  "Continuously map internet-facing hosts, open ports, known CVEs, certificate sprawl and missing security headers — and get alerted on the change, not the inventory.";
+  "Map internet-facing hosts, open ports, known CVEs, certificate sprawl and missing security headers — and get alerted on the change, not the inventory.";
 
 export const Route = createFileRoute("/attack-surface")({
   head: () => ({
@@ -13,11 +14,11 @@ export const Route = createFileRoute("/attack-surface")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/attack-surface" },
+      { property: "og:url", content: absoluteUrl("/attack-surface") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/attack-surface" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/attack-surface") }],
   }),
   component: AttackSurface,
 });

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,7 +9,7 @@ import type { HubResult } from "@/lib/osint-catalog";
 import { runHubScan } from "@/lib/osint.functions";
 import { VerdictBadge } from "@/components/verdict-badge";
 
-const TITLE = "OSINT Data Hub — Multi-Source Indicator Lookup | SentinelGrid";
+const TITLE = "Free OSINT Lookup Tool for IPs & Domains | SentinelGrid";
 const DESCRIPTION =
   "Look up an IP or domain across Shodan InternetDB, RDAP, DNS, certificate transparency and HTTP security headers at once. Free, keyless, passive OSINT.";
 
@@ -20,11 +21,11 @@ export const Route = createFileRoute("/osint")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/osint" },
+      { property: "og:url", content: absoluteUrl("/osint") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/osint" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/osint") }],
   }),
   component: OsintHub,
 });

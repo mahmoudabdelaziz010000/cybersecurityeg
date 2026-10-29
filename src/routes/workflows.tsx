@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -7,9 +8,9 @@ import { PLAYBOOKS } from "@/lib/playbooks";
 import { runPlaybook } from "@/lib/workflows.functions";
 import { VerdictBadge } from "@/components/verdict-badge";
 
-const TITLE = "Security Automation Workflows & Triage Playbooks | SentinelGrid";
+const TITLE = "Security Automation Playbooks for SOC Triage | SentinelGrid";
 const DESCRIPTION =
-  "Run automated OSINT playbooks for phishing triage, vendor due diligence, attack-surface review and incident enrichment — each returns a recommendation with evidence.";
+  "Automated OSINT playbooks for phishing triage, vendor due diligence, attack-surface review and incident enrichment — each ends in a clear recommendation.";
 
 export const Route = createFileRoute("/workflows")({
   head: () => ({
@@ -19,11 +20,11 @@ export const Route = createFileRoute("/workflows")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/workflows" },
+      { property: "og:url", content: absoluteUrl("/workflows") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/workflows" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/workflows") }],
     scripts: [
       {
         type: "application/ld+json",

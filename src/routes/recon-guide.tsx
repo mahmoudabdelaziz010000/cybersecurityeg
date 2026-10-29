@@ -3,9 +3,9 @@ import { Facebook, ShieldCheck, TriangleAlert } from "lucide-react";
 
 const SITE = "https://cybersecurityeg.lovable.app";
 const FACEBOOK_PAGE = "https://www.facebook.com/share/1CPDRXEYMG/?mibextid=wwXIfr";
-const TITLE = "Advanced Web Reconnaissance — Step-by-Step Guide (Kali Linux) | SentinelGrid";
+const TITLE = "Web Reconnaissance Guide for Kali Linux | SentinelGrid";
 const DESCRIPTION =
-  "A 10-step guide to web reconnaissance on Kali Linux: passive OSINT, subdomain enumeration, live host filtering, hidden paths, technology detection and reporting. For authorized testing and defense only.";
+  "A 10-step web reconnaissance guide for Kali Linux: passive OSINT, subdomain enumeration, live hosts, hidden paths and reporting. Authorized testing only.";
 
 interface Step {
   title: string;

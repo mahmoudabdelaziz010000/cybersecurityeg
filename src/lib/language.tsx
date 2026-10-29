@@ -156,7 +156,7 @@ const ARABIC: Record<string, string> = {
   "Try again": "حاول مرة أخرى",
   "Go home": "العودة للرئيسية",
   "SentinelGrid — OSINT Data Hub & Attack Surface Intelligence": "SentinelGrid — مركز OSINT ومعلومات سطح الهجوم",
-  "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free tier, no API keys, evidence-first output.": "نفّذ عمليات بحث OSINT سلبية عبر خمسة مصادر بلا مفاتيح، وأتمت مسارات الفرز وراقب سطح الهجوم. خطة مجانية بلا مفاتيح API ونتائج مدعومة بالأدلة.",
+  "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free, no signup, no API keys.": "نفّذ عمليات بحث OSINT سلبية عبر خمسة مصادر بلا مفاتيح، وأتمت مسارات الفرز وراقب سطح الهجوم. مجاني وبلا تسجيل وبلا مفاتيح API.",
   "Contact SentinelGrid — Sales, Support & Security Reports": "تواصل مع SentinelGrid — المبيعات والدعم والبلاغات الأمنية",
   "Talk to the SentinelGrid team about Enterprise terms, managed triage retainers, custom connectors or responsible disclosure.": "تواصل مع فريق SentinelGrid بشأن خطط المؤسسات أو الدعم أو المصادر المخصصة أو الإبلاغ المسؤول.",
   "Privacy Policy | SentinelGrid": "سياسة الخصوصية | SentinelGrid",

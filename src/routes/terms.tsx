@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 
 const TITLE = "Terms of Service | SentinelGrid";
 const DESCRIPTION =
@@ -12,11 +13,11 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/terms" },
+      { property: "og:url", content: absoluteUrl("/terms") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/terms" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/terms") }],
   }),
   component: Terms,
 });

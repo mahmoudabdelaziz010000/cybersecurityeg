@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, Loader2, ShieldAlert, Play } from "lucide-react";
@@ -13,9 +14,9 @@ import {
 } from "@/lib/owasp-catalog";
 import { recordOwaspScan, runOwaspCheck, startOwaspScan } from "@/lib/owasp.functions";
 
-const TITLE = "OWASP Web Security Scanner — Headers, CORS, Injection | SentinelGrid";
+const TITLE = "Free OWASP Web Security Scanner Online | SentinelGrid";
 const DESCRIPTION =
-  "Scan any website against OWASP Top 10 checks: missing security headers, CORS misconfiguration, cookie flags, exposed files and injection signatures — with severity ranking and remediation code.";
+  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files and injection signatures — with severity ranking and fixes.";
 
 export const Route = createFileRoute("/owasp")({
   head: () => ({
@@ -25,12 +26,12 @@ export const Route = createFileRoute("/owasp")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/owasp" },
+      { property: "og:url", content: absoluteUrl("/owasp") },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/owasp" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/owasp") }],
     scripts: [
       {
         type: "application/ld+json",

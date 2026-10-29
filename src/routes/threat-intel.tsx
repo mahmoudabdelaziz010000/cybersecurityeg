@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, RefreshCw } from "lucide-react";
 import { getRecentCves } from "@/lib/cve.functions";
 import type { CveItem } from "@/lib/cve.server";
 
-const TITLE = "Threat Intelligence — Latest CVEs & Exposure Signals | SentinelGrid";
+const TITLE = "Latest CVE Feed & Vulnerability Intelligence | SentinelGrid";
 const DESCRIPTION =
   "A live feed of vulnerabilities disclosed in the last 72 hours, scored by CVSS, with a direct path from a CVE to whether your own exposed hosts are affected.";
 
@@ -17,11 +18,11 @@ export const Route = createFileRoute("/threat-intel")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/threat-intel" },
+      { property: "og:url", content: absoluteUrl("/threat-intel") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/threat-intel" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/threat-intel") }],
   }),
   component: ThreatIntel,
 });

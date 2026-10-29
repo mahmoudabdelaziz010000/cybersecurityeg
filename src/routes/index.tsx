@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/seo";
 import { Activity, ArrowRight, Boxes, GitBranch, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import { PLAYBOOKS } from "@/lib/playbooks";
 
 const TITLE = "SentinelGrid — OSINT Data Hub & Attack Surface Intelligence";
 const DESCRIPTION =
-  "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free tier, no API keys, evidence-first output.";
+  "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free, no signup, no API keys.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,11 +16,11 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: absoluteUrl("/") },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/") }],
     scripts: [
       {
         type: "application/ld+json",
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/")({
             "@type": "Offer",
             price: "0",
             priceCurrency: "USD",
-            description: "Free tier with 25 scans per month across all keyless connectors.",
+            description: "Free to use across all keyless connectors, with no signup.",
           },
         }),
       },

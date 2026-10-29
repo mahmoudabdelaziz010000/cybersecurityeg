@@ -10,3 +10,4 @@
 - [x] Lock `plan_id` from user writes; add Facebook follow link, share button and OG image.
 - [x] Remove all finance features: billing, checkout (StreamPay), pricing, refund policy, scan credits and related navigation, sitemap and translation entries.
 - [x] Remove all login options: sign in, sign up, Start free, Google login, the account dashboard and guest-account banners. Scans are open to everyone.
+- [x] SEO pass: absolute canonical and og:url on every page, shorter keyword-focused titles and descriptions, Organization and WebSite structured data, robots and theme-color meta, and removal of stale free-tier claims.

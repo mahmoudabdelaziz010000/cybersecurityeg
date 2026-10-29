@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LanguageProvider } from "@/lib/language";
+import { FACEBOOK_PAGE_URL, SITE_URL } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -77,15 +78,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
+      { name: "theme-color", content: "#0a1218" },
       { property: "og:site_name", content: "SentinelGrid" },
+      { property: "og:locale", content: "en_US" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
       { name: "yandex-verification", content: "ca5f786b3a2a1c14" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://cybersecurityeg.lovable.app/og-image.png" },
+      { property: "og:image", content: `${SITE_URL}/og-image.png` },
+      { property: "og:image:alt", content: "SentinelGrid — passive OSINT and attack-surface intelligence" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: "https://cybersecurityeg.lovable.app/og-image.png" },
+      { name: "twitter:image", content: `${SITE_URL}/og-image.png` },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -106,7 +111,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "SentinelGrid",
           description:
             "OSINT data hub, attack-surface monitoring and security automation workflows.",
-          url: "/",
+          url: SITE_URL,
+          logo: `${SITE_URL}/og-image.png`,
+          sameAs: [FACEBOOK_PAGE_URL],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "SentinelGrid",
+          url: SITE_URL,
+          inLanguage: ["en", "ar"],
         }),
       },
     ],
