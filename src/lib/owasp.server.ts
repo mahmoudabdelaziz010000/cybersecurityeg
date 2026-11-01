@@ -612,7 +612,7 @@ async function checkMixedContent(url: string): Promise<Finding[]> {
   const refs = [
     ...new Set(
       [...page.html.matchAll(/(?:src|href)\s*=\s*["'](http:\/\/[^"']+)["']/gi)]
-        .map((m) => m[1])
+        .map((m) => m[1] ?? "")
         .filter((u) => !/w3\.org/i.test(u)),
     ),
   ].slice(0, 8);
