@@ -541,7 +541,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
   const out: Finding[] = [];
 
   const spf = (await txtRecords(apex)).filter((t) => /^v=spf1\b/i.test(t));
-  const spfRec = spf[0];
+  const spfRec = spf[0]!; // guarded by the !spf.length branch above
   if (!spf.length) {
     out.push(
       finding(
@@ -570,7 +570,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
   }
 
   const dmarc = (await txtRecords(`_dmarc.${apex}`)).filter((t) => /^v=DMARC1\b/i.test(t));
-  const dmarcRec = dmarc[0];
+  const dmarcRec = dmarc[0]!; // guarded by the !dmarc.length branch above
   if (!dmarc.length) {
     out.push(
       finding(
