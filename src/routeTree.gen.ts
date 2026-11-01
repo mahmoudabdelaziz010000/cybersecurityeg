@@ -15,6 +15,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OwaspRouteImport } from './routes/owasp'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReconGuideRouteImport } from './routes/recon-guide'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
@@ -50,6 +51,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReconGuideRoute = ReconGuideRouteImport.update({
+  id: '/recon-guide',
+  path: '/recon-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/osint': typeof OsintRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
+  '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/osint': typeof OsintRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
+  '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/osint': typeof OsintRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
+  '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/osint'
     | '/owasp'
     | '/privacy'
+    | '/recon-guide'
     | '/sitemap.xml'
     | '/terms'
     | '/threat-intel'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/osint'
     | '/owasp'
     | '/privacy'
+    | '/recon-guide'
     | '/sitemap.xml'
     | '/terms'
     | '/threat-intel'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/osint'
     | '/owasp'
     | '/privacy'
+    | '/recon-guide'
     | '/sitemap.xml'
     | '/terms'
     | '/threat-intel'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   OsintRoute: typeof OsintRoute
   OwaspRoute: typeof OwaspRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReconGuideRoute: typeof ReconGuideRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ThreatIntelRoute: typeof ThreatIntelRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recon-guide': {
+      id: '/recon-guide'
+      path: '/recon-guide'
+      fullPath: '/recon-guide'
+      preLoaderRoute: typeof ReconGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   OsintRoute: OsintRoute,
   OwaspRoute: OwaspRoute,
   PrivacyRoute: PrivacyRoute,
+  ReconGuideRoute: ReconGuideRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ThreatIntelRoute: ThreatIntelRoute,
