@@ -541,6 +541,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
   const out: Finding[] = [];
 
   const spf = (await txtRecords(apex)).filter((t) => /^v=spf1\b/i.test(t));
+  const spfRec = spf[0];
   if (!spf.length) {
     out.push(
       finding(
@@ -554,7 +555,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
         { lang: "dns", code: `${apex}. 3600 IN TXT "v=spf1 include:_spf.example.com -all"` },
       ),
     );
-  } else if (/\b[+~?]all\b/.test(spf[0])) {
+  } else if (/\b[+~?]all\b/.test(spfRec)) {
     out.push(
       finding(
         "weak-spf",
