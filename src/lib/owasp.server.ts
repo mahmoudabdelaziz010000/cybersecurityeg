@@ -562,7 +562,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
         "medium",
         "SPF record does not enforce a fail policy",
         "A05:2021 Security Misconfiguration",
-        spf[0],
+        spfRec,
         "SPF ending in +all or ?all permits every host on the internet to send mail as your domain — the record exists but protects nothing.",
         "End the record with -all (strict) or ~all (soft-fail) once the sending hosts are enumerated.",
       ),
@@ -570,6 +570,7 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
   }
 
   const dmarc = (await txtRecords(`_dmarc.${apex}`)).filter((t) => /^v=DMARC1\b/i.test(t));
+  const dmarcRec = dmarc[0];
   if (!dmarc.length) {
     out.push(
       finding(
@@ -583,14 +584,14 @@ async function checkEmailSec(url: string): Promise<Finding[]> {
         { lang: "dns", code: `_dmarc.${apex}. 3600 IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@${apex}"` },
       ),
     );
-  } else if (/p=none\b/i.test(dmarc[0])) {
+  } else if (dmarcRec && /p=none\b/i.test(dmarcRec)) {
     out.push(
       finding(
         "dmarc-monitor-only",
         "low",
         "DMARC policy is monitor-only (p=none)",
         "A05:2021 Security Misconfiguration",
-        dmarc[0],
+        dmarcRec,
         "With p=none, receiving servers still deliver spoofed mail; the record only reports it.",
         "Once reports confirm your legitimate mail aligns, raise the policy to quarantine or reject.",
       ),
