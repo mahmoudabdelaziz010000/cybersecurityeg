@@ -523,6 +523,142 @@ async function checkXss(url: string): Promise<Finding[]> {
   ];
 }
 
+/** Public TXT records for a name via DNS-over-HTTPS (no queries hit the target itself). */
+async function txtRecords(name: string): Promise<string[]> {
+  const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=TXT`, {
+    headers: { accept: "application/dns-json" },
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const json = (await res.json()) as { Answer?: { type: number; data: string }[] };
+  return (json.Answer ?? [])
+    .filter((a) => a.type === 16)
+    .map((a) => a.data.replace(/^"|"$/g, ""));
+}
+
+async function checkEmailSec(url: string): Promise<Finding[]> {
+  const host = new URL(url).hostname;
+  const apex = host.replace(/^www\./, "");
+  const out: Finding[] = [];
+
+  const spf = (await txtRecords(apex)).filter((t) => /^v=spf1\b/i.test(t));
+  if (!spf.length) {
+    out.push(
+      finding(
+        "no-spf",
+        "medium",
+        "No SPF record — anyone can send email as this domain",
+        "A05:2021 Security Misconfiguration",
+        `No "v=spf1" TXT record on ${apex}`,
+        "Without SPF, receiving mail servers have no statement of who may send mail for your domain, so phishing signed with your name often lands in the inbox.",
+        "Publish an SPF record listing every host that legitimately sends mail for the domain, then verify with a test send.",
+        { lang: "dns", code: `${apex}. 3600 IN TXT "v=spf1 include:_spf.example.com -all"` },
+      ),
+    );
+  } else if (/\b[+~?]all\b/.test(spf[0])) {
+    out.push(
+      finding(
+        "weak-spf",
+        "medium",
+        "SPF record does not enforce a fail policy",
+        "A05:2021 Security Misconfiguration",
+        spf[0],
+        "SPF ending in +all or ?all permits every host on the internet to send mail as your domain — the record exists but protects nothing.",
+        "End the record with -all (strict) or ~all (soft-fail) once the sending hosts are enumerated.",
+      ),
+    );
+  }
+
+  const dmarc = (await txtRecords(`_dmarc.${apex}`)).filter((t) => /^v=DMARC1\b/i.test(t));
+  if (!dmarc.length) {
+    out.push(
+      finding(
+        "no-dmarc",
+        "medium",
+        "No DMARC record — spoofed mail has no reporting or rejection",
+        "A05:2021 Security Misconfiguration",
+        `No "v=DMARC1" TXT record on _dmarc.${apex}`,
+        "DMARC tells receiving servers what to do when SPF or DKIM fail and gives you reports about abuse of your domain.",
+        "Publish a DMARC record. Start with p=none and rua reporting, then move to quarantine or reject once legitimate mail is aligned.",
+        { lang: "dns", code: `_dmarc.${apex}. 3600 IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@${apex}"` },
+      ),
+    );
+  } else if (/p=none\b/i.test(dmarc[0])) {
+    out.push(
+      finding(
+        "dmarc-monitor-only",
+        "low",
+        "DMARC policy is monitor-only (p=none)",
+        "A05:2021 Security Misconfiguration",
+        dmarc[0],
+        "With p=none, receiving servers still deliver spoofed mail; the record only reports it.",
+        "Once reports confirm your legitimate mail aligns, raise the policy to quarantine or reject.",
+      ),
+    );
+  }
+  return out;
+}
+
+async function fetchHtml(url: string): Promise<{ html: string; ctype: string } | null> {
+  const res = await req(url, { redirect: "follow" });
+  const ctype = res.headers.get("content-type") ?? "";
+  if (!/text\/html/i.test(ctype)) return null;
+  return { html: (await res.text()).slice(0, 300_000), ctype };
+}
+
+async function checkMixedContent(url: string): Promise<Finding[]> {
+  if (!url.startsWith("https://")) return [];
+  const page = await fetchHtml(url);
+  if (!page) return [];
+  const refs = [
+    ...new Set(
+      [...page.html.matchAll(/(?:src|href)\s*=\s*["'](http:\/\/[^"']+)["']/gi)]
+        .map((m) => m[1])
+        .filter((u) => !/w3\.org/i.test(u)),
+    ),
+  ].slice(0, 8);
+  if (!refs.length) return [];
+  return [
+    finding(
+      "mixed-content",
+      refs.some((u) => /\.(js|mjs)(\?|$)/i.test(u)) ? "high" : "medium",
+      "Insecure http:// resources are loaded on the HTTPS page",
+      "A02:2021 Cryptographic Failures",
+      refs.join(" · ").slice(0, 240),
+      refs.some((u) => /\.(js|mjs)(\?|$)/i.test(u))
+        ? "Scripts loaded over plain HTTP can be replaced in transit with attacker code — browsers block or warn on them, and the page's HTTPS padlock is undermined."
+        : "Content fetched over plain HTTP can be modified in transit; browsers flag the page as not fully secure, eroding visitor trust.",
+      "Load every subresource over HTTPS (or a protocol-relative CDN that supports it), then check the browser console for residual mixed-content warnings.",
+    ),
+  ];
+}
+
+async function checkSri(url: string): Promise<Finding[]> {
+  const page = await fetchHtml(url);
+  if (!page) return [];
+  const self = new URL(url).hostname;
+  const externals = [...page.html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi)]
+    .map((m) => ({ tag: m[0], src: m[1] }))
+    .filter(({ src }) => /^https?:\/\//i.test(src) && new URL(src).hostname !== self)
+    .filter(({ tag }) => !/\bintegrity\s*=/i.test(tag));
+  if (!externals.length) return [];
+  const sample = externals.slice(0, 5).map((e) => e.src.split("?")[0]).join(" · ");
+  return [
+    finding(
+      "no-sri",
+      "low",
+      "Third-party scripts are loaded without an integrity hash",
+      "A08:2021 Software and Data Integrity Failures",
+      sample,
+      "If a CDN or third-party script is compromised, the injected code runs with full privileges on your pages. Subresource Integrity pins the exact file you expect.",
+      "Add integrity=\"sha384-...\" and crossorigin=\"anonymous\" to every external script you control the versioning of, or self-host critical dependencies.",
+      {
+        lang: "html",
+        code: `<script src="https://cdn.example.com/lib.js"\n  integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1vPzwwjPQFNMfkBTo"\n  crossorigin="anonymous"></script>`,
+      },
+    ),
+  ];
+}
+
 const RUNNERS: Record<string, (url: string) => Promise<Finding[]>> = {
   transport: checkTransport,
   headers: checkHeaders,
@@ -534,6 +670,9 @@ const RUNNERS: Record<string, (url: string) => Promise<Finding[]>> = {
   exposed_files: checkExposedFiles,
   sqli: checkSqli,
   xss: checkXss,
+  email_sec: checkEmailSec,
+  mixed_content: checkMixedContent,
+  sri: checkSri,
 };
 
 export async function runCheck(checkId: string, rawTarget: string): Promise<CheckResult> {
