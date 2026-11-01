@@ -131,6 +131,24 @@ export const OWASP_CHECKS: CheckMeta[] = [
     detail: "Sends a harmless marker and checks whether it is reflected unencoded.",
     owasp: "A03:2021 Injection",
   },
+  {
+    id: "email_sec",
+    label: "Email spoofing protection (SPF/DMARC)",
+    detail: "Reads public DNS records to verify SPF and DMARC policies that stop email spoofing.",
+    owasp: "A05:2021 Security Misconfiguration",
+  },
+  {
+    id: "mixed_content",
+    label: "Mixed content on HTTPS pages",
+    detail: "Looks for images and scripts still loaded over plain http:// on the HTTPS page.",
+    owasp: "A02:2021 Cryptographic Failures",
+  },
+  {
+    id: "sri",
+    label: "Third-party script integrity (SRI)",
+    detail: "Flags external scripts loaded without a subresource integrity hash.",
+    owasp: "A08:2021 Software and Data Integrity Failures",
+  },
 ];
 
 export function scoreFindings(findings: Finding[]): number {

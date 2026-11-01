@@ -16,7 +16,7 @@ import { recordOwaspScan, runOwaspCheck, startOwaspScan } from "@/lib/owasp.func
 
 const TITLE = "Free OWASP Web Security Scanner Online | SentinelGrid";
 const DESCRIPTION =
-  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files and injection signatures — with severity ranking and fixes.";
+  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files, injection signatures, SPF/DMARC email protection and mixed content — with severity ranking and fixes.";
 
 export const Route = createFileRoute("/owasp")({
   head: () => ({
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/owasp")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/owasp") },
-      ...ogImageMeta("owasp", "SentinelGrid OWASP scanner: ten checks, fixes included"),
+      ...ogImageMeta("owasp", "SentinelGrid OWASP scanner: thirteen checks, fixes included"),
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
@@ -207,9 +207,10 @@ function OwaspScanner() {
         <p className="label-mono">Application security</p>
         <h1 className="mt-3 text-4xl font-bold">OWASP Web Security Scanner</h1>
         <p className="mt-4 text-muted-foreground">
-          Ten non-destructive checks mapped to the OWASP Top 10 — transport security, response
-          headers, CSP quality, CORS policy, cookie flags, exposed deployment files and injection
-          signatures. Every finding comes back severity-ranked with the fix.
+          Thirteen non-destructive checks mapped to the OWASP Top 10 — transport security, response
+          headers, CSP quality, CORS policy, cookie flags, exposed deployment files, injection
+          signatures, SPF/DMARC email protection and mixed content. Every finding comes back
+          severity-ranked with the fix.
         </p>
       </header>
 
