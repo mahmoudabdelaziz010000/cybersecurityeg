@@ -637,11 +637,11 @@ async function checkSri(url: string): Promise<Finding[]> {
   if (!page) return [];
   const self = new URL(url).hostname;
   const externals = [...page.html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi)]
-    .map((m) => ({ tag: m[0], src: m[1] }))
+    .map((m) => ({ tag: m[0], src: m[1] ?? "" }))
     .filter(({ src }) => /^https?:\/\//i.test(src) && new URL(src).hostname !== self)
     .filter(({ tag }) => !/\bintegrity\s*=/i.test(tag));
   if (!externals.length) return [];
-  const sample = externals.slice(0, 5).map((e) => e.src.split("?")[0]).join(" · ");
+  const sample = externals.slice(0, 5).map((e) => e.src.split("?")[0] ?? e.src).join(" · ");
   return [
     finding(
       "no-sri",
