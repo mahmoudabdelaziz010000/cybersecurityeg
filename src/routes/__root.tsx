@@ -101,11 +101,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
       { name: "yandex-verification", content: "ca5f786b3a2a1c14" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: `${SITE_URL}/og-image.png` },
-      { property: "og:image:alt", content: "SentinelGrid — passive OSINT and attack-surface intelligence" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: `${SITE_URL}/og-image.png` },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -46,6 +46,9 @@
   --color-clean: var(--clean);
   --color-caution: var(--caution);
   --color-malicious: var(--malicious);
+  --color-xdr-cloud: var(--xdr-cloud);
+  --color-xdr-ai: var(--xdr-ai);
+  --color-xdr-other: var(--xdr-other);
 
   --shadow-glow: 0 0 0 1px var(--border), 0 18px 60px -20px oklch(0.72 0.16 178 / 0.35);
   --shadow-panel: 0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 24px 60px -30px oklch(0 0 0 / 0.9);
@@ -89,6 +92,10 @@
   --clean: oklch(0.79 0.16 158);
   --caution: oklch(0.83 0.15 85);
   --malicious: oklch(0.66 0.2 20);
+  --xdr-cloud: oklch(0.74 0.12 235);
+  --xdr-ai: oklch(0.77 0.13 330);
+  --xdr-other: oklch(0.76 0.06 245);
+  --overlay: oklch(0 0 0 / 0.8);
 
   --gradient-hero: radial-gradient(
       110% 80% at 12% -10%,
@@ -110,6 +117,9 @@
 .dark {
   color-scheme: dark;
 }
+
+.xdr-chart .recharts-cartesian-axis-tick text { fill: var(--muted-foreground); font-size: 11px; }
+.xdr-chart .recharts-tooltip-wrapper { outline: none; }
 
 @layer base {
   * {

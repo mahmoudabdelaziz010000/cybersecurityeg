@@ -3,6 +3,7 @@ import { Menu, ShieldHalf, X } from "lucide-react";
 import { useState } from "react";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/lib/language";
+import { Button } from "@/components/ui/button";
 
 const NAV = [
   { to: "/osint", label: "OSINT Hub" },
@@ -10,6 +11,7 @@ const NAV = [
   { to: "/workflows", label: "Workflows" },
   { to: "/attack-surface", label: "Attack Surface" },
   { to: "/threat-intel", label: "Threat Intel" },
+  { to: "/xdr", label: "XDR Telemetry" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
@@ -46,7 +48,9 @@ export function SiteHeader() {
           <LanguageToggle />
         </div>
 
-        <button
+        <Button
+          variant="outline"
+          size="icon"
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? (isArabic ? "إغلاق القائمة" : "Close menu") : isArabic ? "فتح القائمة" : "Open menu"}
@@ -54,7 +58,7 @@ export function SiteHeader() {
           className="rounded-md border border-border p-2 lg:hidden"
         >
           {open ? <X className="size-4" /> : <Menu className="size-4" />}
-        </button>
+        </Button>
       </div>
 
       {open && (

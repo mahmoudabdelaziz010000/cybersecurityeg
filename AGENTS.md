@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep English and Arabic in one shared route tree through `LanguageProvider`; this preserves identical workflows and URLs across languages.
+- Keep XDR fixtures and filtering in a browser-safe data module, with configuration drafts held only in page-session state; the prototype must not authorize providers or ingest live data.

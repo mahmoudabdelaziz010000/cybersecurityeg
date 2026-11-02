@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 export type Language = "en" | "ar";
 
 const ARABIC: Record<string, string> = {
+  "XDR Telemetry": "بيانات XDR",
+  "XDR Integration Telemetry | SentinelGrid": "تكامل بيانات XDR | SentinelGrid",
+  "Explore an in-development XDR dashboard with clearly labeled sample events, source integrations and safe configuration drafts. No live telemetry or provider connections.": "استكشف لوحة XDR قيد التطوير مع أحداث تجريبية واضحة وتكاملات المصادر ومسودات إعداد آمنة. لا توجد بيانات أو اتصالات حقيقية.",
   "OSINT Hub": "مركز OSINT",
   "OWASP Scanner": "فاحص OWASP",
   Workflows: "مسارات العمل",
