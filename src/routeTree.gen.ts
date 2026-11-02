@@ -20,6 +20,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
+import { Route as XdrRouteImport } from './routes/xdr'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
   path: '/workflows',
   getParentRoute: () => rootRouteImport,
 } as any)
+const XdrRoute = XdrRouteImport.update({
+  id: '/xdr',
+  path: '/xdr',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/xdr': typeof XdrRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/xdr': typeof XdrRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
+  '/xdr': typeof XdrRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/xdr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/xdr'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/threat-intel'
     | '/workflows'
+    | '/xdr'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
+  XdrRoute: typeof XdrRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/xdr': {
+      id: '/xdr'
+      path: '/xdr'
+      fullPath: '/xdr'
+      preLoaderRoute: typeof XdrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
+  XdrRoute: XdrRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
