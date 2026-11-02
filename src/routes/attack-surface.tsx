@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { absoluteUrl, ogImageMeta } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 import { AlertTriangle, Fingerprint, Globe2, Lock, Radar, ServerCog } from "lucide-react";
 
 const TITLE = "Attack Surface Monitoring for External Assets | SentinelGrid";
@@ -7,19 +7,15 @@ const DESCRIPTION =
   "Map internet-facing hosts, open ports, known CVEs, certificate sprawl and missing security headers — and get alerted on the change, not the inventory.";
 
 export const Route = createFileRoute("/attack-surface")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/attack-surface") },
-      ...ogImageMeta("attack-surface", "SentinelGrid attack surface monitoring: see your estate the way attackers do"),
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/attack-surface") }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/attack-surface",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "website",
+      image: { slug: "attack-surface", alt: "SentinelGrid attack surface monitoring: see your estate the way attackers do" },
+    }),
   }),
   component: AttackSurface,
 });

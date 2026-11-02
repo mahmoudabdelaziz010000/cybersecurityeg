@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 
 export type Language = "en" | "ar";
 
@@ -192,6 +192,18 @@ const ARABIC: Record<string, string> = {
   "Daily re-scans compare against the baseline and only surface what changed.": "تقارن الفحوصات اليومية بخط الأساس ولا تعرض إلا ما تغير.",
   "Diffs trigger a playbook and land in email, webhook or your SIEM as a decision.": "تشغّل التغييرات مسار عمل وتصل إلى البريد أو webhook أو SIEM كقرار واضح.",
   "and": "و",
+  "Free OSINT Lookup Tool for IPs & Domains | SentinelGrid": "أداة OSINT مجانية للبحث عن عناوين IP والنطاقات | SentinelGrid",
+  "Look up an IP or domain across Shodan InternetDB, RDAP, DNS, certificate transparency and HTTP security headers at once. Free, keyless, passive OSINT.": "ابحث عن عنوان IP أو نطاق عبر Shodan InternetDB وRDAP وDNS وشفافية الشهادات وترويسات أمان HTTP دفعة واحدة. استطلاع OSINT سلبي ومجاني وبلا مفاتيح.",
+  "Free OWASP Web Security Scanner Online | SentinelGrid": "فاحص أمان المواقع OWASP مجاني أونلاين | SentinelGrid",
+  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files, injection signatures, SPF/DMARC email protection and mixed content — with severity ranking and fixes.": "افحص أي موقع وفق فحوصات OWASP Top 10: ترويسات الأمان وCORS وخصائص ملفات تعريف الارتباط والملفات المكشوفة وأنماط الحقن وحماية البريد SPF/DMARC والمحتوى المختلط — مع ترتيب الخطورة وخطوات المعالجة.",
+  "Security Automation Playbooks for SOC Triage | SentinelGrid": "مسارات أتمتة أمنية لفرز حوادث SOC | SentinelGrid",
+  "Automated OSINT playbooks for phishing triage, vendor due diligence, attack-surface review and incident enrichment — each ends in a clear recommendation.": "مسارات OSINT آلية لفرز التصيد الاحتيالي وتقييم الموردين ومراجعة سطح الهجوم وإثراء الحوادث، وينتهي كل مسار بتوصية واضحة.",
+  "Attack Surface Monitoring for External Assets | SentinelGrid": "مراقبة سطح الهجوم للأصول الخارجية | SentinelGrid",
+  "Map internet-facing hosts, open ports, known CVEs, certificate sprawl and missing security headers — and get alerted on the change, not the inventory.": "ارسم خريطة الأجهزة المكشوفة على الإنترنت والمنافذ المفتوحة وثغرات CVE المعروفة وانتشار الشهادات وترويسات الأمان الناقصة، واحصل على تنبيه عند التغيير لا عند كل قائمة جرد.",
+  "Latest CVE Feed & Vulnerability Intelligence | SentinelGrid": "أحدث ثغرات CVE ومعلومات الثغرات | SentinelGrid",
+  "A live feed of vulnerabilities disclosed in the last 72 hours, scored by CVSS, with a direct path from a CVE to whether your own exposed hosts are affected.": "بث مباشر للثغرات المُعلن عنها خلال آخر 72 ساعة مرتبة حسب درجة CVSS، مع طريق مباشر لمعرفة ما إذا كانت أجهزتك المكشوفة متأثرة بأي ثغرة CVE.",
+  "Web Reconnaissance Guide for Kali Linux | SentinelGrid": "دليل الاستطلاع على الويب باستخدام Kali Linux | SentinelGrid",
+  "A 10-step web reconnaissance guide for Kali Linux: passive OSINT, subdomain enumeration, live hosts, hidden paths and reporting. Authorized testing only.": "دليل من 10 خطوات للاستطلاع على الويب باستخدام Kali Linux: OSINT السلبي، وتعداد النطاقات الفرعية، والأجهزة الحية، والمسارات المخفية، وإعداد التقرير. للاختبار المصرّح به فقط.",
 };
 
 interface LanguageContextValue {
@@ -217,56 +229,120 @@ export function translateText(text: string): string {
   return translated === core ? text : `${leading}${translated}${trailing}`;
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
-  const originals = useRef(new Map<Text, string>());
-  const pathname = useLocation({ select: (location) => location.pathname });
+let reverseDictionary: Map<string, string> | null = null;
 
+/** Inverse of translateText for whole strings: used to put an English page title or description back. */
+export function untranslateText(text: string): string {
+  if (!reverseDictionary) {
+    reverseDictionary = new Map(Object.entries(ARABIC).map(([english, arabic]) => [arabic, english]));
+  }
+  return reverseDictionary.get(text) ?? reverseDictionary.get(text.trim()) ?? text;
+}
+
+const LANGUAGE_STORAGE_KEY = "sentinelgrid-language";
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  // Always start in English so server and first client render match; the real language is applied in an effect.
+  const [language, setLanguage] = useState<Language>("en");
+  const [ready, setReady] = useState(false);
+  const originals = useRef(new Map<Text, string>());
+  const syncedUrlFor = useRef<Language | null>(null);
+  const navigate = useNavigate();
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const urlLanguage = useLocation({
+    select: (location) => ((location.search as { lang?: unknown } | undefined)?.lang === "ar" ? "ar" : "en"),
+  });
+
+  // Pick the language: an explicit ?lang= in the URL wins (shared and crawled links), then the saved choice.
   useEffect(() => {
-    const stored = window.localStorage.getItem("sentinelgrid-language");
-    if (stored === "ar") setLanguage("ar");
+    let initial: Language = "en";
+    try {
+      const fromUrl = new URLSearchParams(window.location.search).get("lang");
+      const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      initial = fromUrl === "ar" || fromUrl === "en" ? fromUrl : stored === "ar" ? "ar" : "en";
+    } catch {
+      // Storage can be blocked (private mode); stay on English.
+    }
+    setLanguage(initial);
+    setReady(true);
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("sentinelgrid-language", language);
+    if (!ready) return;
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    } catch {
+      // Not persisted; the language still applies for this visit.
+    }
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-  }, [language, pathname]);
+  }, [language, pathname, ready]);
+
+  // Keep the address bar in step with the language so the page can be shared and indexed as Arabic.
+  // Links keep ?lang=ar themselves (retainSearchParams on the root route), so this mostly runs on toggle.
+  useEffect(() => {
+    if (!ready || urlLanguage === language) {
+      syncedUrlFor.current = null;
+      return;
+    }
+    // One attempt per language change: never fight the router in a loop.
+    if (syncedUrlFor.current === language) return;
+    syncedUrlFor.current = language;
+    void navigate({
+      to: ".",
+      search: ((previous: Record<string, unknown>) => ({
+        ...previous,
+        lang: language === "ar" ? "ar" : undefined,
+      })) as never,
+      replace: true,
+      resetScroll: false,
+    });
+  }, [language, urlLanguage, ready, navigate]);
 
   useEffect(() => {
     const translateNode = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         const textNode = node as Text;
         const parent = textNode.parentElement;
-        if (!parent || parent.closest("code, pre, textarea, [data-no-translate]")) return;
+        if (!parent || parent.closest("code, pre, textarea, script, style, [data-no-translate]")) return;
         const original = originals.current.get(textNode) ?? textNode.data;
         if (!originals.current.has(textNode)) originals.current.set(textNode, original);
-        textNode.data = language === "ar" ? translateText(original) : original;
+        const next = language === "ar" ? translateText(original) : original;
+        if (textNode.data !== next) textNode.data = next;
         return;
       }
       node.childNodes.forEach(translateNode);
     };
 
-    translateNode(document.body);
-    const title = document.title;
-    if (language === "ar") document.title = translateText(title);
-    document.querySelectorAll<HTMLMetaElement>('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[name="twitter:title"], meta[name="twitter:description"]').forEach((meta) => {
-      const original = meta.dataset["originalContent"] ?? meta.content;
-      meta.dataset["originalContent"] = original;
-      meta.content = language === "ar" ? translateText(original) : original;
-    });
+    // The server already renders Arabic title/description for ?lang=ar. Convert whole strings in
+    // either direction, and only write when something changes so this observer can never retrigger itself.
+    const convert = language === "ar" ? translateText : untranslateText;
+    const syncHead = () => {
+      const title = convert(document.title);
+      if (title !== document.title) document.title = title;
+      document
+        .querySelectorAll<HTMLMetaElement>(
+          'meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[name="twitter:title"], meta[name="twitter:description"]',
+        )
+        .forEach((meta) => {
+          const content = convert(meta.content);
+          if (content !== meta.content) meta.content = content;
+        });
+    };
 
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        mutation.addedNodes.forEach(translateNode);
-        if (language === "ar" && mutation.target instanceof HTMLTitleElement) {
-          mutation.target.textContent = translateText(mutation.target.textContent ?? "");
-        }
-      }
+    translateNode(document.body);
+    syncHead();
+
+    const bodyObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) mutation.addedNodes.forEach(translateNode);
     });
-    observer.observe(document.body, { childList: true, subtree: true });
-    observer.observe(document.head, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    const headObserver = new MutationObserver(syncHead);
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+    headObserver.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => {
+      bodyObserver.disconnect();
+      headObserver.disconnect();
+    };
   }, [language]);
 
   const value = useMemo<LanguageContextValue>(

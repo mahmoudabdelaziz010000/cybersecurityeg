@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl, FACEBOOK_PAGE_URL } from "@/lib/seo";
+import { FACEBOOK_PAGE_URL, headLanguage, pageHead } from "@/lib/seo";
 import { Clock3, Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
 import { useLanguage } from "@/lib/language";
 
@@ -8,19 +8,7 @@ const DESCRIPTION =
   "Talk to the SentinelGrid team about Enterprise terms, managed triage retainers, custom connectors or responsible disclosure.";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/contact") },
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/contact") }],
-  }),
+  head: (ctx) => pageHead({ path: "/contact", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
   component: Contact,
 });
 

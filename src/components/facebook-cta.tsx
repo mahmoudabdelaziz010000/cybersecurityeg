@@ -1,5 +1,6 @@
 import { useLocation } from "@tanstack/react-router";
 import { Facebook, Share2 } from "lucide-react";
+import { useLanguage } from "@/lib/language";
 import { FACEBOOK_PAGE_URL, facebookShareUrl } from "@/lib/seo";
 
 /** Pages where a promotional strip would be out of place. */
@@ -11,6 +12,7 @@ const HIDDEN_ON = new Set(["/privacy", "/terms"]);
  */
 export function FacebookCta() {
   const pathname = useLocation({ select: (location) => location.pathname });
+  const { language } = useLanguage();
   if (HIDDEN_ON.has(pathname)) return null;
 
   return (
@@ -32,7 +34,7 @@ export function FacebookCta() {
             <Facebook className="size-4" aria-hidden="true" /> Follow on Facebook
           </a>
           <a
-            href={facebookShareUrl(pathname)}
+            href={facebookShareUrl(pathname, "page_share", language)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm font-medium hover:bg-accent"

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl, ogImageMeta } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, Loader2, ShieldAlert, Play } from "lucide-react";
@@ -19,20 +19,15 @@ const DESCRIPTION =
   "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files, injection signatures, SPF/DMARC email protection and mixed content — with severity ranking and fixes.";
 
 export const Route = createFileRoute("/owasp")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/owasp") },
-      ...ogImageMeta("owasp", "SentinelGrid OWASP scanner: thirteen checks, fixes included"),
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/owasp") }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/owasp",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "website",
+      image: { slug: "owasp", alt: "SentinelGrid OWASP scanner: thirteen checks, fixes included" },
+    }),
     scripts: [
       {
         type: "application/ld+json",
@@ -77,7 +72,7 @@ function FindingCard({ finding }: { finding: Finding }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full flex-wrap items-start justify-between gap-3 p-5 text-left hover:bg-accent/40"
+        className="flex w-full flex-wrap items-start justify-between gap-3 p-5 text-start hover:bg-accent/40"
       >
         <span className="min-w-0">
           <span className="flex flex-wrap items-center gap-2.5">

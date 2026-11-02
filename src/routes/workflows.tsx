@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl, ogImageMeta } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -13,19 +13,15 @@ const DESCRIPTION =
   "Automated OSINT playbooks for phishing triage, vendor due diligence, attack-surface review and incident enrichment — each ends in a clear recommendation.";
 
 export const Route = createFileRoute("/workflows")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/workflows") },
-      ...ogImageMeta("workflows", "SentinelGrid automation playbooks: triage in under 60 seconds"),
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/workflows") }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/workflows",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "website",
+      image: { slug: "workflows", alt: "SentinelGrid automation playbooks: triage in under 60 seconds" },
+    }),
     scripts: [
       {
         type: "application/ld+json",
@@ -90,7 +86,7 @@ function Workflows() {
               key={p.slug}
               type="button"
               onClick={() => setSlug(p.slug)}
-              className={`block w-full rounded-lg border p-4 text-left transition-colors ${
+              className={`block w-full rounded-lg border p-4 text-start transition-colors ${
                 p.slug === slug
                   ? "border-primary/50 bg-panel-raised"
                   : "border-border bg-panel hover:bg-accent/50"

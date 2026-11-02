@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 import { Activity, ArrowRight, Boxes, GitBranch, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import { PLAYBOOKS } from "@/lib/playbooks";
@@ -9,18 +9,8 @@ const DESCRIPTION =
   "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free, no signup, no API keys.";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/") },
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/") }],
+  head: (ctx) => ({
+    ...pageHead({ path: "/", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
     scripts: [
       {
         type: "application/ld+json",

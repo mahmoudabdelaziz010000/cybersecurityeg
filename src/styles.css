@@ -96,7 +96,14 @@
       transparent 60%
     ),
     radial-gradient(90% 70% at 92% 0%, oklch(0.6 0.14 235 / 0.18) 0%, transparent 62%);
+  --gradient-hero-rtl: radial-gradient(
+      110% 80% at 88% -10%,
+      oklch(0.82 0.16 176 / 0.16) 0%,
+      transparent 60%
+    ),
+    radial-gradient(90% 70% at 8% 0%, oklch(0.6 0.14 235 / 0.18) 0%, transparent 62%);
   --gradient-signal: linear-gradient(100deg, oklch(0.85 0.15 176), oklch(0.74 0.13 205));
+  --gradient-signal-rtl: linear-gradient(260deg, oklch(0.85 0.15 176), oklch(0.74 0.13 205));
   --grid-line: oklch(1 0 0 / 0.035);
 }
 
@@ -145,8 +152,47 @@ html[dir="rtl"] h4 {
   font-family: "Noto Sans Arabic", "Tahoma", var(--font-display);
 }
 
+html[dir="rtl"] .font-display,
+html[dir="rtl"] .font-sans {
+  font-family: "Noto Sans Arabic", "Tahoma", var(--font-sans);
+}
+
+/* JetBrains Mono has no Arabic glyphs; name an Arabic face before the generic monospace fallback. */
+html[dir="rtl"] .font-mono,
 html[dir="rtl"] .label-mono {
+  font-family: "JetBrains Mono", "Noto Sans Arabic", "Tahoma", ui-monospace, monospace;
+}
+
+/*
+ * Arabic is cursive: letter-spacing pulls the joined letters apart and makes
+ * words unreadable. Tailwind `tracking-*` utilities are used on labels and
+ * badges, so neutralise all of them in RTL.
+ */
+html[dir="rtl"] .label-mono,
+html[dir="rtl"] [class*="tracking-"] {
   letter-spacing: 0;
+}
+
+/* Arabic glyphs are taller than Latin ones; the Latin line heights clip and crowd them. */
+html[dir="rtl"] :is(p, li, dd, blockquote, label) {
+  line-height: 1.8;
+}
+
+html[dir="rtl"] :is(h1, h2, h3, h4) {
+  line-height: 1.4;
+}
+
+/* Commands, paths, hashes and CVE ids stay left-to-right inside Arabic text. */
+html[dir="rtl"] :is(code, pre, kbd, samp) {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+}
+
+/* Targets are mostly domains, IPs and URLs; let each field follow the direction of what is typed. */
+html[dir="rtl"] :is(input, textarea) {
+  unicode-bidi: plaintext;
+  text-align: start;
 }
 
 html[dir="rtl"] .lucide-arrow-right,
@@ -154,6 +200,19 @@ html[dir="rtl"] .lucide-chevron-right,
 html[dir="rtl"] .lucide-arrow-left,
 html[dir="rtl"] .lucide-chevron-left {
   transform: scaleX(-1);
+}
+
+/* Mirror the decorative gradients so the glow sits on the reading-start side. */
+html[dir="rtl"] .hero-surface {
+  background-image: var(--gradient-hero-rtl);
+}
+
+html[dir="rtl"] .text-gradient-signal {
+  background-image: var(--gradient-signal-rtl);
+}
+
+html[dir="rtl"] .scanline-bar {
+  animation-name: sweep-rtl;
 }
 
 @utility surface {
@@ -200,6 +259,16 @@ html[dir="rtl"] .lucide-chevron-left {
   }
   100% {
     transform: translateX(200%);
+  }
+}
+
+/* In RTL the bar starts at the right edge, so it has to travel the other way. */
+@keyframes sweep-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-200%);
   }
 }
 

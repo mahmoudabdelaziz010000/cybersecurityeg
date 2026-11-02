@@ -1,24 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 
 const TITLE = "Privacy Policy | SentinelGrid";
 const DESCRIPTION =
   "How SentinelGrid collects, stores and retains scan data, account information and evidence exports.";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/privacy") },
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/privacy") }],
-  }),
+  head: (ctx) => pageHead({ path: "/privacy", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
   component: Privacy,
 });
 

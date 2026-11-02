@@ -5,6 +5,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  retainSearchParams,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
@@ -16,6 +17,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { FacebookCta } from "@/components/facebook-cta";
 import { LanguageProvider } from "@/lib/language";
 import { FACEBOOK_PAGE_URL, SITE_URL } from "@/lib/seo";
+
+/**
+ * Runs inline in <head>. The language is chosen on the client (URL `?lang=ar`, then
+ * the saved choice), so the document direction has to be set here, before React hydrates.
+ */
+const PRE_PAINT_LANGUAGE_SCRIPT = `(function(){try{var q=new URLSearchParams(location.search).get("lang");var l=q==="ar"||q==="en"?q:localStorage.getItem("sentinelgrid-language");if(l==="ar"){var d=document.documentElement;d.lang="ar";d.dir="rtl";}}catch(e){}})();`;
 
 function NotFoundComponent() {
   return (
@@ -75,6 +82,11 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Arabic is the same page with ?lang=ar (one shared route tree). Declared here so every route's head
+  // can read it on the server, and carried across in-site links so Arabic readers stay in Arabic.
+  validateSearch: (search: Record<string, unknown>): { lang?: "ar" } =>
+    search["lang"] === "ar" ? { lang: "ar" } : {},
+  search: { middlewares: [retainSearchParams(["lang"])] },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -83,6 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0a1218" },
       { property: "og:site_name", content: "SentinelGrid" },
       { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "ar_AR" },
       { property: "article:publisher", content: FACEBOOK_PAGE_URL },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "XGoYFY33I5XbUGJ9x40FTS18_9N0Qeho2j4oxRE9aUU" },
@@ -105,6 +118,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
     scripts: [
+      {
+        // Apply the visitor's language before first paint so Arabic users never see an LTR flash.
+        children: PRE_PAINT_LANGUAGE_SCRIPT,
+      },
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -138,7 +155,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    // suppressHydrationWarning: the pre-paint script may already have set lang/dir to Arabic.
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

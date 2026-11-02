@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-import { SITE_URL as BASE_URL } from "@/lib/seo";
+import { localizedUrl } from "@/lib/seo";
 
 interface SitemapEntry {
   path: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
+}
+
+function escapeXml(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 }
 
 export const Route = createFileRoute("/sitemap.xml")({
@@ -26,21 +30,28 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
         ];
 
-        const urls = entries.map((e) =>
-          [
-            `  <url>`,
-            `    <loc>${BASE_URL}${e.path}</loc>`,
-            e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
-            e.priority ? `    <priority>${e.priority}</priority>` : null,
-            `  </url>`,
-          ]
-            .filter(Boolean)
-            .join("\n"),
+        // One <url> per language, each listing both versions, so search engines index the Arabic pages
+        // and serve them to Arabic searchers.
+        const urls = entries.flatMap((e) =>
+          (["en", "ar"] as const).map((lang) =>
+            [
+              `  <url>`,
+              `    <loc>${escapeXml(localizedUrl(e.path, lang))}</loc>`,
+              `    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(localizedUrl(e.path, "en"))}"/>`,
+              `    <xhtml:link rel="alternate" hreflang="ar" href="${escapeXml(localizedUrl(e.path, "ar"))}"/>`,
+              `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(localizedUrl(e.path, "en"))}"/>`,
+              e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
+              e.priority ? `    <priority>${e.priority}</priority>` : null,
+              `  </url>`,
+            ]
+              .filter(Boolean)
+              .join("\n"),
+          ),
         );
 
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`,
           ...urls,
           `</urlset>`,
         ].join("\n");

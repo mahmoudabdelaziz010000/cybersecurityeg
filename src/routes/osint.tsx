@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { absoluteUrl, facebookShareUrl, ogImageMeta } from "@/lib/seo";
+import { facebookShareUrl, headLanguage, pageHead } from "@/lib/seo";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { Download, Facebook, Loader2, Play } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import type { HubResult } from "@/lib/osint-catalog";
 import { runHubScan } from "@/lib/osint.functions";
+import { useLanguage } from "@/lib/language";
 import { VerdictBadge } from "@/components/verdict-badge";
 
 const TITLE = "Free OSINT Lookup Tool for IPs & Domains | SentinelGrid";
@@ -14,19 +15,15 @@ const DESCRIPTION =
   "Look up an IP or domain across Shodan InternetDB, RDAP, DNS, certificate transparency and HTTP security headers at once. Free, keyless, passive OSINT.";
 
 export const Route = createFileRoute("/osint")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/osint") },
-      ...ogImageMeta("osint", "SentinelGrid OSINT Data Hub: check any IP or domain across five sources"),
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/osint") }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/osint",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "website",
+      image: { slug: "osint", alt: "SentinelGrid OSINT Data Hub: check any IP or domain across five sources" },
+    }),
   }),
   component: OsintHub,
 });
@@ -49,6 +46,7 @@ function download(name: string, content: string, mime: string) {
 }
 
 function OsintHub() {
+  const { language } = useLanguage();
   const scan = useServerFn(runHubScan);
   const [targets, setTargets] = useState("8.8.8.8\nexample.com");
   const [selected, setSelected] = useState<string[]>(SOURCE_CATALOG.map((s) => s.id));
@@ -135,7 +133,7 @@ function OsintHub() {
                   <Download className="size-3.5" aria-hidden="true" /> JSON
                 </button>
                 <a
-                  href={facebookShareUrl("/osint", "scan_result")}
+                  href={facebookShareUrl("/osint", "scan_result", language)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent"
@@ -192,7 +190,7 @@ function OsintHub() {
                 <button
                   type="button"
                   onClick={() => setOpenTarget(openTarget === r.target ? null : r.target)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 p-5 text-left hover:bg-accent/50"
+                  className="flex w-full flex-wrap items-center justify-between gap-3 p-5 text-start hover:bg-accent/50"
                   aria-expanded={openTarget === r.target}
                 >
                   <span className="flex flex-wrap items-center gap-3">

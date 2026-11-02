@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Facebook, ShieldCheck, TriangleAlert } from "lucide-react";
-import { FACEBOOK_PAGE_URL, SITE_URL as SITE, facebookShareUrl, ogImageMeta } from "@/lib/seo";
+import { useLanguage } from "@/lib/language";
+import { FACEBOOK_PAGE_URL, facebookShareUrl, headLanguage, pageHead } from "@/lib/seo";
 
 const TITLE = "Web Reconnaissance Guide for Kali Linux | SentinelGrid";
 const DESCRIPTION =
@@ -91,19 +92,15 @@ Recommendations`,
 ];
 
 export const Route = createFileRoute("/recon-guide")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "article" },
-      { property: "og:url", content: `${SITE}/recon-guide` },
-      ...ogImageMeta("recon-guide", "Web reconnaissance on Kali Linux: a 10-step guide from SentinelGrid"),
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: `${SITE}/recon-guide` }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/recon-guide",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "article",
+      image: { slug: "recon-guide", alt: "Web reconnaissance on Kali Linux: a 10-step guide from SentinelGrid" },
+    }),
     scripts: [
       {
         type: "application/ld+json",
@@ -126,7 +123,8 @@ export const Route = createFileRoute("/recon-guide")({
 });
 
 function ReconGuide() {
-  const shareUrl = facebookShareUrl("/recon-guide", "recon_guide");
+  const { language } = useLanguage();
+  const shareUrl = facebookShareUrl("/recon-guide", "recon_guide", language);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">

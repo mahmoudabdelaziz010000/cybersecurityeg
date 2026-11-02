@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { absoluteUrl, ogImageMeta } from "@/lib/seo";
+import { headLanguage, pageHead } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -11,19 +11,15 @@ const DESCRIPTION =
   "A live feed of vulnerabilities disclosed in the last 72 hours, scored by CVSS, with a direct path from a CVE to whether your own exposed hosts are affected.";
 
 export const Route = createFileRoute("/threat-intel")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: absoluteUrl("/threat-intel") },
-      ...ogImageMeta("threat-intel", "SentinelGrid threat intelligence: CVEs disclosed in the last 72 hours"),
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-    ],
-    links: [{ rel: "canonical", href: absoluteUrl("/threat-intel") }],
+  head: (ctx) => ({
+    ...pageHead({
+      path: "/threat-intel",
+      title: TITLE,
+      description: DESCRIPTION,
+      lang: headLanguage(ctx),
+      type: "website",
+      image: { slug: "threat-intel", alt: "SentinelGrid threat intelligence: CVEs disclosed in the last 72 hours" },
+    }),
   }),
   component: ThreatIntel,
 });
