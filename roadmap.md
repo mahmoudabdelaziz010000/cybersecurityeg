@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Add XDR overview, sample telemetry filters/details, and grouped integrations catalog.
+- [ ] Add safe provider setup drafts, English/Arabic support, and verify desktop/mobile interactions without publishing.
+
 - [x] Add optional Arabic/English language switcher, keeping English as the default.
 - [x] Add Arabic translations and RTL only when Arabic is selected.
 - [x] Remove the contact submission form and keep the five information sections.
