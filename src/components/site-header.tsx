@@ -6,7 +6,7 @@ import { useLanguage } from "@/lib/language";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
-  { to: "/osint", label: "OSINT Hub" },
+  { to: "/osint", label: "SOC Dashboard" },
   { to: "/owasp", label: "OWASP Scanner" },
   { to: "/workflows", label: "Workflows" },
   { to: "/attack-surface", label: "Attack Surface" },

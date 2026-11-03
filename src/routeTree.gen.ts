@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
+import { Route as OsintHubRouteImport } from './routes/osint-hub'
 import { Route as OwaspRouteImport } from './routes/owasp'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReconGuideRouteImport } from './routes/recon-guide'
@@ -41,6 +42,11 @@ const ContactRoute = ContactRouteImport.update({
 const OsintRoute = OsintRouteImport.update({
   id: '/osint',
   path: '/osint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OsintHubRoute = OsintHubRouteImport.update({
+  id: '/osint-hub',
+  path: '/osint-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwaspRoute = OwaspRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
+  '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/attack-surface'
     | '/contact'
     | '/osint'
+    | '/osint-hub'
     | '/owasp'
     | '/privacy'
     | '/recon-guide'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/attack-surface'
     | '/contact'
     | '/osint'
+    | '/osint-hub'
     | '/owasp'
     | '/privacy'
     | '/recon-guide'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/attack-surface'
     | '/contact'
     | '/osint'
+    | '/osint-hub'
     | '/owasp'
     | '/privacy'
     | '/recon-guide'
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   AttackSurfaceRoute: typeof AttackSurfaceRoute
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
+  OsintHubRoute: typeof OsintHubRoute
   OwaspRoute: typeof OwaspRoute
   PrivacyRoute: typeof PrivacyRoute
   ReconGuideRoute: typeof ReconGuideRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/osint'
       fullPath: '/osint'
       preLoaderRoute: typeof OsintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/osint-hub': {
+      id: '/osint-hub'
+      path: '/osint-hub'
+      fullPath: '/osint-hub'
+      preLoaderRoute: typeof OsintHubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owasp': {
@@ -300,6 +320,7 @@ const rootRouteChildren: RootRouteChildren = {
   AttackSurfaceRoute: AttackSurfaceRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
+  OsintHubRoute: OsintHubRoute,
   OwaspRoute: OwaspRoute,
   PrivacyRoute: PrivacyRoute,
   ReconGuideRoute: ReconGuideRoute,

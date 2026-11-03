@@ -34,7 +34,7 @@ function NotFoundComponent() {
           That page doesn't exist or has been retired. Try the OSINT hub instead.
         </p>
         <a
-          href="/osint"
+          href="/osint-hub"
           className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
           Open the OSINT hub

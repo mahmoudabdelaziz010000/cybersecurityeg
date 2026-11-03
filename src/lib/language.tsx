@@ -5,8 +5,11 @@ export type Language = "en" | "ar";
 
 const ARABIC: Record<string, string> = {
   "XDR Telemetry": "بيانات XDR",
-  "XDR Integration Telemetry | SentinelGrid": "تكامل بيانات XDR | SentinelGrid",
-  "Explore an in-development XDR dashboard with clearly labeled sample events, source integrations and safe configuration drafts. No live telemetry or provider connections.": "استكشف لوحة XDR قيد التطوير مع أحداث تجريبية واضحة وتكاملات المصادر ومسودات إعداد آمنة. لا توجد بيانات أو اتصالات حقيقية.",
+  "XDR Telemetry Settings | SentinelGrid": "إعدادات بيانات XDR | SentinelGrid",
+  "Plan which firewalls, endpoint protection such as Kaspersky Security Center, Windows servers and cloud platforms feed your XDR telemetry. Safe, session-only setup drafts; nothing is connected.": "خطّط لمصادر بيانات XDR: الجدران النارية وحماية الأجهزة مثل Kaspersky Security Center وخوادم Windows ومنصات السحابة. مسودات إعداد آمنة لهذه الجلسة فقط ولا يتم ربط أي شيء.",
+  "SOC Dashboard": "لوحة مركز العمليات الأمنية",
+  "SOC Dashboard | SentinelGrid": "لوحة مركز العمليات الأمنية | SentinelGrid",
+  "Security Operations Center dashboard: active threats, severity, MITRE ATT&CK tactics, endpoint health and telemetry coverage. Sample data only; no live connections.": "لوحة مركز العمليات الأمنية: التهديدات النشطة والخطورة وتكتيكات MITRE ATT&CK وصحة الأجهزة وتغطية البيانات. بيانات تجريبية فقط ودون اتصالات حقيقية.",
   "OSINT Hub": "مركز OSINT",
   "OWASP Scanner": "فاحص OWASP",
   Workflows: "مسارات العمل",

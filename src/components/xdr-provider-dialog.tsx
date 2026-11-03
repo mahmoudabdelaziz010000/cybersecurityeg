@@ -5,9 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/lib/language";
-import type { Localized, Provider } from "@/lib/xdr-demo";
+import { collectionMethods, type Localized, type Provider } from "@/lib/xdr-demo";
 
-export type SetupDraft = { environment: string; cadence: string; feeds: string[] };
+export type SetupDraft = { environment: string; cadence: string; method: string; feeds: string[] };
 export function XdrProviderDialog({ provider, draft, onClose, onSave }: {
   provider: Provider; draft?: SetupDraft | undefined; onClose: () => void; onSave: (draft: SetupDraft) => void;
 }) {
@@ -18,6 +18,8 @@ export function XdrProviderDialog({ provider, draft, onClose, onSave }: {
   const [step, setStep] = useState(1);
   const [environment, setEnvironment] = useState(draft?.environment ?? "sandbox");
   const [cadence, setCadence] = useState(draft?.cadence ?? "5");
+  const methods = collectionMethods(provider);
+  const [method, setMethod] = useState(draft?.method ?? methods[0]?.id ?? "api");
   const [feeds, setFeeds] = useState(draft?.feeds ?? provider.feeds);
   const [saved, setSaved] = useState(false);
   return <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -43,13 +45,14 @@ export function XdrProviderDialog({ provider, draft, onClose, onSave }: {
             {step === 1 ? <>
               <div><h3 className="text-sm font-semibold">{l("Required for a real connection", "المطلوب للاتصال الحقيقي")}</h3><p className="mt-1 text-xs text-muted-foreground">{l("Requirement checklist only — values are not collected here.", "قائمة متطلبات فقط — لا يتم جمع القيم هنا.")}</p><ul className="mt-3 divide-y divide-border rounded-md border border-border">{provider.fields.map((field) => <li className="flex items-start justify-between gap-3 p-3 text-sm" key={field[0]}><span>{pair(field)}</span><LockKeyhole className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" /></li>)}</ul></div>
               <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><label className="text-sm" id="xdr-environment-label">{l("Environment", "البيئة")}</label><Select value={environment} onValueChange={setEnvironment}><SelectTrigger aria-labelledby="xdr-environment-label"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sandbox">{l("Sandbox", "بيئة اختبار")}</SelectItem><SelectItem value="staging">{l("Staging", "قبل الإنتاج")}</SelectItem><SelectItem value="production">{l("Production (planned)", "الإنتاج (مخطط)")}</SelectItem></SelectContent></Select></div><div className="space-y-2"><label className="text-sm" id="xdr-cadence-label">{l("Target sync interval", "فترة المزامنة المطلوبة")}</label><Select value={cadence} onValueChange={setCadence}><SelectTrigger aria-labelledby="xdr-cadence-label"><SelectValue /></SelectTrigger><SelectContent>{["1", "5", "15"].map((value) => <SelectItem key={value} value={value}>{value} {l("minutes", "دقائق")}</SelectItem>)}</SelectContent></Select></div></div>
+              <div className="space-y-2"><label className="text-sm" id="xdr-method-label">{l("Collection method", "طريقة الجمع")}</label><Select value={method} onValueChange={setMethod}><SelectTrigger aria-labelledby="xdr-method-label"><SelectValue /></SelectTrigger><SelectContent>{methods.map((m) => <SelectItem key={m.id} value={m.id}>{pair(m.label)}</SelectItem>)}</SelectContent></Select></div>
               <fieldset><legend className="mb-2 text-sm">{l("Planned event streams", "مسارات الأحداث المخططة")}</legend><div className="flex flex-wrap gap-2">{provider.feeds.map((feed) => <Button key={feed} variant={feeds.includes(feed) ? "secondary" : "outline"} aria-pressed={feeds.includes(feed)} onClick={() => setFeeds((current) => current.includes(feed) ? current.filter((f) => f !== feed) : [...current, feed])}>{feeds.includes(feed) && <Check />}{feed}</Button>)}</div></fieldset>
               {feeds.length === 0 && <p className="text-xs text-caution">{l("Select at least one stream.", "اختر مساراً واحداً على الأقل.")}</p>}
               <Button disabled={!feeds.length} onClick={() => setStep(2)}>{l("Review draft", "مراجعة المسودة")}<ChevronRight /></Button>
             </> : <>
-              <dl className="space-y-3 text-sm"><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Environment", "البيئة")}</dt><dd>{l(environment, environment === "sandbox" ? "بيئة اختبار" : environment === "staging" ? "قبل الإنتاج" : "الإنتاج (مخطط)")}</dd></div><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Target sync interval", "فترة المزامنة المطلوبة")}</dt><dd>{cadence} {l("minutes", "دقائق")}</dd></div><div><dt className="text-muted-foreground">{l("Planned event streams", "مسارات الأحداث المخططة")}</dt><dd className="mt-1">{feeds.join(" · ")}</dd></div></dl>
+              <dl className="space-y-3 text-sm"><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Environment", "البيئة")}</dt><dd>{l(environment, environment === "sandbox" ? "بيئة اختبار" : environment === "staging" ? "قبل الإنتاج" : "الإنتاج (مخطط)")}</dd></div><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Target sync interval", "فترة المزامنة المطلوبة")}</dt><dd>{cadence} {l("minutes", "دقائق")}</dd></div><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Collection method", "طريقة الجمع")}</dt><dd>{pair((methods.find((m) => m.id === method) ?? methods[0])?.label ?? (["", ""] as const))}</dd></div><div><dt className="text-muted-foreground">{l("Planned event streams", "مسارات الأحداث المخططة")}</dt><dd className="mt-1">{feeds.join(" · ")}</dd></div></dl>
               <p className="text-sm text-muted-foreground">{pair(provider.auth)}</p><p className="text-xs text-caution">{l("Adapter not implemented. Saving this draft does not connect the provider.", "المحوّل غير منفّذ. حفظ المسودة لا يربط المزوّد.")}</p>
-              <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => setStep(1)}>{l("Back", "رجوع")}</Button><Button onClick={() => { onSave({ environment, cadence, feeds }); setSaved(true); }}>{l("Save prototype draft", "حفظ المسودة التجريبية")}</Button></div>
+              <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => setStep(1)}>{l("Back", "رجوع")}</Button><Button onClick={() => { onSave({ environment, cadence, method, feeds }); setSaved(true); }}>{l("Save prototype draft", "حفظ المسودة التجريبية")}</Button></div>
             </>}
           </>}
         </TabsContent>

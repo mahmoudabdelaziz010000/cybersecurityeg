@@ -39,7 +39,7 @@ const CAPABILITIES = [
     icon: ScanSearch,
     title: "OSINT Data Hub",
     body: "One indicator, every connector queried concurrently, normalised into a single verdict with the raw evidence kept alongside it.",
-    to: "/osint" as const,
+    to: "/osint-hub" as const,
     cta: "Scan an indicator",
   },
   {
@@ -97,7 +97,7 @@ function Home() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
-                to="/osint"
+                to="/osint-hub"
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               >
                 Run a free scan <ArrowRight className="size-4" aria-hidden="true" />
@@ -220,7 +220,7 @@ function Home() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              to="/osint"
+              to="/osint-hub"
               className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               <ShieldCheck className="size-4" aria-hidden="true" /> Run a free scan

@@ -1,112 +1,372 @@
-import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Activity, AlertTriangle, ArrowDownToLine, ArrowRight, Boxes, Cloud, Cpu, Database, Globe, LockKeyhole, Mail, Monitor, Network, Plug, Search, Settings2, ShieldAlert, SlidersHorizontal } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useState } from "react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { Activity, Boxes, Check, Database, LockKeyhole, Plug, RefreshCw, Search, Settings2, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { XdrProviderDialog, type SetupDraft } from "@/components/xdr-provider-dialog";
 import { useLanguage } from "@/lib/language";
 import { headLanguage, pageHead } from "@/lib/seo";
-import { EVENTS, GROUPS, PROVIDERS, SEVERITIES, filterEvents, telemetryMetrics, telemetryTrend, type Group, type Provider, type Severity, type TelemetryEvent } from "@/lib/xdr-demo";
+import { DEFAULT_COLLECTION_SETTINGS, GROUPS, PROVIDERS, SEVERITIES, collectionMethods, type CollectionSettings, type Group, type Provider } from "@/lib/xdr-demo";
+import { GROUP_STYLE, groupLabel } from "@/lib/xdr-ui";
+
+const TITLE = "XDR Telemetry Settings | SentinelGrid";
+const DESCRIPTION =
+  "Plan which firewalls, endpoint protection such as Kaspersky Security Center, Windows servers and cloud platforms feed your XDR telemetry. Safe, session-only setup drafts; nothing is connected.";
 
 export const Route = createFileRoute("/xdr")({
-  head: (ctx) => ({ ...pageHead({ path: "/xdr", title: "XDR Integration Telemetry | SentinelGrid", description: "Explore an in-development XDR dashboard with clearly labeled sample events, source integrations and safe configuration drafts. No live telemetry or provider connections.", lang: headLanguage(ctx) }), meta: [...pageHead({ path: "/xdr", title: "XDR Integration Telemetry | SentinelGrid", description: "Explore an in-development XDR dashboard with clearly labeled sample events, source integrations and safe configuration drafts. No live telemetry or provider connections.", lang: headLanguage(ctx) }).meta, { name: "twitter:card", content: "summary_large_image" }] }),
-  component: XdrPage,
+  head: (ctx) => pageHead({ path: "/xdr", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
+  component: XdrSettingsPage,
 });
 
-const GROUP_STYLE: Record<Group, { icon: typeof Monitor; text: string; fill: string }> = {
-  Endpoints: { icon: Monitor, text: "text-primary", fill: "bg-primary" },
-  "Network & Firewall": { icon: Network, text: "text-caution", fill: "bg-caution" },
-  Cloud: { icon: Cloud, text: "text-xdr-cloud", fill: "bg-xdr-cloud" },
-  Email: { icon: Mail, text: "text-clean", fill: "bg-clean" },
-  "AI APIs": { icon: Cpu, text: "text-xdr-ai", fill: "bg-xdr-ai" },
-  "Other APIs": { icon: Globe, text: "text-xdr-other", fill: "bg-xdr-other" },
-};
-const SEVERITY_STYLE: Record<Severity, string> = {
-  Critical: "text-malicious bg-malicious/10 border-malicious/25", High: "text-caution bg-caution/10 border-caution/25", Medium: "text-xdr-cloud bg-xdr-cloud/10 border-xdr-cloud/25", Low: "text-primary bg-primary/10 border-primary/25", Info: "text-muted-foreground bg-muted border-border",
-};
-const SEVERITY_BAR: Record<Severity, string> = { Critical: "bg-malicious", High: "bg-caution", Medium: "bg-xdr-cloud", Low: "bg-primary", Info: "bg-xdr-other" };
-function XdrPage() {
+type StatusFilter = "all" | "demo" | "setup" | "draft";
+
+function XdrSettingsPage() {
   const { isArabic, t } = useLanguage();
-  const l = (en: string, ar: string) => isArabic ? ar : en;
-  const [tab, setTab] = useState("overview");
-  const [hours, setHours] = useState("8");
+  const l = (en: string, ar: string) => (isArabic ? ar : en);
+  const [tab, setTab] = useState("sources");
   const [query, setQuery] = useState("");
-  const [severity, setSeverity] = useState("all");
-  const [source, setSource] = useState("all");
-  const [providerQuery, setProviderQuery] = useState("");
-  const [category, setCategory] = useState("all");
-  const [status, setStatus] = useState("all");
-  const [selected, setSelected] = useState<TelemetryEvent | null>(null);
+  const [category, setCategory] = useState<"all" | Group>("all");
+  const [status, setStatus] = useState<StatusFilter>("all");
   const [provider, setProvider] = useState<Provider | null>(null);
   const [drafts, setDrafts] = useState<Record<string, SetupDraft>>({});
-  const [page, setPage] = useState(1);
-  const sample = useMemo(() => filterEvents(EVENTS, "", "all", "all", Number(hours)), [hours]);
-  const filtered = useMemo(() => filterEvents(EVENTS, query, severity, source, Number(hours)), [query, severity, source, hours]);
-  const metrics = telemetryMetrics(sample);
-  const trend = telemetryTrend(sample, Number(hours));
-  const providers = PROVIDERS.filter((p) => (category === "all" || p.group === category) && (status === "all" || (status === "demo" ? p.demo : !p.demo)) && `${p.name} ${p.group} ${p.capability.join(" ")}`.toLowerCase().includes(providerQuery.trim().toLowerCase()));
-  const sourceName = (id: string) => PROVIDERS.find((p) => p.id === id)?.name ?? id;
-  const groupLabel = (group: string) => ({ Endpoints: l("Endpoints", "الأجهزة الطرفية"), "Network & Firewall": l("Network & Firewall", "الشبكات والجدران النارية"), Cloud: l("Cloud", "السحابة"), Email: l("Email", "البريد الإلكتروني"), "AI APIs": l("AI APIs", "واجهات الذكاء الاصطناعي"), "Other APIs": l("Other APIs", "واجهات أخرى") })[group] ?? group;
-  const reset = () => { setQuery(""); setSeverity("all"); setSource("all"); setPage(1); };
-  const exportSample = () => {
-    const blob = new Blob([JSON.stringify({ demo: true, liveConnections: 0, snapshot: "2026-11-02T12:00:00Z", events: filtered }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a"); anchor.href = url; anchor.download = "sentinelgrid-xdr-demo.json"; anchor.click(); URL.revokeObjectURL(url);
-  };
-  const pages = Math.max(1, Math.ceil(filtered.length / 8));
-  const visiblePage = Math.min(page, pages);
-  const severityBadge = (value: Severity) => <span className={`inline-flex rounded border px-2 py-0.5 text-[11px] font-medium ${SEVERITY_STYLE[value]}`}>{t(value)}</span>;
-  const eventStatus = (value: string) => value === "Open" ? l("Open", "مفتوح") : value === "Resolved" ? l("Resolved", "تم الحل") : l("Observed", "مرصود");
+  const [settings, setSettings] = useState<CollectionSettings>(DEFAULT_COLLECTION_SETTINGS);
+  const [settingsSaved, setSettingsSaved] = useState(false);
 
-  return <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10" data-no-translate>
-    <div className="flex flex-wrap items-start justify-between gap-5">
-      <div><div className="mb-3 flex items-center gap-2 text-xs font-mono text-primary"><Activity className="size-4" />{l("SECURITY OPERATIONS", "العمليات الأمنية")}<span className="rounded border border-caution/30 bg-caution/10 px-2 py-0.5 text-caution">{l("In development", "قيد التطوير")}</span></div><h1 className="text-3xl font-semibold sm:text-4xl">{l("XDR Integration Telemetry", "تكامل بيانات XDR")}</h1><p className="mt-3 max-w-2xl text-sm text-muted-foreground">{l("One security view across endpoints, networks, cloud, email and AI.", "رؤية أمنية موحدة للأجهزة والشبكات والسحابة والبريد والذكاء الاصطناعي.")}</p></div>
-      <Button variant="outline" onClick={exportSample}><ArrowDownToLine />{l("Export demo", "تصدير العينة")}</Button>
+  const needle = query.trim().toLowerCase();
+  const visible = PROVIDERS.filter(
+    (p) =>
+      (category === "all" || p.group === category) &&
+      (status === "all" || (status === "demo" ? p.demo : status === "setup" ? !p.demo : Boolean(drafts[p.id]))) &&
+      (!needle || `${p.name} ${p.group} ${p.feeds.join(" ")} ${p.capability.join(" ")}`.toLowerCase().includes(needle)),
+  );
+  const draftCount = Object.keys(drafts).length;
+  const filtersActive = Boolean(needle) || category !== "all" || status !== "all";
+  const clearFilters = () => {
+    setQuery("");
+    setCategory("all");
+    setStatus("all");
+  };
+  const updateSettings = <K extends keyof CollectionSettings>(key: K, value: CollectionSettings[K]) => {
+    setSettings((current) => ({ ...current, [key]: value }));
+    setSettingsSaved(false);
+  };
+  const methodLabel = (p: Provider) => {
+    const chosen = collectionMethods(p).find((m) => m.id === drafts[p.id]?.method);
+    return chosen ? chosen.label[isArabic ? 1 : 0] : l("Not selected", "غير محددة");
+  };
+
+  const summary = [
+    { label: l("Sources in catalog", "المصادر في الدليل"), value: PROVIDERS.length, detail: l(`${GROUPS.length} categories`, `${GROUPS.length} فئات`), icon: Boxes, color: "text-primary" },
+    { label: l("Setup drafts", "مسودات الإعداد"), value: draftCount, detail: l("This page session only", "لهذه الجلسة فقط"), icon: Settings2, color: "text-xdr-cloud" },
+    { label: l("Connected sources", "المصادر المتصلة"), value: 0, detail: l("No live connections", "لا توجد اتصالات حقيقية"), icon: Plug, color: "text-caution" },
+    { label: l("With sample data", "ببيانات تجريبية"), value: PROVIDERS.filter((p) => p.demo).length, detail: l("Shown on the SOC dashboard", "تظهر في لوحة مركز العمليات"), icon: Database, color: "text-clean" },
+  ];
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10" data-no-translate>
+      <div className="flex flex-wrap items-start justify-between gap-5">
+        <div>
+          <div className="mb-3 flex items-center gap-2 font-mono text-xs text-primary">
+            <Activity className="size-4" />
+            {l("XDR TELEMETRY", "بيانات XDR")}
+            <span className="rounded border border-caution/30 bg-caution/10 px-2 py-0.5 text-caution">{l("In development", "قيد التطوير")}</span>
+          </div>
+          <h1 className="text-3xl font-semibold sm:text-4xl">{l("XDR Telemetry Settings", "إعدادات بيانات XDR")}</h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+            {l(
+              "Choose which firewalls, endpoint protection, servers and cloud platforms feed the XDR pipeline, and prepare how each one will be collected.",
+              "اختر الجدران النارية وحماية الأجهزة والخوادم ومنصات السحابة التي تغذي مسار XDR، وجهّز طريقة جمع بيانات كل منها.",
+            )}
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/osint">
+            <Activity />
+            {l("Open SOC dashboard", "فتح لوحة مركز العمليات")}
+          </Link>
+        </Button>
+      </div>
+
+      <div className="mt-6 flex items-start gap-2 border-y border-caution/25 bg-caution/5 px-4 py-3 text-xs leading-relaxed">
+        <Database className="mt-0.5 size-4 shrink-0 text-caution" />
+        <p>
+          <strong className="text-caution">{l("Prototype. ", "نموذج تجريبي. ")}</strong>
+          {l(
+            "Nothing here connects to a provider, stores credentials or ingests live data. Setup drafts live only in this page session.",
+            "لا يتصل أي شيء هنا بمزوّد ولا يخزّن بيانات اعتماد ولا يستقبل بيانات حقيقية. مسودات الإعداد تبقى في هذه الجلسة فقط.",
+          )}
+        </p>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {summary.map((item) => (
+          <article key={item.label} className="surface min-w-0 p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-2">
+              <h2 className="text-xs text-muted-foreground sm:text-sm">{item.label}</h2>
+              <item.icon className={`size-4 shrink-0 ${item.color}`} />
+            </div>
+            <p className="mt-4 font-display text-3xl font-semibold">{item.value}</p>
+            <p className="mt-2 text-[11px] text-muted-foreground">{item.detail}</p>
+          </article>
+        ))}
+      </div>
+
+      <Tabs value={tab} onValueChange={setTab} dir={isArabic ? "rtl" : "ltr"} className="mt-8">
+        <TabsList className="h-10">
+          <TabsTrigger value="sources" className="gap-2">
+            <Plug className="size-4" />
+            {l("Data sources", "مصادر البيانات")}
+          </TabsTrigger>
+          <TabsTrigger value="collection" className="gap-2">
+            <SlidersHorizontal className="size-4" />
+            {l("Collection settings", "إعدادات الجمع")}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="sources" className="mt-6 space-y-6">
+          <div className="flex flex-wrap gap-2" role="group" aria-label={l("Source category", "فئة المصدر")}>
+            <Button variant={category === "all" ? "secondary" : "outline"} size="sm" aria-pressed={category === "all"} onClick={() => setCategory("all")}>
+              {l("All", "الكل")}
+              <span className="font-mono text-xs text-muted-foreground">{PROVIDERS.length}</span>
+            </Button>
+            {GROUPS.map((group) => {
+              const Icon = GROUP_STYLE[group].icon;
+              return (
+                <Button key={group} variant={category === group ? "secondary" : "outline"} size="sm" aria-pressed={category === group} onClick={() => setCategory(group)}>
+                  <Icon className={GROUP_STYLE[group].text} />
+                  {groupLabel(group, isArabic)}
+                  <span className="font-mono text-xs text-muted-foreground">{PROVIDERS.filter((p) => p.group === group).length}</span>
+                </Button>
+              );
+            })}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_190px_auto]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-muted-foreground" />
+              <Input
+                className="ps-9"
+                aria-label={l("Search sources", "بحث المصادر")}
+                placeholder={l("Search Kaspersky, Fortinet, Windows, AWS…", "ابحث عن Kaspersky أو Fortinet أو Windows أو AWS…")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Select value={status} onValueChange={(value) => setStatus(value as StatusFilter)}>
+              <SelectTrigger aria-label={l("Source status", "حالة المصدر")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{l("All statuses", "كل الحالات")}</SelectItem>
+                <SelectItem value="draft">{l("Draft prepared", "مسودة جاهزة")}</SelectItem>
+                <SelectItem value="demo">{l("Sample data", "بيانات تجريبية")}</SelectItem>
+                <SelectItem value="setup">{l("Needs setup", "يحتاج إلى إعداد")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={clearFilters} disabled={!filtersActive}>
+              <SlidersHorizontal />
+              {l("Reset", "إعادة ضبط")}
+            </Button>
+          </div>
+
+          {GROUPS.map((group) => {
+            const list = visible.filter((p) => p.group === group);
+            if (!list.length) return null;
+            const Icon = GROUP_STYLE[group].icon;
+            return (
+              <section key={group} aria-labelledby={`group-${group}`}>
+                <h2 id={`group-${group}`} className="mb-4 flex items-center gap-2 text-sm font-semibold">
+                  <Icon className={`size-4 ${GROUP_STYLE[group].text}`} />
+                  {groupLabel(group, isArabic)}
+                  <span className="ms-1 font-mono text-xs font-normal text-muted-foreground">{list.length}</span>
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {list.map((p) => (
+                    <article key={p.id} className="surface flex min-w-0 flex-col p-5">
+                      <div className="flex items-start gap-3">
+                        <div className={`grid size-9 shrink-0 place-items-center rounded-md border border-border bg-muted ${GROUP_STYLE[group].text}`}>
+                          <Icon className="size-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold">{p.name}</h3>
+                          <p className={`mt-1 text-[11px] ${p.demo ? "text-caution" : "text-muted-foreground"}`}>
+                            {p.demo ? l("Sample data · not connected", "بيانات تجريبية · غير متصل") : l("Needs setup · not connected", "يحتاج إلى إعداد · غير متصل")}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{p.capability[isArabic ? 1 : 0]}</p>
+                      <dl className="mt-4 space-y-1 text-xs">
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-muted-foreground">{l("Collection method", "طريقة الجمع")}</dt>
+                          <dd className="text-end">{methodLabel(p)}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-muted-foreground">{l("Last live sync", "آخر مزامنة حقيقية")}</dt>
+                          <dd>{l("Never", "لم تحدث")}</dd>
+                        </div>
+                      </dl>
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+                        <span className={`flex items-center gap-1 text-[11px] ${drafts[p.id] ? "text-primary" : "text-muted-foreground"}`}>
+                          {drafts[p.id] && <Check className="size-3" />}
+                          {drafts[p.id] ? l("Draft prepared · session only", "مسودة جاهزة · لهذه الجلسة") : l("Adapter pending", "المحوّل قيد الانتظار")}
+                        </span>
+                        <Button variant="outline" size="sm" aria-label={l(`Configure ${p.name}`, `إعداد ${p.name}`)} onClick={() => setProvider(p)}>
+                          <Settings2 />
+                          {l("Configure", "إعداد")}
+                        </Button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+
+          {!visible.length && (
+            <div className="border-y border-border py-12 text-center">
+              <Boxes className="mx-auto size-6 text-muted-foreground" />
+              <h2 className="mt-3 font-semibold">{l("No sources match", "لا توجد مصادر مطابقة")}</h2>
+              <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                {l("Clear filters", "مسح التصفية")}
+              </Button>
+            </div>
+          )}
+
+          <div className="flex items-start gap-3 border-t border-border pt-6">
+            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <h2 className="text-sm font-semibold">{l("Secure by design, not connected by default", "آمن في التصميم وغير متصل افتراضياً")}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                {l(
+                  "Credentials belong in secure server-side secrets. Each real integration needs provider-specific authorization, a backend ingestion adapter, normalization and access controls. This catalog contains setup checklists and synthetic samples only.",
+                  "مكان الاعتمادات هو أسرار الخادم الآمنة. يحتاج كل تكامل حقيقي إلى تفويض خاص بالمزوّد ومحوّل استقبال خلفي وتوحيد البيانات وضوابط الوصول. هذا الدليل يحتوي فقط على قوائم متطلبات وعينات اصطناعية.",
+                )}
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="collection" className="mt-6 space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold">{l("Collection settings", "إعدادات الجمع")}</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              {l("Defaults applied to every source once ingestion exists. Individual sources can override the interval in their own setup.", "إعدادات افتراضية تُطبّق على كل مصدر عند توفر الاستقبال. يمكن لكل مصدر تعديل الفترة في إعداده الخاص.")}
+            </p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <SettingSelect
+              id="xdr-schema"
+              label={l("Event schema", "مخطط الأحداث")}
+              hint={l("How events from every source are normalized.", "كيف تُوحَّد أحداث كل المصادر.")}
+              value={settings.schema}
+              onChange={(value) => updateSettings("schema", value as CollectionSettings["schema"])}
+              options={[
+                ["ocsf", l("OCSF (Open Cybersecurity Schema)", "OCSF (المخطط المفتوح للأمن السيبراني)")],
+                ["ecs", l("Elastic Common Schema (ECS)", "مخطط Elastic الموحّد (ECS)")],
+                ["cef", l("CEF (Common Event Format)", "CEF (صيغة الأحداث الموحّدة)")],
+              ]}
+            />
+            <SettingSelect
+              id="xdr-interval"
+              label={l("Default sync interval", "فترة المزامنة الافتراضية")}
+              hint={l("How often API-based sources are polled.", "عدد مرات سحب المصادر المعتمدة على API.")}
+              value={settings.interval}
+              onChange={(value) => updateSettings("interval", value)}
+              options={["1", "5", "15", "30"].map((v) => [v, `${v} ${l("minutes", "دقائق")}`] as [string, string])}
+            />
+            <SettingSelect
+              id="xdr-retention"
+              label={l("Retention", "مدة الاحتفاظ")}
+              hint={l("How long normalized events are kept.", "مدة الاحتفاظ بالأحداث الموحّدة.")}
+              value={settings.retention}
+              onChange={(value) => updateSettings("retention", value)}
+              options={["30", "90", "180", "365"].map((v) => [v, `${v} ${l("days", "يوماً")}`] as [string, string])}
+            />
+            <SettingSelect
+              id="xdr-severity"
+              label={l("Minimum severity for the SOC dashboard", "أدنى خطورة تظهر في لوحة مركز العمليات")}
+              hint={l("Lower-severity events are stored but not surfaced.", "تُخزَّن الأحداث الأقل خطورة دون إظهارها.")}
+              value={settings.minSeverity}
+              onChange={(value) => updateSettings("minSeverity", value as CollectionSettings["minSeverity"])}
+              options={SEVERITIES.map((v) => [v, t(v)] as [string, string])}
+            />
+            <SettingSelect
+              id="xdr-heartbeat"
+              label={l("Silent-source alert", "تنبيه المصدر الصامت")}
+              hint={l("Raise a health alert when a source sends nothing.", "إطلاق تنبيه صحة عندما لا يرسل المصدر شيئاً.")}
+              value={settings.heartbeat}
+              onChange={(value) => updateSettings("heartbeat", value)}
+              options={["5", "15", "30", "60"].map((v) => [v, l(`After ${v} minutes`, `بعد ${v} دقائق`)] as [string, string])}
+            />
+            <div className="surface flex items-start justify-between gap-4 p-4">
+              <div>
+                <label htmlFor="xdr-redact" className="text-sm font-medium">
+                  {l("Redact personal data", "إخفاء البيانات الشخصية")}
+                </label>
+                <p className="mt-1 text-xs text-muted-foreground">{l("Mask user names and email addresses in stored events.", "إخفاء أسماء المستخدمين والبريد الإلكتروني في الأحداث المخزّنة.")}</p>
+              </div>
+              <Switch id="xdr-redact" checked={settings.redact} onCheckedChange={(value) => updateSettings("redact", value)} />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={() => setSettingsSaved(true)}>
+              <Check />
+              {l("Save draft", "حفظ المسودة")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSettings(DEFAULT_COLLECTION_SETTINGS);
+                setSettingsSaved(false);
+              }}
+            >
+              <RefreshCw />
+              {l("Reset to defaults", "استعادة الافتراضي")}
+            </Button>
+            <p className="text-xs text-muted-foreground" role="status">
+              {settingsSaved
+                ? l("Draft saved for this page session only. Nothing was applied to any source.", "حُفظت المسودة لهذه الجلسة فقط. لم يُطبَّق شيء على أي مصدر.")
+                : l("Unsaved changes stay in this page only.", "التغييرات غير المحفوظة تبقى في هذه الصفحة فقط.")}
+            </p>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {provider && (
+        <XdrProviderDialog
+          key={provider.id}
+          provider={provider}
+          draft={drafts[provider.id]}
+          onClose={() => setProvider(null)}
+          onSave={(draft) => setDrafts((previous) => ({ ...previous, [provider.id]: draft }))}
+        />
+      )}
     </div>
-    <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-caution/25 bg-caution/5 px-4 py-3 text-xs"><p className="flex items-start gap-2 leading-relaxed"><Database className="mt-0.5 size-4 shrink-0 text-caution" /><span><strong className="text-caution">{l("Demo workspace. ", "مساحة تجريبية. ")}</strong>{l("All events and charts are synthetic. No providers are connected and no live telemetry is ingested.", "كل الأحداث والرسوم عينات اصطناعية. لا توجد اتصالات بالمزوّدين أو بيانات حقيقية.")}</span></p><span className="shrink-0 font-mono text-muted-foreground" dir="ltr">02 Nov 2026 · 12:00 UTC</span></div>
-    <Tabs value={tab} onValueChange={setTab} dir={isArabic ? "rtl" : "ltr"} className="mt-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><TabsList className="h-10"><TabsTrigger value="overview" className="gap-2"><Activity className="size-4" />{l("Overview", "نظرة عامة")}</TabsTrigger><TabsTrigger value="integrations" className="gap-2"><Plug className="size-4" />{l("Integrations", "التكاملات")}<span className="hidden font-mono text-xs sm:inline">14</span></TabsTrigger></TabsList><div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">{l("Demo window", "فترة العينة")}</span><Select value={hours} onValueChange={(value) => { setHours(value); setPage(1); }}><SelectTrigger className="w-36" aria-label={l("Demo time window", "فترة البيانات التجريبية")}><SelectValue /></SelectTrigger><SelectContent>{["2", "4", "8"].map((h) => <SelectItem key={h} value={h}>{l(`Last ${h} hours`, `آخر ${h} ساعات`)}</SelectItem>)}</SelectContent></Select></div></div>
-      <TabsContent value="overview" className="mt-6 space-y-7">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            { label: l("Events ingested", "الأحداث المستقبلة"), value: metrics.ingested, detail: l("Sample events only", "أحداث عينة فقط"), icon: Database, color: "text-primary" },
-            { label: l("Open detections", "الكشوفات المفتوحة"), value: metrics.open, detail: l("Demo investigation queue", "قائمة تحقيق تجريبية"), icon: ShieldAlert, color: "text-xdr-cloud" },
-            { label: l("Critical alerts", "التنبيهات الحرجة"), value: metrics.critical, detail: l("Open · synthetic alerts", "مفتوح · تنبيهات اصطناعية"), icon: AlertTriangle, color: "text-malicious" },
-            { label: l("Connected sources", "المصادر المتصلة"), value: metrics.connected, detail: l("8 demo sources · 14 available", "8 مصادر تجريبية · 14 متاحاً"), icon: Plug, color: "text-caution" },
-          ].map((metric) => <article key={metric.label} className="surface min-w-0 p-4 sm:p-5"><div className="flex items-start justify-between gap-2"><h2 className="text-xs text-muted-foreground sm:text-sm">{metric.label}</h2><metric.icon className={`size-4 shrink-0 ${metric.color}`} /></div><p className="mt-4 font-display text-3xl font-semibold sm:text-4xl">{metric.value}</p><p className="mt-2 text-[11px] text-muted-foreground">{metric.detail}</p></article>)}
-        </div>
-        <div className="grid gap-6 lg:grid-cols-[1.65fr_1fr]">
-          <section className="min-w-0"><div className="flex items-center justify-between gap-3"><h2 className="text-base font-semibold">{l("Telemetry trend", "اتجاه البيانات")}</h2><span className="text-[11px] font-mono text-muted-foreground">{l("SAMPLE · UTC", "عينة · UTC")}</span></div><div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground"><span className="flex items-center gap-2"><span className="h-0.5 w-4 bg-primary" />{l("Events", "الأحداث")}</span><span className="flex items-center gap-2"><span className="h-0.5 w-4 bg-caution" />{l("Open detections", "الكشوفات المفتوحة")}</span></div><div className="xdr-chart mt-3 h-64 w-full" dir="ltr"><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend} margin={{ top: 10, right: 10, bottom: 0, left: -25 }}><CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false} /><XAxis dataKey="time" tickLine={false} axisLine={false} minTickGap={20} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} /><Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-md border border-border bg-popover p-3 text-xs shadow-panel"><p className="mb-2 font-mono">{label} UTC · {l("Demo", "عينة")}</p>{payload.map((entry) => <p key={String(entry.dataKey)} className="py-0.5">{entry.dataKey === "events" ? l("Events", "الأحداث") : l("Open detections", "الكشوفات المفتوحة")}: {entry.value}</p>)}</div> : null} /><Area name="events" type="monotone" dataKey="events" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} /><Area name="detections" type="monotone" dataKey="detections" stroke="var(--caution)" fill="var(--caution)" fillOpacity={0.03} strokeWidth={2} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div></section>
-          <section className="border-t border-border pt-5 lg:border-s lg:border-t-0 lg:ps-6 lg:pt-0"><h2 className="text-base font-semibold">{l("Severity breakdown", "توزيع الخطورة")}</h2><p className="mt-1 text-xs text-muted-foreground">{l("Sample events in selected window", "أحداث العينة في الفترة المحددة")}</p><div className="mt-5 space-y-4">{SEVERITIES.map((value) => { const count = sample.filter((e) => e.severity === value).length; return <div key={value} className="grid grid-cols-[72px_1fr_24px] items-center gap-3 text-xs"><span>{t(value)}</span><div className="h-1.5 overflow-hidden rounded-full bg-muted"><svg className="h-full w-full" viewBox="0 0 100 1" preserveAspectRatio="none" aria-label={`${t(value)}: ${count}`}><rect width={sample.length ? count / sample.length * 100 : 0} height="1" className={SEVERITY_BAR[value].replace("bg-", "fill-")} /></svg></div><span className="text-end font-mono text-muted-foreground">{count}</span></div>; })}</div><div className="mt-5 border-t border-border pt-3 text-xs text-muted-foreground">{l("Counts are demo events, not live risk scores.", "الأعداد أحداث تجريبية وليست درجات مخاطر حقيقية.")}</div></section>
-        </div>
-        <section className="border-y border-border py-5"><h2 className="text-sm font-semibold">{l("Source distribution", "توزيع المصادر")}</h2><div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">{GROUPS.map((group) => { const Icon = GROUP_STYLE[group].icon; const count = sample.filter((e) => PROVIDERS.find((p) => p.id === e.source)?.group === group).length; return <div key={group} className="min-w-0"><div className="flex items-center gap-2"><Icon className={`size-4 shrink-0 ${GROUP_STYLE[group].text}`} /><span className="text-xs text-muted-foreground">{groupLabel(group)}</span></div><div className="mt-2 flex items-baseline gap-2"><strong className="font-mono text-lg">{count}</strong><span className="text-[11px] text-muted-foreground">{l("sample events", "أحداث عينة")}</span></div></div>; })}</div></section>
-        <section>
-          <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-base font-semibold">{l("Recent events", "الأحداث الأخيرة")} <span className="ms-2 text-xs font-normal text-muted-foreground">{l("Demo data", "بيانات تجريبية")}</span></h2><Button variant="ghost" size="sm" onClick={() => setTab("integrations")}>{l("Manage sources", "إدارة المصادر")}<ArrowRight /></Button></div>
-          <div className="my-4 grid gap-3 sm:grid-cols-[1fr_160px_200px_auto]"><div className="relative"><Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-muted-foreground" /><Input className="ps-9" aria-label={l("Search events", "بحث الأحداث")} placeholder={l("Search events, assets or users…", "ابحث عن الأحداث أو الأصول أو المستخدمين…")} value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} /></div><Select value={severity} onValueChange={(v) => { setSeverity(v); setPage(1); }}><SelectTrigger aria-label={l("Filter severity", "تصفية الخطورة")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{l("All severities", "كل درجات الخطورة")}</SelectItem>{SEVERITIES.map((v) => <SelectItem key={v} value={v}>{t(v)}</SelectItem>)}</SelectContent></Select><Select value={source} onValueChange={(v) => { setSource(v); setPage(1); }}><SelectTrigger aria-label={l("Filter source", "تصفية المصدر")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{l("All sources", "كل المصادر")}</SelectItem>{PROVIDERS.filter((p) => p.demo).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select><Button variant="outline" onClick={reset} disabled={!query && severity === "all" && source === "all"}><SlidersHorizontal />{l("Reset", "إعادة ضبط")}</Button></div>
-          {filtered.length ? <><div className="overflow-x-auto rounded-md border border-border"><table className="w-full min-w-[820px] text-start text-sm"><thead className="bg-panel text-[11px] text-muted-foreground"><tr>{[l("Timestamp · UTC", "الوقت · UTC"), l("Severity", "الخطورة"), l("Source", "المصدر"), l("Asset / user", "الأصل / المستخدم"), l("Event summary", "ملخص الحدث"), l("Status", "الحالة"), l("Details", "التفاصيل")].map((heading) => <th key={heading} className="px-4 py-3 text-start font-medium">{heading}</th>)}</tr></thead><tbody className="divide-y divide-border">{filtered.slice((visiblePage - 1) * 8, visiblePage * 8).map((event) => <tr key={event.id} className="transition-colors hover:bg-panel"><td className="whitespace-nowrap px-4 py-4 font-mono text-xs text-muted-foreground" dir="ltr">{event.timestamp.slice(11, 16)}</td><td className="px-4 py-4">{severityBadge(event.severity)}</td><td className="px-4 py-4 text-xs">{sourceName(event.source)}</td><td className="px-4 py-4 font-mono text-xs text-muted-foreground">{event.asset}</td><td className="min-w-64 px-4 py-4 text-xs"><Button variant="link" className="h-auto justify-start whitespace-normal p-0 text-start text-xs text-foreground" onClick={() => setSelected(event)}>{event.summary[isArabic ? 1 : 0]}</Button></td><td className="px-4 py-4 text-xs text-muted-foreground">{eventStatus(event.status)}</td><td className="px-4 py-4"><Button variant="ghost" size="icon" aria-label={l(`View event ${event.id}`, `عرض الحدث ${event.id}`)} title={l("View normalized event", "عرض الحدث الموحّد")} onClick={() => setSelected(event)}><ArrowRight /></Button></td></tr>)}</tbody></table></div><div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{l(`Showing ${(visiblePage - 1) * 8 + 1}–${Math.min(visiblePage * 8, filtered.length)} of ${filtered.length} sample events`, `عرض ${(visiblePage - 1) * 8 + 1}–${Math.min(visiblePage * 8, filtered.length)} من ${filtered.length} حدثاً تجريبياً`)}</p><div className="flex items-center gap-3"><Button variant="outline" size="sm" disabled={visiblePage === 1} onClick={() => setPage(visiblePage - 1)}>{l("Previous", "السابق")}</Button><span className="font-mono text-xs">{visiblePage} / {pages}</span><Button variant="outline" size="sm" disabled={visiblePage === pages} onClick={() => setPage(visiblePage + 1)}>{l("Next", "التالي")}</Button></div></div></> : <div className="border-y border-border py-12 text-center"><Search className="mx-auto size-6 text-muted-foreground" /><h3 className="mt-3 font-semibold">{l("No matching sample events", "لا توجد أحداث تجريبية مطابقة")}</h3><p className="mt-2 text-sm text-muted-foreground">{l("No events match the current search, severity and source.", "لا توجد أحداث تطابق البحث والخطورة والمصدر الحاليين.")}</p><Button variant="outline" className="mt-4" onClick={reset}>{l("Clear filters", "مسح التصفية")}</Button></div>}
-        </section>
-      </TabsContent>
-      <TabsContent value="integrations" className="mt-6 space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-semibold">{l("Integrations catalog", "دليل التكاملات")}</h2><p className="mt-2 text-sm text-muted-foreground">{l("0 connected · 8 with demo data · 6 need setup", "0 متصل · 8 ببيانات تجريبية · 6 تحتاج إلى إعداد")}</p></div><span className="flex items-center gap-2 text-xs text-muted-foreground"><LockKeyhole className="size-4" />{l("No credentials collected", "لا يتم جمع بيانات الاعتماد")}</span></div>
-        <div className="grid gap-3 sm:grid-cols-[1fr_230px_170px]"><div className="relative"><Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-muted-foreground" /><Input className="ps-9" aria-label={l("Search integrations", "بحث التكاملات")} placeholder={l("Search providers or capabilities…", "ابحث عن المزوّدين أو القدرات…")} value={providerQuery} onChange={(e) => setProviderQuery(e.target.value)} /></div><Select value={category} onValueChange={setCategory}><SelectTrigger aria-label={l("Integration category", "فئة التكامل")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{l("All categories", "كل الفئات")}</SelectItem>{GROUPS.map((group) => <SelectItem key={group} value={group}>{groupLabel(group)}</SelectItem>)}</SelectContent></Select><Select value={status} onValueChange={setStatus}><SelectTrigger aria-label={l("Integration status", "حالة التكامل")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{l("All statuses", "كل الحالات")}</SelectItem><SelectItem value="demo">{l("Demo data", "بيانات تجريبية")}</SelectItem><SelectItem value="setup">{l("Needs setup", "يحتاج إلى إعداد")}</SelectItem></SelectContent></Select></div>
-        {GROUPS.map((group) => { const list = providers.filter((p) => p.group === group); if (!list.length) return null; const Icon = GROUP_STYLE[group].icon; return <section key={group}><h3 className="mb-4 flex items-center gap-2 text-sm font-semibold"><Icon className={`size-4 ${GROUP_STYLE[group].text}`} />{groupLabel(group)}<span className="ms-1 font-mono text-xs font-normal text-muted-foreground">{list.length}</span></h3><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{list.map((p) => <article key={p.id} className="surface flex min-w-0 flex-col p-5"><div className="flex items-start gap-3"><div className={`grid size-9 shrink-0 place-items-center rounded-md border border-border bg-muted ${GROUP_STYLE[group].text}`}><Icon className="size-4" /></div><div className="min-w-0 flex-1"><h4 className="text-sm font-semibold">{p.name}</h4><p className={`mt-1 text-[11px] ${p.demo ? "text-caution" : "text-muted-foreground"}`}>{p.demo ? l("Demo data · not connected", "بيانات تجريبية · غير متصل") : l("Needs setup · not connected", "يحتاج إلى إعداد · غير متصل")}</p></div></div><p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{p.capability[isArabic ? 1 : 0]}</p><dl className="mt-4 space-y-1 text-xs"><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Last live sync", "آخر مزامنة حقيقية")}</dt><dd>{l("Never", "لم تحدث")}</dd></div><div className="flex justify-between gap-3"><dt className="text-muted-foreground">{l("Sample snapshot", "وقت العينة")}</dt><dd>{p.demo ? "02 Nov · 12:00 UTC" : "—"}</dd></div></dl><div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3"><span className="text-[11px] text-muted-foreground">{drafts[p.id] ? l("Draft prepared · session only", "مسودة جاهزة · لهذه الجلسة") : l("Adapter pending", "المحوّل قيد الانتظار")}</span><Button variant="outline" size="sm" aria-label={l(`Configure ${p.name}`, `إعداد ${p.name}`)} onClick={() => setProvider(p)}><Settings2 />{l("Configure", "إعداد")}</Button></div></article>)}</div></section>; })}
-        {!providers.length && <div className="border-y border-border py-12 text-center"><Boxes className="mx-auto size-6 text-muted-foreground" /><h3 className="mt-3 font-semibold">{l("No integrations match", "لا توجد تكاملات مطابقة")}</h3><Button variant="outline" className="mt-4" onClick={() => { setProviderQuery(""); setCategory("all"); setStatus("all"); }}>{l("Clear filters", "مسح التصفية")}</Button></div>}
-        <div className="flex items-start gap-3 border-t border-border pt-6"><LockKeyhole className="mt-0.5 size-5 shrink-0 text-primary" /><div><h3 className="text-sm font-semibold">{l("Secure by design, not connected by default", "آمن في التصميم وغير متصل افتراضياً")}</h3><p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">{l("Credentials belong in secure server-side secrets. Each real integration needs provider-specific authorization, a backend ingestion adapter, normalization and access controls. This catalog contains setup placeholders and synthetic samples only.", "مكان الاعتمادات هو أسرار الخادم الآمنة. يحتاج كل تكامل حقيقي إلى تفويض خاص بالمزوّد ومحوّل استقبال خلفي وتوحيد البيانات وضوابط الوصول. هذا الدليل يحتوي فقط على إعدادات مبدئية وعينات اصطناعية.")}</p></div></div>
-      </TabsContent>
-    </Tabs>
-    <Sheet open={Boolean(selected)} onOpenChange={(open) => { if (!open) setSelected(null); }}>
-      <SheetContent side={isArabic ? "left" : "right"} dir={isArabic ? "rtl" : "ltr"} className="w-full overflow-y-auto sm:max-w-lg" data-no-translate>
-        <SheetHeader className="text-start sm:text-start"><span className="mb-2 text-xs font-mono text-caution">{l("SYNTHETIC EVENT · DEMO DATA", "حدث اصطناعي · بيانات تجريبية")}</span><SheetTitle>{l("Normalized event", "الحدث الموحّد")}</SheetTitle><SheetDescription>{selected?.id}</SheetDescription></SheetHeader>
-        {selected && <><div className="my-6">{severityBadge(selected.severity)}<h3 className="mt-4 text-xl font-semibold leading-relaxed">{selected.summary[isArabic ? 1 : 0]}</h3></div><dl className="divide-y divide-border text-sm">{[
-          [l("Timestamp", "الوقت"), `${selected.timestamp.replace("T", " ").replace("Z", "")} UTC`],
-          [l("Severity", "الخطورة"), t(selected.severity)], [l("Source", "المصدر"), sourceName(selected.source)], [l("Asset / user", "الأصل / المستخدم"), selected.asset], [l("Event type", "نوع الحدث"), selected.type], [l("Status", "الحالة"), eventStatus(selected.status)], [l("Data origin", "مصدر البيانات"), l("Synthetic fixture · no live ingestion", "عينة اصطناعية · دون استقبال حقيقي")],
-        ].map(([label, value]) => <div className="grid grid-cols-[100px_1fr] gap-4 py-4" key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="break-words text-xs" dir="auto">{value}</dd></div>)}</dl><section className="mt-6 border-t border-border pt-5"><h3 className="text-sm font-semibold">MITRE ATT&CK</h3>{selected.technique ? <div className="mt-3 border-s-2 border-primary ps-4"><p className="font-mono text-sm text-primary">{selected.technique.id}</p><p className="mt-1 text-sm">{selected.technique.name}</p><p className="mt-2 text-xs text-muted-foreground">{l("Tactic", "التكتيك")}: {selected.technique.tactic}</p><p className="mt-3 text-xs text-muted-foreground">{l("Illustrative mapping; not validated threat attribution.", "ربط توضيحي؛ وليس إسناداً مؤكداً للتهديد.")}</p></div> : <p className="mt-3 text-sm text-muted-foreground">{l("Not applicable — this operational event has no ATT&CK mapping.", "لا ينطبق — هذا الحدث التشغيلي ليس له ربط ATT&CK.")}</p>}</section><Button className="mt-6" variant="outline" onClick={() => { setProvider(PROVIDERS.find((p) => p.id === selected.source) ?? null); setSelected(null); }}><Plug />{l("View source configuration", "عرض إعداد المصدر")}</Button></>}
-      </SheetContent>
-    </Sheet>
-    {provider && <XdrProviderDialog key={provider.id} provider={provider} draft={drafts[provider.id]} onClose={() => setProvider(null)} onSave={(draft) => setDrafts((previous) => ({ ...previous, [provider.id]: draft }))} />}
-  </div>;
+  );
+}
+
+function SettingSelect({ id, label, hint, value, onChange, options }: { id: string; label: string; hint: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return (
+    <div className="surface p-4">
+      <label id={`${id}-label`} className="text-sm font-medium">
+        {label}
+      </label>
+      <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="mt-3" aria-labelledby={`${id}-label`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(([optionValue, optionLabel]) => (
+            <SelectItem key={optionValue} value={optionValue}>
+              {optionLabel}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
 }
