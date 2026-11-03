@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Publish so `https://cybersecurityeg.lovable.app/1ac3df8df747b9429c47d16ed695ea9b.txt` is live, then submit changed pages to `/api/public/indexnow` after each publish.
+
 - [ ] Add XDR overview, sample telemetry filters/details, and grouped integrations catalog.
 - [ ] Add safe provider setup drafts, English/Arabic support, and verify desktop/mobile interactions without publishing.
 
