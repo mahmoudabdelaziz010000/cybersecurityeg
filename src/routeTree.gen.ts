@@ -21,6 +21,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as XdrRouteImport } from './routes/xdr'
+import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,11 @@ const XdrRoute = XdrRouteImport.update({
   path: '/xdr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
+  id: '/api/public/indexnow',
+  path: '/api/public/indexnow',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/api/public/indexnow'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/api/public/indexnow'
   id:
     | '__root__'
     | '/'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/api/public/indexnow'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
   XdrRoute: typeof XdrRoute
+  ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof XdrRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/indexnow': {
+      id: '/api/public/indexnow'
+      path: '/api/public/indexnow'
+      fullPath: '/api/public/indexnow'
+      preLoaderRoute: typeof ApiPublicIndexnowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
   XdrRoute: XdrRoute,
+  ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

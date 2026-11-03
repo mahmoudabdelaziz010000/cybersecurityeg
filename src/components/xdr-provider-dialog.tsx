@@ -9,7 +9,7 @@ import type { Localized, Provider } from "@/lib/xdr-demo";
 
 export type SetupDraft = { environment: string; cadence: string; feeds: string[] };
 export function XdrProviderDialog({ provider, draft, onClose, onSave }: {
-  provider: Provider; draft?: SetupDraft; onClose: () => void; onSave: (draft: SetupDraft) => void;
+  provider: Provider; draft?: SetupDraft | undefined; onClose: () => void; onSave: (draft: SetupDraft) => void;
 }) {
   const { isArabic } = useLanguage();
   const l = (en: string, ar: string) => isArabic ? ar : en;
