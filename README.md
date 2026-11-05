@@ -22,3 +22,20 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Sophos Firewall (NGFW) dashboard
+
+`/xdr/firewalls` (XDR Telemetry → Firewalls) shows live, **read-only** data from a Sophos Firewall and Sophos Central. The sidebar covers: Overview, Basic settings (interfaces, zones, IP hosts, static routes, DNS), Firewall policies, Misconfiguration, DoS attacks, Web control, Applications control, Email, General settings and Sophos Central sync.
+
+Only `<Get>` requests are ever sent to the firewall. All credentials are **server-side secrets** — set them in the server environment (e.g. Lovable Cloud secrets), never in `.env` (which is committed) and never in the browser:
+
+| Secret | Purpose |
+| --- | --- |
+| `SOPHOS_ADMIN_TOKEN` | 16+ character token required to open the page (kept in browser memory only; failed attempts are rate limited) |
+| `SOPHOS_FW_HOST`, `SOPHOS_FW_USERNAME`, `SOPHOS_FW_PASSWORD` | Firewall XML API login (use a read-only admin profile). Set all three together |
+| `SOPHOS_FW_PORT` | Optional, default `4444` |
+| `SOPHOS_FW_CA_CERT` | Optional PEM (or base64 PEM) if the firewall uses a self-signed certificate |
+| `SOPHOS_FW_API_VERSION` | Optional, e.g. `2200.1` |
+| `SOPHOS_CENTRAL_CLIENT_ID`, `SOPHOS_CENTRAL_CLIENT_SECRET` | Sophos Central API client (for the Central sync section). Set both together |
+
+On the firewall, enable API configuration and allow the app server's IP address (see Sophos' "XML API" documentation for your firmware), and make sure the firewall's admin port is reachable from wherever the server runs.

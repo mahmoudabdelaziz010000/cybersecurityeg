@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, ChevronRight, LockKeyhole, Settings2 } from "lucide-react";
+import { Check, ChevronRight, LockKeyhole, Network, Settings2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,7 +35,7 @@ export function XdrProviderDialog({ provider, draft, onClose, onSave }: {
           <div><h3 className="mb-2 text-sm font-semibold">{l("Available capabilities", "القدرات المتاحة")}</h3><ul className="space-y-2">{provider.feeds.map((feed) => <li key={feed} className="flex items-center gap-2 text-sm"><Check className="size-4 text-primary" />{feed}</li>)}</ul></div>
           <div><h3 className="mb-2 text-sm font-semibold">{l("Authorization requirements", "متطلبات التفويض")}</h3><p className="text-sm leading-relaxed text-muted-foreground">{pair(provider.auth)}</p></div>
           <p className="text-xs text-muted-foreground">{l("Last live sync: Never. Demo fixtures are fixed to 2 Nov 2026, 12:00 UTC.", "آخر مزامنة حقيقية: لم تحدث. العينات ثابتة عند 2 نوفمبر 2026، 12:00 UTC.")}</p>
-          <Button onClick={() => setTab("setup")}><Settings2 />{l("Prepare setup draft", "تحضير مسودة إعداد")}</Button>
+          <div className="flex flex-wrap gap-2">{provider.id === "sophos" && <Button asChild><Link to="/xdr/firewalls" search={(prev) => ({ ...prev, section: "overview" as const })}><Network />{l("Open firewall dashboard", "فتح لوحة الجدار الناري")}</Link></Button>}<Button variant={provider.id === "sophos" ? "outline" : "default"} onClick={() => setTab("setup")}><Settings2 />{l("Prepare setup draft", "تحضير مسودة إعداد")}</Button></div>
         </TabsContent>
         <TabsContent value="setup" className="space-y-5">
           {saved ? <div className="space-y-4 py-4" role="status"><Check className="size-8 text-primary" /><h3 className="text-lg font-semibold">{l("Prototype draft saved", "تم حفظ المسودة التجريبية")}</h3><p className="text-sm text-muted-foreground">{l("Saved in this page session only. No provider was authorized, no credentials were stored, and no ingestion was started. Connection status remains unchanged.", "حُفظت لهذه الجلسة فقط. لم يتم تفويض المزوّد أو تخزين اعتمادات أو بدء استقبال بيانات. حالة الاتصال لم تتغير.")}</p><Button variant="outline" onClick={onClose}>{l("Done", "تم")}</Button></div> : <>
