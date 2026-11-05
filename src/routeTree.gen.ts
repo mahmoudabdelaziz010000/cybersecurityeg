@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OsintHubRouteImport } from './routes/osint-hub'
@@ -33,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   id: '/attack-surface',
   path: '/attack-surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -104,6 +110,7 @@ const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/attack-surface'
+    | '/auth'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AttackSurfaceRoute: typeof AttackSurfaceRoute
+  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
   OsintHubRoute: typeof OsintHubRoute
@@ -239,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/attack-surface'
       fullPath: '/attack-surface'
       preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -338,6 +358,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AttackSurfaceRoute: AttackSurfaceRoute,
+  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
   OsintHubRoute: OsintHubRoute,
