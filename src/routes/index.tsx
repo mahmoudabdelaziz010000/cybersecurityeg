@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { headLanguage, pageHead } from "@/lib/seo";
-import { Activity, ArrowRight, Boxes, GitBranch, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
+import { Activity, ArrowRight, Boxes, GitBranch, Network, Radar, ScanSearch, ShieldCheck, Timer } from "lucide-react";
 import { SOURCE_CATALOG } from "@/lib/osint-catalog";
 import { PLAYBOOKS } from "@/lib/playbooks";
 
@@ -63,6 +63,13 @@ const CAPABILITIES = [
     to: "/threat-intel" as const,
     cta: "View latest CVEs",
   },
+  {
+    icon: Network,
+    title: "Sophos Firewall (NGFW)",
+    body: "Live, read-only view of your Sophos firewall: IP settings, policies, misconfigurations, DoS protection, web, application and email control, and Sophos Central sync.",
+    to: "/xdr/firewalls" as const,
+    cta: "Open firewall dashboard",
+  },
 ];
 
 const METRICS = [
@@ -123,12 +130,12 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <h2 className="label-mono">The platform</h2>
         <p className="mt-3 max-w-2xl font-display text-3xl font-semibold">
-          Four surfaces, one evidence trail
+          Five surfaces, one evidence trail
         </p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-2">
-          {CAPABILITIES.map((c) => (
-            <article key={c.title} className="surface-raised group p-6">
+          {CAPABILITIES.map((c, i) => (
+            <article key={c.title} className={`surface-raised group p-6 ${CAPABILITIES.length % 2 === 1 && i === CAPABILITIES.length - 1 ? "md:col-span-2" : ""}`}>
               <c.icon className="size-5 text-primary" aria-hidden="true" />
               <h3 className="mt-4 text-lg font-semibold">{c.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>

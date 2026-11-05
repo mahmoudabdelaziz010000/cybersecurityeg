@@ -12,6 +12,7 @@ const NAV = [
   { to: "/attack-surface", label: "Attack Surface" },
   { to: "/threat-intel", label: "Threat Intel" },
   { to: "/xdr", label: "XDR Telemetry" },
+  { to: "/xdr/firewalls", label: "Firewalls" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
