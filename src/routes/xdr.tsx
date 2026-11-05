@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Activity, Boxes, Check, Database, LockKeyhole, Plug, RefreshCw, Search, Settings2, SlidersHorizontal } from "lucide-react";
+import { Activity, Boxes, Check, Database, LockKeyhole, Network, Plug, RefreshCw, Search, Settings2, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -82,12 +82,20 @@ function XdrSettingsPage() {
             )}
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link to="/osint">
-            <Activity />
-            {l("Open SOC dashboard", "فتح لوحة مركز العمليات")}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/xdr/firewalls" search={(prev) => ({ ...prev, section: "overview" as const })}>
+              <Network />
+              {l("Firewalls", "الجدران النارية")}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/osint">
+              <Activity />
+              {l("Open SOC dashboard", "فتح لوحة مركز العمليات")}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-6 flex items-start gap-2 border-y border-caution/25 bg-caution/5 px-4 py-3 text-xs leading-relaxed">
@@ -95,8 +103,8 @@ function XdrSettingsPage() {
         <p>
           <strong className="text-caution">{l("Prototype. ", "نموذج تجريبي. ")}</strong>
           {l(
-            "Nothing here connects to a provider, stores credentials or ingests live data. Setup drafts live only in this page session.",
-            "لا يتصل أي شيء هنا بمزوّد ولا يخزّن بيانات اعتماد ولا يستقبل بيانات حقيقية. مسودات الإعداد تبقى في هذه الجلسة فقط.",
+            "Nothing here connects to a provider, stores credentials or ingests live data, except the read-only Sophos Firewall dashboard, which uses server-side secrets. Setup drafts live only in this page session.",
+            "لا يتصل أي شيء هنا بمزوّد ولا يخزّن بيانات اعتماد ولا يستقبل بيانات حقيقية، باستثناء لوحة Sophos Firewall للقراءة فقط التي تستخدم أسرار الخادم. مسودات الإعداد تبقى في هذه الجلسة فقط.",
           )}
         </p>
       </div>
@@ -193,7 +201,9 @@ function XdrSettingsPage() {
                         <div className="min-w-0 flex-1">
                           <h3 className="text-sm font-semibold">{p.name}</h3>
                           <p className={`mt-1 text-[11px] ${p.demo ? "text-caution" : "text-muted-foreground"}`}>
-                            {p.demo ? l("Sample data · not connected", "بيانات تجريبية · غير متصل") : l("Needs setup · not connected", "يحتاج إلى إعداد · غير متصل")}
+                            {p.id === "sophos"
+                              ? l("Live API · read-only · server setup", "واجهة مباشرة · قراءة فقط · إعداد الخادم")
+                              : p.demo ? l("Sample data · not connected", "بيانات تجريبية · غير متصل") : l("Needs setup · not connected", "يحتاج إلى إعداد · غير متصل")}
                           </p>
                         </div>
                       </div>
@@ -213,6 +223,14 @@ function XdrSettingsPage() {
                           {drafts[p.id] && <Check className="size-3" />}
                           {drafts[p.id] ? l("Draft prepared · session only", "مسودة جاهزة · لهذه الجلسة") : l("Adapter pending", "المحوّل قيد الانتظار")}
                         </span>
+                        {p.id === "sophos" && (
+                          <Button asChild size="sm">
+                            <Link to="/xdr/firewalls" search={(prev) => ({ ...prev, section: "overview" as const })}>
+                              <Network />
+                              {l("Open dashboard", "فتح لوحة التحكم")}
+                            </Link>
+                          </Button>
+                        )}
                         <Button variant="outline" size="sm" aria-label={l(`Configure ${p.name}`, `إعداد ${p.name}`)} onClick={() => setProvider(p)}>
                           <Settings2 />
                           {l("Configure", "إعداد")}

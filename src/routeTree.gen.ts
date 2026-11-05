@@ -22,6 +22,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as XdrRouteImport } from './routes/xdr'
+import { Route as XdrFirewallsRouteImport } from './routes/xdr_.firewalls'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +90,11 @@ const XdrRoute = XdrRouteImport.update({
   path: '/xdr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const XdrFirewallsRoute = XdrFirewallsRouteImport.update({
+  id: '/xdr_/firewalls',
+  path: '/xdr/firewalls',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
   id: '/api/public/indexnow',
   path: '/api/public/indexnow',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesByTo {
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesById {
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/xdr_/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/xdr/firewalls'
     | '/api/public/indexnow'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/xdr/firewalls'
     | '/api/public/indexnow'
   id:
     | '__root__'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/xdr_/firewalls'
     | '/api/public/indexnow'
   fileRoutesById: FileRoutesById
 }
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
   XdrRoute: typeof XdrRoute
+  XdrFirewallsRoute: typeof XdrFirewallsRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
 }
 
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof XdrRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/xdr_/firewalls': {
+      id: '/xdr_/firewalls'
+      path: '/xdr/firewalls'
+      fullPath: '/xdr/firewalls'
+      preLoaderRoute: typeof XdrFirewallsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/indexnow': {
       id: '/api/public/indexnow'
       path: '/api/public/indexnow'
@@ -329,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
   XdrRoute: XdrRoute,
+  XdrFirewallsRoute: XdrFirewallsRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
 }
 export const routeTree = rootRouteImport
