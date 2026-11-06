@@ -12,9 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { FacebookCta } from "@/components/facebook-cta";
+import { ConsoleShell } from "@/components/console-shell";
 import { LanguageProvider } from "@/lib/language";
 import { FACEBOOK_PAGE_URL, SITE_URL } from "@/lib/seo";
 
@@ -170,15 +168,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </main>
-          <FacebookCta />
-          <SiteFooter />
-        </div>
+        <ConsoleShell>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </ConsoleShell>
       </LanguageProvider>
     </QueryClientProvider>
   );

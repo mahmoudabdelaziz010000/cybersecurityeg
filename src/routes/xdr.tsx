@@ -90,7 +90,7 @@ function XdrSettingsPage() {
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/osint">
+            <Link to="/">
               <Activity />
               {l("Open SOC dashboard", "فتح لوحة مركز العمليات")}
             </Link>

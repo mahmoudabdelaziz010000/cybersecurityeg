@@ -7,7 +7,9 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   {
     title: "Platform",
     links: [
-      { to: "/osint", label: "SOC Dashboard" },
+      { to: "/", label: "SOC Dashboard" },
+      { to: "/xdr", label: "XDR Telemetry" },
+      { to: "/xdr/firewalls", label: "Firewalls" },
       { to: "/osint-hub", label: "OSINT Data Hub" },
       { to: "/workflows", label: "Automation Workflows" },
       { to: "/attack-surface", label: "Attack Surface Monitoring" },

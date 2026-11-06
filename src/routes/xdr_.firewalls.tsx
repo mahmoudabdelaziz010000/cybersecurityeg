@@ -131,8 +131,8 @@ function FirewallsPage() {
           <Button type="submit" disabled={!draft.trim()}>{l("Unlock dashboard", "فتح لوحة التحكم")}</Button>
         </form>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-          <nav aria-label={l("Firewall sections", "أقسام الجدار الناري")} className="lg:sticky lg:top-24 lg:self-start">
+        <div className="grid gap-8">
+          <nav aria-label={l("Firewall sections", "أقسام الجدار الناري")} className="lg:hidden">
             <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
               {SOPHOS_SECTIONS.map((id) => {
                 const Icon = SECTION_ICON[id];
@@ -153,7 +153,7 @@ function FirewallsPage() {
             </ul>
           </nav>
 
-          <main className="min-w-0" aria-live="polite">
+          <div className="min-w-0" aria-live="polite">
             <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold">{SECTION_META[section].title[isArabic ? 1 : 0]}</h2>
@@ -170,7 +170,7 @@ function FirewallsPage() {
             {load.status === "loading" && <p className="flex items-center gap-2 py-16 text-sm text-muted-foreground" role="status"><Loader2 className="size-4 animate-spin" />{l("Reading from Sophos…", "جارٍ القراءة من Sophos…")}</p>}
             {load.status === "failed" && <p role="alert" className="border-s-2 border-malicious bg-malicious/5 p-4 text-sm">{l("Could not load this section. Try Refresh.", "تعذر تحميل هذا القسم. جرّب التحديث.")}</p>}
             {load.status === "ready" && <SectionView result={load.result} isArabic={isArabic} />}
-          </main>
+          </div>
         </div>
       )}
     </div>

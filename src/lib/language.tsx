@@ -169,6 +169,8 @@ const ARABIC: Record<string, string> = {
   "This page didn't load": "تعذر تحميل الصفحة",
   "Try again": "حاول مرة أخرى",
   "Go home": "العودة للرئيسية",
+  "SentinelGrid XDR Console | SOC Dashboard & Telemetry": "لوحة SentinelGrid للكشف والاستجابة | مركز العمليات والبيانات",
+  "Free XDR console: SOC dashboard, firewall, endpoint, server, cloud and email telemetry, a live Sophos Firewall view, plus OSINT and OWASP tools.": "لوحة XDR مجانية: مركز عمليات أمنية وبيانات الجدران النارية والأجهزة الطرفية والخوادم والسحابة والبريد، وعرض مباشر لجدار Sophos الناري، مع أدوات OSINT وOWASP.",
   "SentinelGrid — OSINT Data Hub & Attack Surface Intelligence": "SentinelGrid — مركز OSINT ومعلومات سطح الهجوم",
   "Run passive OSINT lookups across five keyless sources, automate triage playbooks and monitor your attack surface. Free, no signup, no API keys.": "نفّذ عمليات بحث OSINT سلبية عبر خمسة مصادر بلا مفاتيح، وأتمت مسارات الفرز وراقب سطح الهجوم. مجاني وبلا تسجيل وبلا مفاتيح API.",
   "Contact SentinelGrid — Sales, Support & Security Reports": "تواصل مع SentinelGrid — المبيعات والدعم والبلاغات الأمنية",

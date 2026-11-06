@@ -112,7 +112,7 @@ function ThreatIntel() {
           </p>
         </div>
         <Link
-          to="/osint"
+          to="/osint-hub"
           className="inline-flex shrink-0 items-center rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Sweep your hosts

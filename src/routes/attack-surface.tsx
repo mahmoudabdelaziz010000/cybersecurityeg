@@ -76,7 +76,7 @@ function AttackSurface() {
               tells you when the picture changes.
             </p>
             <Link
-              to="/osint"
+              to="/osint-hub"
               className="mt-8 inline-flex rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
             >
               Baseline an asset now

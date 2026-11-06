@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PlatformRouteImport } from './routes/platform'
+import { Route as TelemetrySplatRouteImport } from './routes/telemetry.$'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OsintHubRouteImport } from './routes/osint-hub'
 import { Route as OwaspRouteImport } from './routes/owasp'
@@ -33,6 +35,16 @@ const IndexRoute = IndexRouteImport.update({
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   id: '/attack-surface',
   path: '/attack-surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TelemetrySplatRoute = TelemetrySplatRouteImport.update({
+  id: '/telemetry/$',
+  path: '/telemetry/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -105,6 +117,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/platform': typeof PlatformRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -122,6 +136,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/platform': typeof PlatformRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -140,6 +156,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/platform': typeof PlatformRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -159,6 +177,8 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
+    | '/platform'
+    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -176,6 +196,8 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
+    | '/platform'
+    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -193,6 +215,8 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
+    | '/platform'
+    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -211,6 +235,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AttackSurfaceRoute: typeof AttackSurfaceRoute
   ContactRoute: typeof ContactRoute
+  PlatformRoute: typeof PlatformRoute
+  TelemetrySplatRoute: typeof TelemetrySplatRoute
   OsintRoute: typeof OsintRoute
   OsintHubRoute: typeof OsintHubRoute
   OwaspRoute: typeof OwaspRoute
@@ -239,6 +265,20 @@ declare module '@tanstack/react-router' {
       path: '/attack-surface'
       fullPath: '/attack-surface'
       preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/telemetry/$': {
+      id: '/telemetry/$'
+      path: '/telemetry/$'
+      fullPath: '/telemetry/$'
+      preLoaderRoute: typeof TelemetrySplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -339,6 +379,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AttackSurfaceRoute: AttackSurfaceRoute,
   ContactRoute: ContactRoute,
+  PlatformRoute: PlatformRoute,
+  TelemetrySplatRoute: TelemetrySplatRoute,
   OsintRoute: OsintRoute,
   OsintHubRoute: OsintHubRoute,
   OwaspRoute: OwaspRoute,

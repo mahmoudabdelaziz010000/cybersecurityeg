@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
+import { allTelemetryPaths } from "@/lib/console-nav";
 import { localizedUrl } from "@/lib/seo";
 
 interface SitemapEntry {
@@ -19,7 +20,9 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/osint", changefreq: "weekly", priority: "0.9" },
+          { path: "/platform", changefreq: "monthly", priority: "0.8" },
+          { path: "/xdr", changefreq: "monthly", priority: "0.7" },
+          ...allTelemetryPaths().map((path): SitemapEntry => ({ path, changefreq: "monthly", priority: path.split("/").length > 3 ? "0.6" : "0.7" })),
           { path: "/osint-hub", changefreq: "weekly", priority: "0.9" },
           { path: "/owasp", changefreq: "weekly", priority: "0.9" },
           { path: "/workflows", changefreq: "weekly", priority: "0.9" },

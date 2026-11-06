@@ -137,7 +137,7 @@ function ReconGuide() {
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            to="/osint"
+            to="/osint-hub"
             className="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
           >
             Run a free passive scan
@@ -199,7 +199,7 @@ function ReconGuide() {
             The OSINT hub runs registry, DNS, certificate-transparency, exposure and header checks in
             one step, with no keys and no install.
           </p>
-          <Link to="/osint" className="mt-3 inline-block text-sm text-primary hover:underline">
+          <Link to="/osint-hub" className="mt-3 inline-block text-sm text-primary hover:underline">
             Open the OSINT hub
           </Link>
         </div>
