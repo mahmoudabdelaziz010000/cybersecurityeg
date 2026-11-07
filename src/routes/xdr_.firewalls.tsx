@@ -81,8 +81,22 @@ function FirewallsPage() {
     }
   }, []);
 
+  // Probe once: when the server has no admin token configured it serves sample data, so no gate is needed.
+  const probed = useRef(false);
   useEffect(() => {
-    if (token) void run(token, section, false);
+    if (token !== null) {
+      void run(token, section, false);
+    } else if (!probed.current) {
+      probed.current = true;
+      void (async () => {
+        try {
+          const response = await getFirewallSection({ data: { token: "", section, fresh: false } });
+          if (response.ok) setToken("");
+        } catch {
+          /* keep the gate */
+        }
+      })();
+    }
   }, [token, section, run]);
 
   const unlock = (event: FormEvent) => {
@@ -119,7 +133,7 @@ function FirewallsPage() {
         {token && <Button variant="outline" onClick={lock}><LockKeyhole />{l("Lock", "قفل")}</Button>}
       </div>
 
-      {!token ? (
+      {token === null ? (
         <form onSubmit={unlock} className="surface mx-auto mt-10 max-w-md space-y-4 p-6">
           <div className="flex items-center gap-2 text-sm font-semibold"><KeyRound className="size-4 text-primary" />{l("Admin access", "وصول المسؤول")}</div>
           <p className="text-sm text-muted-foreground">{l("Firewall data is private. Enter the admin token set on the server. It is kept in this tab's memory only.", "بيانات الجدار الناري خاصة. أدخل رمز المسؤول المضبوط على الخادم. يُحفظ في ذاكرة هذه التبويبة فقط.")}</p>
@@ -161,7 +175,7 @@ function FirewallsPage() {
               </div>
               <div className="flex items-center gap-3">
                 {load.status === "ready" && <span className="font-mono text-[11px] text-muted-foreground" dir="ltr">{load.result.fetchedAt.slice(11, 19)} UTC</span>}
-                <Button variant="outline" size="sm" disabled={load.status === "loading"} onClick={() => token && void run(token, section, true)}>
+                <Button variant="outline" size="sm" disabled={load.status === "loading"} onClick={() => token !== null && void run(token, section, true)}>
                   <RefreshCw className={load.status === "loading" ? "animate-spin" : ""} />{l("Refresh", "تحديث")}
                 </Button>
               </div>

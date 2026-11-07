@@ -34,6 +34,11 @@ export async function tokensMatch(candidate: string, expected: string): Promise<
   return diff === 0;
 }
 
+/** True when SOPHOS_ADMIN_TOKEN is set well enough to protect live data. */
+export function isAdminConfigured(env: Record<string, string | undefined> = process.env): boolean {
+  return (env["SOPHOS_ADMIN_TOKEN"] ?? "").length >= 16;
+}
+
 export function resetAdminGate(): void {
   failures.clear();
 }

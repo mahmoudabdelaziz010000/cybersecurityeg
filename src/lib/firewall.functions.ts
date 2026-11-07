@@ -3,7 +3,7 @@ import { z } from "zod";
 import { SOPHOS_SECTIONS, type SectionResult } from "./sophos-catalog";
 
 const sectionInput = z.object({
-  token: z.string().min(1).max(512),
+  token: z.string().max(512),
   section: z.enum(SOPHOS_SECTIONS),
   fresh: z.boolean().optional(),
 });
@@ -24,6 +24,11 @@ export const getFirewallSection = createServerFn({ method: "POST" })
       import("./sophos.server"),
     ]);
     const client = getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    // No admin token configured: nothing live can be shown, so serve the invented sample data
+    // (empty env = every source unconfigured) without asking for a token.
+    if (!gate.isAdminConfigured()) return { ok: true, result: await loadSection(data.section, { env: {} }) };
+    // An empty token is only the page's "is a token needed?" probe: refuse without counting a failed attempt.
+    if (!data.token) return { ok: false, code: "invalid" };
     try {
       await gate.verifyAdminToken(data.token, client);
     } catch (error) {

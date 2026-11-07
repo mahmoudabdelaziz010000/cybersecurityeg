@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { AdminGateError, resetAdminGate, tokensMatch, verifyAdminToken } from "./admin-gate.server";
+import { AdminGateError, isAdminConfigured, resetAdminGate, tokensMatch, verifyAdminToken } from "./admin-gate.server";
 import { FINDING_CATALOG, LABELS, LABEL_MARK, SECTION_META, SOPHOS_SECTIONS, cellText, type SectionResult } from "./sophos-catalog";
 import {
   SophosError, analyze, buildGetRequest, collectEntities, fetchCentral, fetchEntity, loadSection, readCentralConfig, readFirewallConfig, resetSophosCaches, type Collected,
@@ -413,5 +413,13 @@ describe("sample data fallback", () => {
     const bad = await loadSection("basic", { env: { ...ENV, SOPHOS_FW_PORT: "0" }, deps: deps() });
     expect(bad.sample).toBeUndefined();
     expect(bad.errors.length).toBeGreaterThan(0);
+  });
+});
+
+describe("admin gate configuration", () => {
+  test("live data is only gated-in when a 16+ character token is configured", () => {
+    expect(isAdminConfigured({})).toBe(false);
+    expect(isAdminConfigured({ SOPHOS_ADMIN_TOKEN: "short" })).toBe(false);
+    expect(isAdminConfigured({ SOPHOS_ADMIN_TOKEN: "a".repeat(16) })).toBe(true);
   });
 });
