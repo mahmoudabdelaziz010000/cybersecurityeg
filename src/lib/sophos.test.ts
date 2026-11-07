@@ -391,3 +391,27 @@ describe("pinned CA for self-signed firewalls (real TLS)", () => {
     await expect(fetchEntity(readFirewallConfig(env())!, "IPHost")).rejects.toBeInstanceOf(SophosError);
   });
 });
+
+describe("sample data fallback", () => {
+  const deps = () => ({ fetch: ((...args: Parameters<typeof fetch>) => (String(args[0]).includes("webconsole") ? mockFirewallFetch([])(...args) : mockCentralFetch([])(...args))) as typeof fetch });
+  test("unconfigured sources show labelled sample data for every section", async () => {
+    for (const section of SOPHOS_SECTIONS) {
+      const result = await loadSection(section, { env: {}, deps: deps() });
+      if (section === "central") expect(result.sample).toEqual(["central"]);
+      else expect(result.sample).toContain("firewall");
+      expect(result.errors).toEqual([]);
+      if (section !== "misconfig" && section !== "overview") expect(result.tables.length).toBeGreaterThan(0);
+    }
+    const mis = await loadSection("misconfig", { env: {}, deps: deps() });
+    expect(mis.findings.length).toBeGreaterThan(0);
+    expect(mis.findings.map((f) => f.rule)).toContain("admin-wan-open");
+  });
+
+  test("configured sources never fall back, and failures stay visible", async () => {
+    const real = await loadSection("web", { env: ENV, deps: deps() });
+    expect(real.sample).toBeUndefined();
+    const bad = await loadSection("basic", { env: { ...ENV, SOPHOS_FW_PORT: "0" }, deps: deps() });
+    expect(bad.sample).toBeUndefined();
+    expect(bad.errors.length).toBeGreaterThan(0);
+  });
+});

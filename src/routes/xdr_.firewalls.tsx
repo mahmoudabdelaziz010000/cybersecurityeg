@@ -195,6 +195,16 @@ function SectionView({ result, isArabic }: { result: SectionResult; isArabic: bo
         <ConnectionBadge name={sophosLabel("central.connection", isArabic)} state={connections.central} isArabic={isArabic} />
       </div>
 
+      {result.sample && result.sample.length > 0 && (
+        <div role="status" className="border-s-2 border-primary bg-primary/5 p-4 text-sm">
+          <p className="font-semibold">{l("Sample data", "بيانات تجريبية")}</p>
+          <p className="mt-1 text-muted-foreground">{l(
+            `Showing an example configuration for ${result.sample.map((s) => (s === "firewall" ? "the firewall" : "Sophos Central")).join(" and ")} because it is not connected yet. These values are invented and do not describe your network.`,
+            "يتم عرض إعدادات مثال لأن المصدر غير متصل بعد. هذه القيم افتراضية ولا تصف شبكتك.",
+          )}</p>
+        </div>
+      )}
+
       {(connections.firewall === "unconfigured" || connections.central === "unconfigured") && (
         <div className="space-y-4 border-s-2 border-caution bg-caution/5 p-4 text-sm">
           {connections.firewall === "unconfigured" && <EnvList title={l("Connect the firewall: set these server secrets", "اربط الجدار الناري: اضبط أسرار الخادم التالية")} names={FIREWALL_ENV} />}

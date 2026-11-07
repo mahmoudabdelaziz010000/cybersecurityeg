@@ -12,6 +12,7 @@
 import { SEVERITY_ORDER, lbl, type ConnectionState, type Finding, type SectionResult, type SophosSectionId, type SourceError, type SummaryItem, type TableData } from "./sophos-catalog";
 import { asList, flatten, isObject, isOn, listOf, parseXml, path, pick, str, XmlParseError, type XmlObject, type XmlValue } from "./sophos-xml";
 import type { Severity } from "./xdr-demo";
+import { SAMPLE_CENTRAL, SAMPLE_FIREWALL } from "./sophos-sample";
 
 /* ------------------------------------------------------------------ errors */
 
@@ -843,6 +844,17 @@ export async function loadSection(section: SophosSectionId, options: LoadOptions
     }
   }
 
+  // Fallback: only a source that is not configured at all shows sample data. Real errors stay visible.
+  const sample: ("firewall" | "central")[] = [];
+  if (wantsFirewall && firewallState === "unconfigured") {
+    firewall = { data: Object.fromEntries(entities.flatMap((entity) => (SAMPLE_FIREWALL[entity] ? [[entity, SAMPLE_FIREWALL[entity]!]] : []))) };
+    sample.push("firewall");
+  }
+  if (wantsCentral && centralState === "unconfigured") {
+    central = SAMPLE_CENTRAL;
+    sample.push("central");
+  }
+
   const built = buildSection(section, { firewall: { state: firewallState, data: firewall.data }, central: { state: centralState, ...(central ? { data: central } : {}) } });
-  return { ...built, fetchedAt: new Date().toISOString(), connections: { firewall: firewallState, central: centralState }, errors };
+  return { ...built, fetchedAt: new Date().toISOString(), connections: { firewall: firewallState, central: centralState }, errors, ...(sample.length ? { sample } : {}) };
 }

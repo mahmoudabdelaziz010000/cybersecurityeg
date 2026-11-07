@@ -40,6 +40,8 @@ export type SectionResult = {
   tables: TableData[];
   findings: Finding[];
   errors: SourceError[];
+  /** Present when sample data replaced a source that is not configured. */
+  sample?: ("firewall" | "central")[];
 };
 
 /* ---------- labels ---------- */
