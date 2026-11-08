@@ -25,7 +25,7 @@ const TOOLS: { dest: { to: StaticTo }; label: readonly [string, string]; icon: L
   { dest: { to: "/platform" }, label: ["Platform overview", "نظرة عامة على المنصة"], icon: Boxes },
 ];
 
-function DestLink({ dest, active, className, onClick, children }: { dest: Dest; active: boolean; className: string; onClick?: () => void; children: ReactNode }) {
+function DestLink({ dest, active, className, onClick, children }: { dest: Dest; active: boolean; className: string; onClick?: (() => void) | undefined; children: ReactNode }) {
   const current = active ? ("page" as const) : undefined;
   if ("splat" in dest) {
     return <Link to="/telemetry/$" params={{ _splat: dest.splat }} className={className} onClick={onClick} aria-current={current}>{children}</Link>;
@@ -42,7 +42,7 @@ function DestLink({ dest, active, className, onClick, children }: { dest: Dest; 
 
 const IDLE = "text-muted-foreground hover:bg-accent/60 hover:text-foreground";
 
-function Leaf({ dest, active, onNavigate, children }: { dest: Dest; active: boolean; onNavigate?: () => void; children: ReactNode }) {
+function Leaf({ dest, active, onNavigate, children }: { dest: Dest; active: boolean; onNavigate?: (() => void) | undefined; children: ReactNode }) {
   return (
     <li>
       <DestLink dest={dest} active={active} onClick={onNavigate} className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-[13px] transition-colors ${active ? "bg-accent text-foreground" : IDLE}`}>
@@ -55,7 +55,7 @@ function Leaf({ dest, active, onNavigate, children }: { dest: Dest; active: bool
 /** A collapsible menu entry. With `dest` the label navigates and the chevron toggles; without it the whole label toggles. */
 function Branch({ id, icon: Icon, iconClass = "", label, count, state, open, onToggle, dest, onNavigate, toggleLabel, nested = false, children }: {
   id: string; icon?: LucideIcon; iconClass?: string; label: string; count?: number; state: "page" | "ancestor" | "none"; open: boolean;
-  onToggle: () => void; dest?: Dest; onNavigate?: () => void; toggleLabel: string; nested?: boolean; children: ReactNode;
+  onToggle: () => void; dest?: Dest; onNavigate?: (() => void) | undefined; toggleLabel: string; nested?: boolean; children: ReactNode;
 }) {
   const tone = state === "page" ? "bg-accent text-foreground" : state === "ancestor" ? "text-foreground" : IDLE;
   const body = (
@@ -83,7 +83,7 @@ function Branch({ id, icon: Icon, iconClass = "", label, count, state, open, onT
   );
 }
 
-function ConsoleNav({ active, pathname, onNavigate }: { active: NavActive; pathname: string; onNavigate?: () => void }) {
+function ConsoleNav({ active, pathname, onNavigate }: { active: NavActive; pathname: string; onNavigate?: (() => void) | undefined }) {
   const { isArabic } = useLanguage();
   const idx = isArabic ? 1 : 0;
   const l = (en: string, ar: string) => (isArabic ? ar : en);

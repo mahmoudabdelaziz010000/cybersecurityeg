@@ -71,7 +71,7 @@ describe("navActiveFor", () => {
   });
 
   test("telemetry pages activate their group and provider", () => {
-    expect(navActiveFor("/telemetry/cloud")).toEqual({ area: "telemetry", group: "Cloud", providerId: undefined });
+    expect(navActiveFor("/telemetry/cloud")).toEqual({ area: "telemetry", group: "Cloud" });
     expect(navActiveFor("/telemetry/cloud/aws/")).toEqual({ area: "telemetry", group: "Cloud", providerId: "aws" });
   });
 

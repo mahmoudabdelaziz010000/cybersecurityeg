@@ -74,7 +74,9 @@ export type TelemetryTarget = { group: Group; provider?: Provider };
 export function parseTelemetryPath(splat: string | undefined): TelemetryTarget | null {
   const parts = (splat ?? "").split("/").filter(Boolean);
   if (parts.length < 1 || parts.length > 2) return null;
-  const group = groupFromSlug(parts[0]);
+  const groupSlug = parts[0];
+  if (!groupSlug) return null;
+  const group = groupFromSlug(groupSlug);
   if (!group) return null;
   if (parts.length === 1) return { group };
   const provider = providersOf(group).find((item) => item.id === parts[1]);
@@ -124,7 +126,11 @@ export function navActiveFor(pathname: string, sectionParam?: unknown): NavActiv
   }
   if (path.startsWith("/telemetry/")) {
     const target = parseTelemetryPath(path.slice("/telemetry/".length));
-    if (target) return { area: "telemetry", group: target.group, providerId: target.provider?.id };
+    if (target) {
+      return target.provider
+        ? { area: "telemetry", group: target.group, providerId: target.provider.id }
+        : { area: "telemetry", group: target.group };
+    }
   }
   return { area: path === "/platform" || path === "/contact" || path === "/privacy" || path === "/terms" ? "none" : "tool" };
 }
