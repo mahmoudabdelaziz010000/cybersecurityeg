@@ -17,6 +17,7 @@ declare module "bun:test" {
     toBeDefined(): void;
     toBeUndefined(): void;
     toBeNull(): void;
+    toBeInstanceOf(expected: Function): void;
     toBeGreaterThan(expected: number): void;
     toBeGreaterThanOrEqual(expected: number): void;
     toBeLessThan(expected: number): void;
@@ -31,3 +32,17 @@ declare module "bun:test" {
   export function afterAll(factory: () => void | Promise<void>): void;
   export function expect<T>(actual: T, message?: string): Expectation<T>;
 }
+
+interface BunTestServer {
+  port: number;
+  stop(force?: boolean): void;
+}
+
+declare const Bun: {
+  file(path: string): unknown;
+  serve(options: {
+    port: number;
+    tls: { key: unknown; cert: unknown };
+    fetch: (request: Request) => Response | Promise<Response>;
+  }): BunTestServer;
+};
