@@ -35,5 +35,8 @@ export const getFirewallSection = createServerFn({ method: "POST" })
       if (error instanceof gate.AdminGateError) return { ok: false, code: error.code };
       throw error;
     }
-    return { ok: true, result: await loadSection(data.section, { fresh: data.fresh }) };
+    return {
+      ok: true,
+      result: await loadSection(data.section, data.fresh === undefined ? {} : { fresh: data.fresh }),
+    };
   });

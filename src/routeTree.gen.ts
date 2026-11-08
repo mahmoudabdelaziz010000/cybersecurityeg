@@ -12,11 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as PlatformRouteImport } from './routes/platform'
-import { Route as TelemetrySplatRouteImport } from './routes/telemetry.$'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OsintHubRouteImport } from './routes/osint-hub'
 import { Route as OwaspRouteImport } from './routes/owasp'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReconGuideRouteImport } from './routes/recon-guide'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -24,6 +23,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as XdrRouteImport } from './routes/xdr'
+import { Route as TelemetrySplatRouteImport } from './routes/telemetry.$'
 import { Route as XdrFirewallsRouteImport } from './routes/xdr_.firewalls'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 
@@ -35,16 +35,6 @@ const IndexRoute = IndexRouteImport.update({
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   id: '/attack-surface',
   path: '/attack-surface',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlatformRoute = PlatformRouteImport.update({
-  id: '/platform',
-  path: '/platform',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TelemetrySplatRoute = TelemetrySplatRouteImport.update({
-  id: '/telemetry/$',
-  path: '/telemetry/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -65,6 +55,11 @@ const OsintHubRoute = OsintHubRouteImport.update({
 const OwaspRoute = OwaspRouteImport.update({
   id: '/owasp',
   path: '/owasp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -102,6 +97,11 @@ const XdrRoute = XdrRouteImport.update({
   path: '/xdr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TelemetrySplatRoute = TelemetrySplatRouteImport.update({
+  id: '/telemetry/$',
+  path: '/telemetry/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const XdrFirewallsRoute = XdrFirewallsRouteImport.update({
   id: '/xdr_/firewalls',
   path: '/xdr/firewalls',
@@ -117,11 +117,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
-  '/platform': typeof PlatformRoute
-  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -129,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
@@ -136,11 +136,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
-  '/platform': typeof PlatformRoute
-  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -148,6 +147,7 @@ export interface FileRoutesByTo {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
@@ -156,11 +156,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
-  '/platform': typeof PlatformRoute
-  '/telemetry/$': typeof TelemetrySplatRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/recon-guide': typeof ReconGuideRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -168,6 +167,7 @@ export interface FileRoutesById {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr_/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
@@ -177,11 +177,10 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
-    | '/platform'
-    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
+    | '/platform'
     | '/privacy'
     | '/recon-guide'
     | '/sitemap.xml'
@@ -189,6 +188,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/telemetry/$'
     | '/xdr/firewalls'
     | '/api/public/indexnow'
   fileRoutesByTo: FileRoutesByTo
@@ -196,11 +196,10 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
-    | '/platform'
-    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
+    | '/platform'
     | '/privacy'
     | '/recon-guide'
     | '/sitemap.xml'
@@ -208,6 +207,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/telemetry/$'
     | '/xdr/firewalls'
     | '/api/public/indexnow'
   id:
@@ -215,11 +215,10 @@ export interface FileRouteTypes {
     | '/'
     | '/attack-surface'
     | '/contact'
-    | '/platform'
-    | '/telemetry/$'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
+    | '/platform'
     | '/privacy'
     | '/recon-guide'
     | '/sitemap.xml'
@@ -227,6 +226,7 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/telemetry/$'
     | '/xdr_/firewalls'
     | '/api/public/indexnow'
   fileRoutesById: FileRoutesById
@@ -235,11 +235,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AttackSurfaceRoute: typeof AttackSurfaceRoute
   ContactRoute: typeof ContactRoute
-  PlatformRoute: typeof PlatformRoute
-  TelemetrySplatRoute: typeof TelemetrySplatRoute
   OsintRoute: typeof OsintRoute
   OsintHubRoute: typeof OsintHubRoute
   OwaspRoute: typeof OwaspRoute
+  PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
   ReconGuideRoute: typeof ReconGuideRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -247,6 +246,7 @@ export interface RootRouteChildren {
   ThreatIntelRoute: typeof ThreatIntelRoute
   WorkflowsRoute: typeof WorkflowsRoute
   XdrRoute: typeof XdrRoute
+  TelemetrySplatRoute: typeof TelemetrySplatRoute
   XdrFirewallsRoute: typeof XdrFirewallsRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
 }
@@ -265,20 +265,6 @@ declare module '@tanstack/react-router' {
       path: '/attack-surface'
       fullPath: '/attack-surface'
       preLoaderRoute: typeof AttackSurfaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/platform': {
-      id: '/platform'
-      path: '/platform'
-      fullPath: '/platform'
-      preLoaderRoute: typeof PlatformRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/telemetry/$': {
-      id: '/telemetry/$'
-      path: '/telemetry/$'
-      fullPath: '/telemetry/$'
-      preLoaderRoute: typeof TelemetrySplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -307,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/owasp'
       fullPath: '/owasp'
       preLoaderRoute: typeof OwaspRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -358,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof XdrRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/telemetry/$': {
+      id: '/telemetry/$'
+      path: '/telemetry/$'
+      fullPath: '/telemetry/$'
+      preLoaderRoute: typeof TelemetrySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/xdr_/firewalls': {
       id: '/xdr_/firewalls'
       path: '/xdr/firewalls'
@@ -379,11 +379,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AttackSurfaceRoute: AttackSurfaceRoute,
   ContactRoute: ContactRoute,
-  PlatformRoute: PlatformRoute,
-  TelemetrySplatRoute: TelemetrySplatRoute,
   OsintRoute: OsintRoute,
   OsintHubRoute: OsintHubRoute,
   OwaspRoute: OwaspRoute,
+  PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
   ReconGuideRoute: ReconGuideRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -391,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThreatIntelRoute: ThreatIntelRoute,
   WorkflowsRoute: WorkflowsRoute,
   XdrRoute: XdrRoute,
+  TelemetrySplatRoute: TelemetrySplatRoute,
   XdrFirewallsRoute: XdrFirewallsRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
 }
