@@ -75,7 +75,15 @@ export function readFirewallConfig(env: Env = process.env): FirewallConfig | nul
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new SophosError("config", "SOPHOS_FW_PORT must be a number between 1 and 65535.");
   const apiVersion = env["SOPHOS_FW_API_VERSION"]?.trim();
   if (apiVersion && !/^[0-9.]{1,12}$/.test(apiVersion)) throw new SophosError("config", "SOPHOS_FW_API_VERSION looks like 2200.1.");
-  return { host, port, username, password, caPem: parseCa(env["SOPHOS_FW_CA_CERT"]), apiVersion: apiVersion || undefined };
+  const caPem = parseCa(env["SOPHOS_FW_CA_CERT"]);
+  return {
+    host,
+    port,
+    username,
+    password,
+    ...(caPem ? { caPem } : {}),
+    ...(apiVersion ? { apiVersion } : {}),
+  };
 }
 
 export function readCentralConfig(env: Env = process.env): CentralConfig | null {
