@@ -28,7 +28,7 @@ export const Route = createFileRoute("/telemetry/$")({
       ? ar ? `بيانات ${provider.name} | SentinelGrid` : `${provider.name} Telemetry | SentinelGrid`
       : ar ? `لوحة بيانات ${groupNameAr} | SentinelGrid` : `${groupName} Telemetry Dashboard | SentinelGrid`;
     const summary = (provider ? provider.capability : GROUP_BLURB[group])[ar ? 1 : 0];
-    const description = `${summary} ${ar ? "بيانات تجريبية فقط؛ لا اتصالات مباشرة." : "Sample data only; no live connections."}`;
+    const description = `${summary} ${ar ? "بيانات تجريبية فقط." : "Sample data only."}`;
     const base = pageHead({ path, title, description, lang });
     const crumbs = [
       { name: "Dashboard", path: "/" },

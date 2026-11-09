@@ -1,4 +1,7 @@
 import { translateText } from "@/lib/language";
+import { fitDescription } from "@/lib/seo-text";
+
+export { fitDescription } from "@/lib/seo-text";
 
 /** Canonical origin of the production site. Used for absolute canonical, Open Graph and sitemap URLs. */
 export const SITE_URL = "https://cybersecurityeg.lovable.app";
@@ -64,6 +67,16 @@ export function ogImageMeta(slug: string, alt: string) {
   ];
 }
 
+/** Site-wide fallback share card for pages that have no card of their own. */
+export function defaultOgImageMeta() {
+  const url = `${SITE_URL}/og-image.png`;
+  return [
+    { property: "og:image", content: url },
+    { property: "og:image:alt", content: "SentinelGrid: XDR console and cybersecurity tools" },
+    { name: "twitter:image", content: url },
+  ];
+}
+
 interface PageHeadOptions {
   /** Site path, e.g. "/osint". */
   path: string;
@@ -82,7 +95,7 @@ interface PageHeadOptions {
  */
 export function pageHead({ path, title, description, lang, type = "website", image }: PageHeadOptions) {
   const pageTitle = lang === "ar" ? translateText(title) : title;
-  const pageDescription = lang === "ar" ? translateText(description) : description;
+  const pageDescription = fitDescription(lang === "ar" ? translateText(description) : description);
   const url = localizedUrl(path, lang);
 
   return {
@@ -95,7 +108,8 @@ export function pageHead({ path, title, description, lang, type = "website", ima
       { property: "og:url", content: url },
       { property: "og:locale", content: lang === "ar" ? "ar_AR" : "en_US" },
       { property: "og:locale:alternate", content: lang === "ar" ? "en_US" : "ar_AR" },
-      ...(image ? ogImageMeta(image.slug, image.alt) : []),
+      // Pages without their own card still get a share image instead of a bare link preview.
+      ...(image ? ogImageMeta(image.slug, image.alt) : defaultOgImageMeta()),
       { name: "twitter:title", content: pageTitle },
       { name: "twitter:description", content: pageDescription },
     ],

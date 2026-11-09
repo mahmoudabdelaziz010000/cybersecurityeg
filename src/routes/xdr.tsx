@@ -14,7 +14,7 @@ import { GROUP_STYLE, groupLabel } from "@/lib/xdr-ui";
 
 const TITLE = "XDR Telemetry Settings | SentinelGrid";
 const DESCRIPTION =
-  "Plan which firewalls, endpoint protection such as Kaspersky Security Center, Windows servers and cloud platforms feed your XDR telemetry. Safe, session-only setup drafts; nothing is connected.";
+  "Plan which firewalls, endpoint protection, Windows servers and cloud platforms feed your XDR telemetry. Safe, session-only setup drafts; nothing is connected.";
 
 export const Route = createFileRoute("/xdr")({
   head: (ctx) => pageHead({ path: "/xdr", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),

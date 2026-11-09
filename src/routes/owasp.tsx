@@ -16,7 +16,7 @@ import { recordOwaspScan, runOwaspCheck, startOwaspScan } from "@/lib/owasp.func
 
 const TITLE = "Free OWASP Web Security Scanner Online | SentinelGrid";
 const DESCRIPTION =
-  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookie flags, exposed files, injection signatures, SPF/DMARC email protection and mixed content — with severity ranking and fixes.";
+  "Scan any website against OWASP Top 10 checks: security headers, CORS, cookies, exposed files, injection signs and SPF/DMARC, with severity ranking and fixes.";
 
 export const Route = createFileRoute("/owasp")({
   head: (ctx) => ({
