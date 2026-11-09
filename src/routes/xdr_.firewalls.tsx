@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, Cloud, Globe, KeyRound, LayoutDashboard, LayoutGrid, ListChecks, Loader2, LockKeyhole, Mail, Network, RefreshCw, ShieldAlert, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Cloud, Globe, KeyRound, LayoutDashboard, LayoutGrid, ListChecks, Loader2, LockKeyhole, Mail, Network, RefreshCw, ShieldAlert, ShieldCheck, SlidersHorizontal, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { IpsView } from "@/components/sophos-ips";
 import { getFirewallSection } from "@/lib/firewall.functions";
 import { useLanguage } from "@/lib/language";
 import { headLanguage, pageHead } from "@/lib/seo";
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/xdr_/firewalls")({
 });
 
 const SECTION_ICON: Record<SophosSectionId, LucideIcon> = {
-  overview: LayoutDashboard, basic: Network, policies: ListChecks, misconfig: AlertTriangle, dos: ShieldAlert,
+  overview: LayoutDashboard, basic: Network, policies: ListChecks, misconfig: AlertTriangle, dos: ShieldAlert, ips: ShieldCheck,
   web: Globe, apps: LayoutGrid, email: Mail, general: SlidersHorizontal, central: Cloud,
 };
 const TONE_TEXT: Record<Tone, string> = { ok: "text-clean", warn: "text-caution", bad: "text-malicious", info: "text-foreground" };
@@ -281,6 +282,8 @@ function SectionView({ result, isArabic }: { result: SectionResult; isArabic: bo
       {result.section === "misconfig" && result.findings.length === 0 && result.connections.firewall === "ok" && (
         <p className="border-s-2 border-clean bg-clean/5 p-4 text-sm">{l("No misconfigurations found by the current checks.", "لم يتم العثور على أخطاء في الإعداد وفق الفحوصات الحالية.")}</p>
       )}
+
+      {result.ips && <IpsView key={result.ips.kind} ips={result.ips} isArabic={isArabic} />}
 
       {result.tables.map((table) => (
         <section key={table.id}>

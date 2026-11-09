@@ -9,10 +9,10 @@
  * Every value that leaves this module is control-character stripped, length capped and
  * secret-looking keys are redacted.
  */
-import { SEVERITY_ORDER, lbl, type ConnectionState, type Finding, type SectionResult, type SophosSectionId, type SourceError, type SummaryItem, type TableData } from "./sophos-catalog";
+import { SEVERITY_ORDER, lbl, type ConnectionState, type IpsAction, type IpsCoverage, type IpsData, type IpsPolicy, type IpsSignature, type Finding, type SectionResult, type SophosSectionId, type SourceError, type SummaryItem, type TableData } from "./sophos-catalog";
 import { asList, flatten, isObject, isOn, listOf, parseXml, path, pick, str, XmlParseError, type XmlObject, type XmlValue } from "./sophos-xml";
 import type { Severity } from "./xdr-demo";
-import { SAMPLE_CENTRAL, SAMPLE_FIREWALL } from "./sophos-sample";
+import { SAMPLE_CENTRAL, SAMPLE_FIREWALL, sampleIps } from "./sophos-sample";
 
 /* ------------------------------------------------------------------ errors */
 
@@ -347,11 +347,12 @@ function jflag(value: unknown): string {
 /* ---------------------------------------------------------------- sections */
 
 const SECTION_ENTITIES: Record<SophosSectionId, string[]> = {
-  overview: ["FirewallRule", "Interface", "UnicastRoute", "LocalServiceACL", "DoSSettings", "SpoofPrevention", "WebFilterPolicy", "ApplicationFilterPolicy", "SMTPPolicy"],
+  overview: ["FirewallRule", "Interface", "UnicastRoute", "LocalServiceACL", "DoSSettings", "SpoofPrevention", "IPSPolicy", "WebFilterPolicy", "ApplicationFilterPolicy", "SMTPPolicy"],
   basic: ["Interface", "Zone", "IPHost", "UnicastRoute", "DNS"],
   policies: ["FirewallRule", "NATRule"],
-  misconfig: ["FirewallRule", "LocalServiceACL", "DoSSettings", "SpoofPrevention", "WebFilterPolicy", "ApplicationFilterPolicy", "SMTPPolicy"],
+  misconfig: ["FirewallRule", "LocalServiceACL", "DoSSettings", "SpoofPrevention", "IPSPolicy", "WebFilterPolicy", "ApplicationFilterPolicy", "SMTPPolicy"],
   dos: ["DoSSettings", "SpoofPrevention"],
+  ips: ["IPSPolicy", "FirewallRule"],
   web: ["WebFilterPolicy"],
   apps: ["ApplicationFilterPolicy"],
   email: ["SMTPPolicy"],
@@ -396,6 +397,8 @@ function ruleParts(rule: XmlObject) {
     srcNets: listOf(pick(np, "SourceNetworks"), "Network"),
     dstNets: listOf(pick(np, "DestinationNetworks"), "Network"),
     services: listOf(pick(np, "Services"), "Service"),
+    /** Name of the attached IPS policy; undefined when this firmware does not report the field. */
+    ips: pick(np, "IntrusionPrevention") === undefined ? undefined : cell(pick(np, "IntrusionPrevention")),
   };
 }
 const isAny = (values: string[]) => values.length === 0 || values.some((value) => value.toLowerCase() === "any");
@@ -509,6 +512,58 @@ function buildDos(input: BuildInput) {
   return out;
 }
 
+/* ------------------------------------------------------------------- IPS */
+
+const SEVERITIES = ["Critical", "High", "Medium", "Low", "Info"] as const;
+const toSeverity = (value: string): Severity => SEVERITIES.find((level) => level.toLowerCase() === value.trim().toLowerCase()) ?? (/emerg|alert|crit/i.test(value) ? "Critical" : /err|major/i.test(value) ? "High" : /warn/i.test(value) ? "Medium" : "Low");
+function toIpsAction(value: string): IpsAction {
+  if (/recommend/i.test(value)) return "Recommended";
+  return /drop|block|reset|deny/i.test(value) ? "Drop" : "Detect";
+}
+const hasIpsPolicy = (name: string | undefined) => !!name && !/^(none|no|off|disabled?|-)$/i.test(name.trim());
+
+/** Policies, rule groups and rule coverage read from the firewall (the API does not list single signatures). */
+export function readIps(input: BuildInput): IpsData | null {
+  const policies = recordsOf(input, "IPSPolicy");
+  const rules = recordsOf(input, "FirewallRule");
+  if (!policies && !rules) return null;
+  const outPolicies: IpsPolicy[] = [];
+  const signatures: IpsSignature[] = [];
+  for (const policy of policies ?? []) {
+    const policyName = cell(pick(policy, "Name")) || "(unnamed)";
+    const list = asList(path(policy, "RuleList", "Rule"));
+    let blocking = 0;
+    list.forEach((rule, index) => {
+      const action = toIpsAction(str(pick(rule, "Action")));
+      if (action !== "Detect") blocking += 1;
+      const category = cell(pick(rule, "Category")) || "All";
+      const severity = toSeverity(str(pick(rule, "Severity")));
+      signatures.push({
+        id: `${policyName}#${index + 1}`, name: `${category} · ${severity}`, category, severity, policy: policyName,
+        platform: cell(pick(rule, "Platform")) || "Any", target: cell(pick(rule, "Target")) || "Any", action, enabled: true,
+      });
+    });
+    outPolicies.push({ name: policyName, description: cell(pick(policy, "Description")), rules: list.length, blocking, detectOnly: list.length - blocking });
+  }
+  const coverage: IpsCoverage[] = (rules ?? []).map(ruleParts).filter((p) => p.enabled !== false && p.action === "accept").map((p) => ({
+    rule: p.name, policy: p.ips ?? "", from: names(p.srcZones), to: names(p.dstZones), action: p.action, covered: hasIpsPolicy(p.ips),
+  }));
+  return { kind: "rules", policies: outPolicies, signatures: signatures.slice(0, 2000), coverage };
+}
+
+function buildIps(input: BuildInput, data: IpsData | null = readIps(input)) {
+  const out = { summary: [] as SummaryItem[], tables: [] as TableData[], ips: data ?? undefined };
+  if (!data) return out;
+  const blocking = data.signatures.filter((s) => s.action !== "Detect").length;
+  out.summary.push(count("count.ipsPolicies", data.policies.length), count("ips.signatures", data.signatures.length));
+  if (recordsOf(input, "FirewallRule")) {
+    const covered = data.coverage.filter((c) => c.covered).length;
+    out.summary.push({ id: "ips.covered", value: `${covered}/${data.coverage.length}`, tone: covered === data.coverage.length ? "ok" : "warn" });
+  }
+  out.summary.push(count("ips.blocking", blocking, "ok"), count("ips.detect", data.signatures.length - blocking, data.signatures.length - blocking ? "warn" : "ok"));
+  return out;
+}
+
 function buildWeb(input: BuildInput) {
   const out = { summary: [] as SummaryItem[], tables: [] as TableData[] };
   const policies = recordsOf(input, "WebFilterPolicy");
@@ -613,6 +668,11 @@ export function analyze(input: BuildInput): Finding[] {
     if (isAny(p.srcZones) && isAny(p.dstZones) && isAny(p.srcNets) && isAny(p.dstNets) && isAny(p.services)) add("fw-any-any-accept", "Critical", p.name);
     else if (p.srcZones.some((zone) => zone.toLowerCase() === "wan") && isAny(p.services)) add("fw-wan-accept-any-service", "High", p.name);
     if (p.log === false) add("fw-accept-no-log", "Medium", p.name);
+    if (p.ips !== undefined && !hasIpsPolicy(p.ips) && p.srcZones.some((zone) => zone.toLowerCase() === "wan")) add("ips-wan-rule-uncovered", "High", p.name);
+  }
+  for (const policy of recordsOf(input, "IPSPolicy") ?? []) {
+    const list = asList(path(policy, "RuleList", "Rule"));
+    if (list.length && list.every((rule) => toIpsAction(str(pick(rule, "Action"))) === "Detect")) add("ips-detect-only", "Medium", cell(pick(policy, "Name")) || "(unnamed)");
   }
 
   for (const acl of recordsOf(input, "LocalServiceACL") ?? []) {
@@ -692,10 +752,18 @@ function severitySummary(findings: Finding[]): SummaryItem[] {
 export function buildSection(section: SophosSectionId, input: BuildInput): Omit<SectionResult, "fetchedAt" | "connections" | "errors"> {
   let body: { summary: SummaryItem[]; tables: TableData[] } = { summary: [], tables: [] };
   let findings: Finding[] = [];
+  let extra: { ips?: IpsData } = {};
   switch (section) {
     case "basic": body = buildBasic(input); break;
     case "policies": body = buildPolicies(input); break;
     case "dos": body = buildDos(input); break;
+    case "ips": {
+      const ips = buildIps(input);
+      body = ips;
+      if (ips.ips) extra = { ips: ips.ips };
+      findings = analyze(input).filter((f) => f.rule.startsWith("ips-"));
+      break;
+    }
     case "web": body = buildWeb(input); break;
     case "apps": body = buildApps(input); break;
     case "email": body = buildEmail(input); break;
@@ -721,7 +789,7 @@ export function buildSection(section: SophosSectionId, input: BuildInput): Omit<
       break;
     }
   }
-  return { section, summary: body.summary, tables: body.tables, findings };
+  return { section, summary: body.summary, tables: body.tables, findings, ...extra };
 }
 
 /* ------------------------------------------------------------------- loader */
@@ -855,6 +923,11 @@ export async function loadSection(section: SophosSectionId, options: LoadOptions
     sample.push("central");
   }
 
-  const built = buildSection(section, { firewall: { state: firewallState, data: firewall.data }, central: { state: centralState, ...(central ? { data: central } : {}) } });
+  const input: BuildInput = { firewall: { state: firewallState, data: firewall.data }, central: { state: centralState, ...(central ? { data: central } : {}) } };
+  let built = buildSection(section, input);
+  if (section === "ips" && sample.includes("firewall")) {
+    const shown = buildIps(input, sampleIps(readIps(input)));
+    built = { ...built, summary: shown.summary, ...(shown.ips ? { ips: shown.ips } : {}) };
+  }
   return { ...built, fetchedAt: new Date().toISOString(), connections: { firewall: firewallState, central: centralState }, errors, ...(sample.length ? { sample } : {}) };
 }

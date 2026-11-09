@@ -5,7 +5,7 @@
  */
 import type { Localized, Severity } from "./xdr-demo";
 
-export const SOPHOS_SECTIONS = ["overview", "basic", "policies", "misconfig", "dos", "web", "apps", "email", "general", "central"] as const;
+export const SOPHOS_SECTIONS = ["overview", "basic", "policies", "misconfig", "dos", "ips", "web", "apps", "email", "general", "central"] as const;
 export type SophosSectionId = (typeof SOPHOS_SECTIONS)[number];
 export function isSophosSection(value: string): value is SophosSectionId {
   return (SOPHOS_SECTIONS as readonly string[]).includes(value);
@@ -17,6 +17,7 @@ export const SECTION_META: Record<SophosSectionId, { title: Localized; blurb: Lo
   policies: { title: ["Firewall policies", "سياسات الجدار الناري"], blurb: ["Firewall rules and NAT rules in evaluation order.", "قواعد الجدار الناري وقواعد NAT بترتيب التقييم."] },
   misconfig: { title: ["Misconfiguration", "الأخطاء في الإعداد"], blurb: ["Risky settings found by checking the live configuration.", "إعدادات خطرة تم اكتشافها بفحص الإعدادات الفعلية."] },
   dos: { title: ["DoS attacks", "هجمات DoS"], blurb: ["Flood limits, hardening switches and spoof prevention.", "حدود الإغراق ومفاتيح التحصين ومنع الانتحال."] },
+  ips: { title: ["Intrusion prevention (IPS)", "منع التسلل (IPS)"], blurb: ["IPS policies, signature rules and which firewall rules are protected.", "سياسات IPS وقواعد التواقيع وقواعد الجدار الناري المحمية."] },
   web: { title: ["Web control", "التحكم في الويب"], blurb: ["Web filter policies and their category rules.", "سياسات تصفية الويب وقواعد الفئات."] },
   apps: { title: ["Applications control", "التحكم في التطبيقات"], blurb: ["Application filter policies and their rules.", "سياسات تصفية التطبيقات وقواعدها."] },
   email: { title: ["Email", "البريد الإلكتروني"], blurb: ["SMTP policies: spam, malware, file type and data protection.", "سياسات SMTP: الرسائل المزعجة والبرمجيات الخبيثة وأنواع الملفات وحماية البيانات."] },
@@ -32,6 +33,34 @@ export type SummaryItem = { id: string; value: string; tone?: Tone };
 export type TableData = { id: string; columns: string[]; rows: string[][]; total: number };
 export type Finding = { rule: string; severity: Severity; subjects: string[]; total: number };
 export type SourceError = { entity: string; kind: "unsupported" | "auth" | "unreachable" | "timeout" | "invalid" | "config" | "rate"; message: string };
+export type IpsAction = "Drop" | "Detect" | "Recommended";
+/** One row of the IPS browser. Live firewalls give policy rule groups; the sample catalog gives single signatures. */
+export type IpsSignature = {
+  id: string;
+  name: string;
+  category: string;
+  severity: Severity;
+  platform: string;
+  target: string;
+  action: IpsAction;
+  policy: string;
+  enabled: boolean;
+  cve?: string;
+  protocol?: string;
+  description?: string;
+  updated?: string;
+  /** Hits per 2 hours over the last day (sample data only; the API does not expose hit counts). */
+  hits?: number[];
+};
+export type IpsPolicy = { name: string; description: string; rules: number; blocking: number; detectOnly: number };
+export type IpsCoverage = { rule: string; policy: string; from: string; to: string; action: string; covered: boolean };
+export type IpsData = {
+  /** "catalog": individual signatures (sample). "rules": policy rule groups read from the firewall. */
+  kind: "catalog" | "rules";
+  policies: IpsPolicy[];
+  signatures: IpsSignature[];
+  coverage: IpsCoverage[];
+};
 export type SectionResult = {
   section: SophosSectionId;
   fetchedAt: string;
@@ -42,6 +71,8 @@ export type SectionResult = {
   errors: SourceError[];
   /** Present when sample data replaced a source that is not configured. */
   sample?: ("firewall" | "central")[];
+  /** Interactive IPS browser data (ips section only). */
+  ips?: IpsData;
 };
 
 /* ---------- labels ---------- */
@@ -62,6 +93,11 @@ export const LABELS: Record<string, Localized> = {
   "count.webPolicies": ["Web filter policies", "سياسات تصفية الويب"],
   "count.appPolicies": ["Application policies", "سياسات التطبيقات"],
   "count.smtpPolicies": ["SMTP policies", "سياسات SMTP"],
+  "count.ipsPolicies": ["IPS policies", "سياسات IPS"],
+  "ips.signatures": ["Signatures / rule groups", "التواقيع / مجموعات القواعد"],
+  "ips.covered": ["Rules protected by IPS", "القواعد المحمية بـ IPS"],
+  "ips.blocking": ["Blocking", "حظر"],
+  "ips.detect": ["Detect only", "كشف فقط"],
   "count.accessRules": ["Device access rules", "قواعد الوصول للجهاز"],
   "count.findings": ["Findings", "النتائج"],
   "count.critical": ["Critical", "حرجة"],
@@ -224,6 +260,16 @@ export const FINDING_CATALOG: Record<string, FindingText> = {
     title: ["Administration service reachable from the WAN zone", "خدمة إدارة متاحة من منطقة WAN"],
     why: ["Access is limited to specific hosts, but the management plane is still exposed to the internet.", "الوصول مقيّد بمضيفين محددين لكن واجهة الإدارة ما زالت مكشوفة للإنترنت."],
     fix: ["Prefer VPN-only administration and keep the allowed host list as short as possible.", "فضّل الإدارة عبر VPN فقط وأبقِ قائمة المضيفين المسموحين قصيرة."],
+  },
+  "ips-wan-rule-uncovered": {
+    title: ["Internet-facing rule has no IPS policy", "قاعدة مكشوفة للإنترنت بلا سياسة IPS"],
+    why: ["Traffic accepted from the WAN is not inspected for exploits, so attacks on published services pass straight through.", "المرور المقبول من WAN لا يُفحص بحثاً عن الثغرات، فتمر الهجمات على الخدمات المنشورة دون اعتراض."],
+    fix: ["Attach an IPS policy (for example a server-protection policy) to every rule that accepts traffic from the WAN.", "اربط سياسة IPS (مثل سياسة حماية الخوادم) بكل قاعدة تقبل مرور WAN."],
+  },
+  "ips-detect-only": {
+    title: ["IPS policy only detects and never blocks", "سياسة IPS تكشف ولا تحظر"],
+    why: ["Every rule in the policy is set to allow or log, so attacks are seen but not stopped.", "كل قواعد السياسة مضبوطة على السماح أو التسجيل، فتُرصد الهجمات دون إيقافها."],
+    fix: ["Set Drop (or Recommended) on critical and high severity signature rules.", "اضبط الإجراء على Drop (أو Recommended) لقواعد التواقيع الحرجة والعالية."],
   },
   "service-wan-exposed": {
     title: ["DNS or SNMP exposed to the internet", "DNS أو SNMP مكشوفة للإنترنت"],

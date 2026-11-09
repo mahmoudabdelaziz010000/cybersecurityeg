@@ -1,5 +1,7 @@
 import type { Collected, CentralData } from "./sophos.server";
+import type { IpsAction, IpsData, IpsSignature } from "./sophos-catalog";
 import type { XmlObject } from "./sophos-xml";
+import type { Severity } from "./xdr-demo";
 
 /**
  * Sample ("mock") Sophos Firewall data shown ONLY while the firewall / Sophos Central
@@ -13,13 +15,14 @@ const zone = (...items: string[]) => ({ Zone: items.length === 1 ? items[0]! : i
 const net = (...items: string[]) => ({ Network: items.length === 1 ? items[0]! : items });
 const svc = (...items: string[]) => ({ Service: items.length === 1 ? items[0]! : items });
 
-function rule(name: string, o: { status?: string; action: string; log?: string; src?: string[]; dst?: string[]; srcNet?: string[]; dstNet?: string[]; services?: string[] }): XmlObject {
+function rule(name: string, o: { status?: string; action: string; log?: string; src?: string[]; dst?: string[]; srcNet?: string[]; dstNet?: string[]; services?: string[]; ips?: string }): XmlObject {
   return {
     Name: name,
     Status: o.status ?? "Enable",
     NetworkPolicy: {
       Action: o.action,
       LogTraffic: o.log ?? "Enable",
+      IntrusionPrevention: o.ips ?? "None",
       ...(o.src ? { SourceZones: zone(...o.src) } : {}),
       ...(o.dst ? { DestinationZones: zone(...o.dst) } : {}),
       ...(o.srcNet ? { SourceNetworks: net(...o.srcNet) } : {}),
@@ -72,15 +75,34 @@ export const SAMPLE_FIREWALL: Collected = {
   DNS: { records: [{ DNSIPSource: "DHCP", IPv4Settings: { DNSServer1: "1.1.1.1", DNSServer2: "9.9.9.9" }, Domain: "corp.example.test" }] },
   FirewallRule: {
     records: [
-      rule("Allow LAN to WAN", { action: "Accept", src: ["LAN"], dst: ["WAN"], srcNet: ["Office-LAN"], services: ["HTTP", "HTTPS", "DNS"] }),
-      rule("Publish Web Server", { action: "Accept", src: ["WAN"], dst: ["DMZ"], srcNet: ["Any"], dstNet: ["DMZ-Web-01"], services: ["HTTP", "HTTPS"] }),
-      rule("Mail Inbound", { action: "Accept", src: ["WAN"], dst: ["DMZ"], dstNet: ["DMZ-Mail-01"], services: ["SMTP"], log: "Disable" }),
-      rule("Guest Internet", { action: "Accept", src: ["Guest"], dst: ["WAN"], srcNet: ["Guest-Range"], services: ["HTTP", "HTTPS", "DNS"] }),
+      rule("Allow LAN to WAN", { action: "Accept", src: ["LAN"], dst: ["WAN"], srcNet: ["Office-LAN"], services: ["HTTP", "HTTPS", "DNS"], ips: "General Client Policy" }),
+      rule("Publish Web Server", { action: "Accept", src: ["WAN"], dst: ["DMZ"], srcNet: ["Any"], dstNet: ["DMZ-Web-01"], services: ["HTTP", "HTTPS"], ips: "Server Protection" }),
+      rule("Mail Inbound", { action: "Accept", src: ["WAN"], dst: ["DMZ"], dstNet: ["DMZ-Mail-01"], services: ["SMTP"], log: "Disable", ips: "Server Protection" }),
+      rule("Guest Internet", { action: "Accept", src: ["Guest"], dst: ["WAN"], srcNet: ["Guest-Range"], services: ["HTTP", "HTTPS", "DNS"], ips: "General Client Policy" }),
       rule("Admin to DMZ", { action: "Accept", src: ["LAN"], dst: ["DMZ"], srcNet: ["Admin-Workstations"], services: ["SSH", "RDP"] }),
       rule("Temp Vendor Access", { action: "Accept", src: ["WAN"], dst: ["LAN"], srcNet: ["Any"], services: [] }),
       rule("Old Test Rule", { status: "Disable", action: "Accept", src: ["LAN"], dst: ["WAN"] }),
       rule("Block Guest to LAN", { action: "Drop", src: ["Guest"], dst: ["LAN"] }),
       rule("Default Deny", { action: "Drop", src: ["Any"], dst: ["Any"] }),
+    ],
+  },
+  IPSPolicy: {
+    records: [
+      { Name: "Server Protection", Description: "Exploit and brute-force protection for published servers", RuleList: { Rule: [
+        { Category: "Web Servers", Severity: "Critical", Platform: "Server", Target: "Server", Action: "Drop Packet" },
+        { Category: "Web Applications", Severity: "High", Platform: "Server", Target: "Server", Action: "Drop Packet" },
+        { Category: "Mail Servers", Severity: "High", Platform: "Server", Target: "Server", Action: "Recommended" },
+        { Category: "Brute Force", Severity: "Medium", Platform: "Linux", Target: "Server", Action: "Allow Packet" },
+      ] } },
+      { Name: "General Client Policy", Description: "Client-side and malware command-and-control protection", RuleList: { Rule: [
+        { Category: "Malware", Severity: "Critical", Platform: "Any", Target: "Client", Action: "Drop Packet" },
+        { Category: "Browsers", Severity: "High", Platform: "Windows", Target: "Client", Action: "Recommended" },
+        { Category: "P2P", Severity: "Low", Platform: "Any", Target: "Client", Action: "Allow Packet" },
+      ] } },
+      { Name: "Lab Monitor", Description: "Logging only, used for the lab network", RuleList: { Rule: [
+        { Category: "All", Severity: "Critical", Platform: "Any", Target: "Any", Action: "Allow Packet" },
+        { Category: "All", Severity: "High", Platform: "Any", Target: "Any", Action: "Allow Packet" },
+      ] } },
     ],
   },
   NATRule: { records: [{ Name: "MASQ LAN to WAN", Status: "Enable" }, { Name: "DNAT Web Server", Status: "Enable" }, { Name: "DNAT Mail", Status: "Enable" }] },
@@ -166,3 +188,61 @@ export const SAMPLE_CENTRAL: CentralData = {
     { name: "Branch-Alex", hostname: "sample-xgs-03", serialNumber: "X3C4D5E6F7G8H9I", model: "XGS 107", firmwareVersion: "SFOS 20.0.3 MR-3", status: { connected: false, managing: false }, healthStatus: "unknown", stateChangedAt: "2026-11-05T22:03:00Z" },
   ],
 };
+
+/* ---------------------------------------------------------- IPS signature catalog */
+
+type Row = [id: string, name: string, category: string, severity: Severity, platform: string, target: string, action: IpsAction, policy: string, cve: string, protocol: string, description: string, enabled?: boolean];
+
+// IDs are invented; CVE numbers are real public identifiers. Descriptions say what is detected, never how.
+const ROWS: Row[] = [
+  ["2101023", "Apache Log4j JNDI lookup remote code execution", "Web Applications", "Critical", "Server", "Server", "Drop", "Server Protection", "CVE-2021-44228", "HTTP / TCP 80, 443", "Detects HTTP requests that try to trigger a remote JNDI lookup in a vulnerable Log4j 2 logger."],
+  ["2103471", "SMBv1 EternalBlue remote code execution", "Windows", "Critical", "Windows", "Server", "Drop", "Server Protection", "CVE-2017-0144", "SMB / TCP 445", "Detects malformed SMBv1 transactions used by the EternalBlue exploit (MS17-010)."],
+  ["2102208", "Citrix ADC / Gateway path traversal", "Web Servers", "Critical", "Server", "Server", "Drop", "Server Protection", "CVE-2019-19781", "HTTPS / TCP 443", "Detects directory traversal requests against the Citrix ADC VPN portal."],
+  ["2102951", "Citrix Bleed session token disclosure", "Web Servers", "Critical", "Server", "Server", "Drop", "Server Protection", "CVE-2023-4966", "HTTPS / TCP 443", "Detects oversized requests that leak session memory from NetScaler gateways."],
+  ["2104188", "Spring4Shell class loader manipulation", "Web Applications", "Critical", "Server", "Server", "Drop", "Server Protection", "CVE-2022-22965", "HTTP / TCP 80, 8080", "Detects Spring Framework parameter binding abuse that writes web shells."],
+  ["2104410", "SQL injection attempt in web request", "Web Applications", "High", "Server", "Server", "Drop", "Server Protection", "", "HTTP / TCP 80, 443", "Detects SQL meta-characters and set operators in request parameters."],
+  ["2104733", "Apache Struts Content-Type OGNL injection", "Web Applications", "Critical", "Server", "Server", "Drop", "Server Protection", "CVE-2017-5638", "HTTP / TCP 80, 8080", "Detects OGNL expressions in the Content-Type header."],
+  ["2105102", "ProxyShell Exchange autodiscover abuse", "Mail Servers", "Critical", "Windows", "Server", "Recommended", "Server Protection", "CVE-2021-34473", "HTTPS / TCP 443", "Detects crafted Autodiscover requests used to reach the Exchange backend."],
+  ["2105260", "MOVEit Transfer SQL injection", "Web Applications", "High", "Server", "Server", "Drop", "Server Protection", "CVE-2023-34362", "HTTPS / TCP 443", "Detects injection attempts against the MOVEit guest access pages."],
+  ["2105544", "SMTP command pipelining overflow attempt", "Mail Servers", "High", "Linux", "Server", "Recommended", "Server Protection", "", "SMTP / TCP 25", "Detects oversized or malformed SMTP command sequences."],
+  ["2106015", "SSH brute force login attempts", "Brute Force", "Medium", "Linux", "Server", "Detect", "Server Protection", "", "SSH / TCP 22", "Counts repeated failed SSH authentications from one source.", false],
+  ["2106188", "RDP brute force login attempts", "Brute Force", "Medium", "Windows", "Server", "Detect", "Server Protection", "", "RDP / TCP 3389", "Counts repeated failed RDP negotiations from one source."],
+  ["2106420", "BlueKeep RDP channel use-after-free", "Windows", "Critical", "Windows", "Server", "Drop", "Server Protection", "CVE-2019-0708", "RDP / TCP 3389", "Detects the malformed MS_T120 channel binding used by BlueKeep."],
+  ["2107008", "Shellshock environment variable injection", "Web Servers", "High", "Linux", "Server", "Drop", "Server Protection", "CVE-2014-6271", "HTTP / TCP 80", "Detects function definitions in HTTP headers passed to CGI scripts."],
+  ["2107231", "Heartbleed TLS heartbeat over-read", "Web Servers", "High", "Any", "Server", "Drop", "Server Protection", "CVE-2014-0160", "TLS / TCP 443", "Detects heartbeat requests whose declared length exceeds the payload."],
+  ["2107774", "Internet Explorer scripting engine memory corruption", "Browsers", "Medium", "Windows", "Client", "Recommended", "General Client Policy", "CVE-2018-8174", "HTTP / TCP 80", "Detects script content that triggers the VBScript engine use-after-free."],
+  ["2107990", "Chromium V8 type confusion exploit page", "Browsers", "High", "Any", "Client", "Recommended", "General Client Policy", "CVE-2023-4863", "HTTPS / TCP 443", "Detects pages serving crafted image data that corrupts heap memory."],
+  ["2108210", "Office document remote template injection", "Client Apps", "High", "Windows", "Client", "Drop", "General Client Policy", "CVE-2017-0199", "HTTP / TCP 80", "Detects documents that fetch an HTA payload through an OLE link."],
+  ["2108892", "Cobalt Strike beacon check-in", "Malware", "High", "Any", "Client", "Drop", "General Client Policy", "", "HTTP / TCP 80, 443", "Detects the periodic check-in pattern of default Cobalt Strike HTTP listeners."],
+  ["2108950", "Emotet C2 communication", "Malware", "Critical", "Windows", "Client", "Drop", "General Client Policy", "", "HTTP / TCP 8080", "Detects Emotet command-and-control request structure."],
+  ["2109004", "Generic DNS tunnelling to long random hostnames", "Malware", "Medium", "Any", "Client", "Drop", "General Client Policy", "", "DNS / UDP 53", "Detects bursts of long, high-entropy DNS queries to one domain."],
+  ["2109327", "BitTorrent peer handshake", "P2P", "Low", "Any", "Client", "Detect", "General Client Policy", "", "TCP / UDP", "Detects the BitTorrent protocol handshake."],
+  ["2109410", "TOR relay connection setup", "P2P", "Medium", "Any", "Client", "Detect", "General Client Policy", "", "TLS / TCP 443, 9001", "Detects TLS handshakes with Tor relay certificate patterns."],
+  ["2110015", "Cryptominer Stratum login", "Malware", "Medium", "Any", "Client", "Drop", "General Client Policy", "", "TCP 3333, 4444", "Detects Stratum mining protocol login messages."],
+  ["2110322", "WannaCry kill-switch domain lookup", "Malware", "High", "Windows", "Client", "Drop", "General Client Policy", "", "DNS / UDP 53", "Detects the DNS lookup used by WannaCry before spreading."],
+  ["2111001", "Lab: generic exploit kit landing page", "All", "Critical", "Any", "Any", "Detect", "Lab Monitor", "", "HTTP / TCP 80", "Logging-only signature group used in the lab policy."],
+  ["2111002", "Lab: suspicious executable download", "All", "High", "Any", "Any", "Detect", "Lab Monitor", "", "HTTP / TCP 80", "Logging-only signature group used in the lab policy."],
+];
+
+function hitsFor(id: string): number[] {
+  let seed = Number(id) % 2147483647 || 7;
+  const next = () => (seed = (seed * 48271) % 2147483647) / 2147483647;
+  const base = 1 + Math.floor(next() * 40);
+  return Array.from({ length: 12 }, () => Math.max(0, Math.round(base * (0.2 + next() * 1.6))));
+}
+
+export const SAMPLE_IPS_SIGNATURES: IpsSignature[] = ROWS.map(([id, name, category, severity, platform, target, action, policy, cve, protocol, description, enabled]) => ({
+  id, name, category, severity, platform, target, action, policy, enabled: enabled ?? true, ...(cve ? { cve } : {}), protocol, description, updated: "2026-11-03", hits: hitsFor(id),
+}));
+
+/** Keep the real policy and coverage shape, but list the sample signature catalog. */
+export const sampleIps = (base: IpsData | null): IpsData => ({
+  kind: "catalog",
+  policies: (base?.policies ?? []).map((policy) => {
+    const mine = SAMPLE_IPS_SIGNATURES.filter((signature) => signature.policy === policy.name);
+    const blocking = mine.filter((signature) => signature.action !== "Detect").length;
+    return { ...policy, rules: mine.length, blocking, detectOnly: mine.length - blocking };
+  }),
+  signatures: SAMPLE_IPS_SIGNATURES,
+  coverage: base?.coverage ?? [],
+});

@@ -25,6 +25,8 @@ npm run dev
 
 ## Sophos Firewall (NGFW) dashboard
 
+The **Intrusion prevention (IPS)** section is an interactive browser (search, severity/category/action filters, sortable table, signature detail, policies, rule coverage). Live data comes from the `IPSPolicy` and `FirewallRule` API entities: the Sophos API returns each policy's signature *rule groups*, not individual signature IDs, so single signatures (IDs, CVEs, hit charts) appear in the labelled sample data only.
+
 `/xdr/firewalls` (XDR Telemetry → Firewalls) shows live, **read-only** data from a Sophos Firewall and Sophos Central. The sidebar covers: Overview, Basic settings (interfaces, zones, IP hosts, static routes, DNS), Firewall policies, Misconfiguration, DoS attacks, Web control, Applications control, Email, General settings and Sophos Central sync.
 
 Only `<Get>` requests are ever sent to the firewall. All credentials are **server-side secrets** — set them in the server environment (e.g. Lovable Cloud secrets), never in `.env` (which is committed) and never in the browser:

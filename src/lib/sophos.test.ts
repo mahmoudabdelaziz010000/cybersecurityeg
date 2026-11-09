@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { AdminGateError, isAdminConfigured, resetAdminGate, tokensMatch, verifyAdminToken } from "./admin-gate.server";
 import { FINDING_CATALOG, LABELS, LABEL_MARK, SECTION_META, SOPHOS_SECTIONS, cellText, type SectionResult } from "./sophos-catalog";
 import {
-  SophosError, analyze, buildGetRequest, collectEntities, fetchCentral, fetchEntity, loadSection, readCentralConfig, readFirewallConfig, resetSophosCaches, type Collected,
+  SophosError, analyze, buildSection, buildGetRequest, collectEntities, fetchCentral, fetchEntity, loadSection, readCentralConfig, readFirewallConfig, resetSophosCaches, type Collected,
 } from "./sophos.server";
 import { flatten, isOn, listOf, parseXml, pick, XmlParseError } from "./sophos-xml";
 
@@ -400,7 +400,8 @@ describe("sample data fallback", () => {
       if (section === "central") expect(result.sample).toEqual(["central"]);
       else expect(result.sample).toContain("firewall");
       expect(result.errors).toEqual([]);
-      if (section !== "misconfig" && section !== "overview") expect(result.tables.length).toBeGreaterThan(0);
+      if (section === "ips") expect(result.ips?.signatures.length).toBeGreaterThan(10);
+      else if (section !== "misconfig" && section !== "overview") expect(result.tables.length).toBeGreaterThan(0);
     }
     const mis = await loadSection("misconfig", { env: {}, deps: deps() });
     expect(mis.findings.length).toBeGreaterThan(0);
@@ -421,5 +422,46 @@ describe("admin gate configuration", () => {
     expect(isAdminConfigured({})).toBe(false);
     expect(isAdminConfigured({ SOPHOS_ADMIN_TOKEN: "short" })).toBe(false);
     expect(isAdminConfigured({ SOPHOS_ADMIN_TOKEN: "a".repeat(16) })).toBe(true);
+  });
+});
+
+describe("IPS section", () => {
+  const none = { env: {}, deps: { fetch: (async () => new Response("{}", { status: 404 })) as typeof fetch } };
+
+  test("sample data lists a signature catalog, policies, coverage and IPS findings", async () => {
+    const result = await loadSection("ips", none);
+    const ips = result.ips!;
+    expect(ips.kind).toBe("catalog");
+    expect(ips.policies.map((p) => p.name)).toContain("Server Protection");
+    expect(new Set(ips.signatures.map((s) => s.id)).size).toBe(ips.signatures.length);
+    expect(ips.signatures.some((s) => s.cve === "CVE-2021-44228" && s.hits?.length === 12)).toBe(true);
+    expect(ips.coverage.some((c) => !c.covered)).toBe(true);
+    expect(result.findings.map((f) => f.rule).sort()).toEqual(["ips-detect-only", "ips-wan-rule-uncovered"]);
+    const byPolicy = ips.policies.reduce((sum, p) => sum + p.rules, 0);
+    expect(byPolicy).toBe(ips.signatures.length);
+  });
+
+  test("live data turns IPS policies into rule groups and checks coverage", () => {
+    const xml = (value: Record<string, unknown>) => value as never;
+    const built = buildSection("ips", {
+      firewall: { state: "ok", data: {
+        IPSPolicy: { records: [xml({ Name: "strict", RuleList: { Rule: [{ Category: "Web Servers", Severity: "Critical", Platform: "Server", Target: "Server", Action: "Drop Packet" }, { Category: "P2P", Severity: "Low", Action: "Allow Packet" }] } })] },
+        FirewallRule: { records: [
+          xml({ Name: "open", Status: "Enable", NetworkPolicy: { Action: "Accept", SourceZones: { Zone: "WAN" }, DestinationZones: { Zone: "DMZ" }, IntrusionPrevention: "None" } }),
+          xml({ Name: "guarded", Status: "Enable", NetworkPolicy: { Action: "Accept", SourceZones: { Zone: "WAN" }, DestinationZones: { Zone: "DMZ" }, IntrusionPrevention: "strict" } }),
+        ] },
+      } },
+      central: { state: "skipped" },
+    });
+    expect(built.ips?.kind).toBe("rules");
+    expect(built.ips?.signatures.map((s) => [s.category, s.severity, s.action])).toEqual([["Web Servers", "Critical", "Drop"], ["P2P", "Low", "Detect"]]);
+    expect(built.ips?.coverage.map((c) => [c.rule, c.covered])).toEqual([["open", false], ["guarded", true]]);
+    expect(built.findings.map((f) => f.rule)).toEqual(["ips-wan-rule-uncovered"]);
+    expect(built.findings[0]?.subjects).toEqual(["open"]);
+  });
+
+  test("firmware that does not report an IPS field produces no coverage findings", () => {
+    const built = buildSection("ips", { firewall: { state: "ok", data: { FirewallRule: { records: [{ Name: "r", Status: "Enable", NetworkPolicy: { Action: "Accept", SourceZones: { Zone: "WAN" } } }] as never } } }, central: { state: "skipped" } });
+    expect(built.findings).toEqual([]);
   });
 });
