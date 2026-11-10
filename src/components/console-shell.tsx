@@ -153,9 +153,7 @@ function ConsoleNav({ active, pathname, onNavigate }: { active: NavActive; pathn
         {TOOLS.map((tool) => {
           const isActive = "to" in tool.dest
             ? pathname === tool.dest.to
-            : "section" in tool.dest
-              ? active.area === "telemetry" && active.providerId === SOPHOS_PROVIDER_ID && active.section === tool.dest.section
-              : false;
+            : false;
           const key = "to" in tool.dest ? tool.dest.to : "section" in tool.dest ? tool.dest.section : "sophos";
           return (
             <li key={key}>
