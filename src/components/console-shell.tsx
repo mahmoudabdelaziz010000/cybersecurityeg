@@ -21,7 +21,7 @@ const TOOLS: { dest: Dest; label: readonly [string, string]; icon: LucideIcon }[
   { dest: { to: "/workflows" }, label: ["Workflows", "سير العمل"], icon: GitBranch },
   { dest: { to: "/attack-surface" }, label: ["Attack surface", "سطح الهجوم"], icon: Radar },
   { dest: { to: "/threat-intel" }, label: ["Threat intel", "استخبارات التهديدات"], icon: Activity },
-  { dest: { section: "ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
+  { dest: { to: "/ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
   { dest: { to: "/recon-guide" }, label: ["Recon guide", "دليل الاستطلاع"], icon: BookOpen },
   { dest: { to: "/platform" }, label: ["Platform overview", "نظرة عامة على المنصة"], icon: Boxes },
 ];
