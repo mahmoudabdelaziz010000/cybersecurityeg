@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { headLanguage, pageHead, SITE_URL } from "@/lib/seo";
-import { getIpsArticle, IPS_ARTICLES } from "@/lib/ips-content";
+import { getIpsArticle } from "@/lib/ips-content";
+import { IpsDashboard, IpsKnowledgeCenter } from "@/components/ips-center-panels";
+import { IpsLab } from "@/components/ips-lab";
 
 export const Route = createFileRoute("/ips/$")({
   head: (ctx) => {
@@ -16,6 +18,5 @@ function IpsArticlePage() {
   const slug = Route.useParams()._splat?.split("/").filter(Boolean)[0];
   const article = getIpsArticle(slug);
   if (!article) return <main className="mx-auto max-w-4xl px-4 py-14"><h1 className="text-3xl font-bold">Guide not found</h1><Link to="/ips" className="mt-4 inline-block text-primary">Return to IPS Security Center</Link></main>;
-  const related = IPS_ARTICLES.filter((item) => item.slug !== article.slug).slice(0, 4);
-  return <main className="mx-auto max-w-4xl px-4 py-14 sm:px-6"><nav aria-label="Breadcrumb" className="text-sm text-muted-foreground"><Link to="/ips" className="hover:text-foreground">IPS Security Center</Link><span aria-hidden="true"> / </span><span>{article.title}</span></nav><article className="mt-6"><header><p className="label-mono">IPS Knowledge Center</p><h1 className="mt-3 text-4xl font-bold">{article.title}</h1><p className="mt-4 text-lg text-muted-foreground">{article.intro}</p></header>{article.sections.map((section) => <section key={section.heading} className="mt-8"><h2 className="text-2xl font-semibold">{section.heading}</h2><p className="mt-3 leading-7 text-muted-foreground">{section.body}</p></section>)}<section className="mt-10"><h2 className="text-xl font-semibold">Related IPS guides</h2><ul className="mt-3 grid gap-2 sm:grid-cols-2">{related.map((item) => <li key={item.slug}><Link to="/ips/$" params={{ _splat: `${item.slug}/` }} className="text-primary hover:underline">{item.title}</Link></li>)}</ul></section><p className="mt-8"><Link to="/ips" className="text-primary hover:underline">← IPS Security Center and interactive lab</Link></p></article></main>;
+  return <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6"><nav aria-label="Breadcrumb" className="text-sm text-muted-foreground"><Link to="/ips" className="hover:text-foreground">IPS Security Center</Link><span aria-hidden="true"> / </span><span>{article.title}</span></nav><article className="mx-auto mt-6 max-w-4xl"><header><p className="label-mono">IPS Knowledge Center</p><h1 className="mt-3 text-4xl font-bold">{article.title}</h1><p className="mt-4 text-lg text-muted-foreground">{article.intro}</p></header>{article.sections.map((section) => <section key={section.heading} className="mt-8"><h2 className="text-2xl font-semibold">{section.heading}</h2><p className="mt-3 leading-7 text-muted-foreground">{section.body}</p></section>)}<p className="mt-8"><Link to="/ips" className="text-primary hover:underline">← IPS Security Center</Link></p></article><IpsDashboard /><IpsKnowledgeCenter activeSlug={article.slug} /><IpsLab /></main>;
 }
