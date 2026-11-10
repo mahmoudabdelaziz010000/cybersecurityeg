@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as IpsRouteImport } from './routes/ips'
+import { Route as IpsSplatRouteImport } from './routes/ips.$'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
@@ -30,6 +32,16 @@ import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/index
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IpsRoute = IpsRouteImport.update({
+  id: '/ips',
+  path: '/ips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IpsSplatRoute = IpsSplatRouteImport.update({
+  id: '/ips/$',
+  path: '/ips/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
@@ -114,6 +126,8 @@ const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/ips': typeof IpsRoute
+  '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
@@ -133,6 +147,8 @@ export interface FileRoutesByFullPath {
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesByTo {
+  '/ips': typeof IpsRoute
+  '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
@@ -152,6 +168,8 @@ export interface FileRoutesByTo {
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesById {
+  '/ips': typeof IpsRoute
+  '/ips/$': typeof IpsSplatRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
@@ -174,6 +192,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/ips'
+    | '/ips/$'
     | '/'
     | '/attack-surface'
     | '/contact'
@@ -193,6 +213,8 @@ export interface FileRouteTypes {
     | '/api/public/indexnow'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/ips'
+    | '/ips/$'
     | '/'
     | '/attack-surface'
     | '/contact'
@@ -211,6 +233,8 @@ export interface FileRouteTypes {
     | '/xdr/firewalls'
     | '/api/public/indexnow'
   id:
+    | '/ips'
+    | '/ips/$'
     | '__root__'
     | '/'
     | '/attack-surface'
@@ -232,6 +256,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IpsRoute: typeof IpsRoute
+  IpsSplatRoute: typeof IpsSplatRoute
   IndexRoute: typeof IndexRoute
   AttackSurfaceRoute: typeof AttackSurfaceRoute
   ContactRoute: typeof ContactRoute
@@ -253,6 +279,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ips': {
+      id: '/ips'
+      path: '/ips'
+      fullPath: '/ips'
+      preLoaderRoute: typeof IpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ips/$': {
+      id: '/ips/$'
+      path: '/ips/$'
+      fullPath: '/ips/$'
+      preLoaderRoute: typeof IpsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -377,6 +417,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  IpsRoute: IpsRoute,
+  IpsSplatRoute: IpsSplatRoute,
   AttackSurfaceRoute: AttackSurfaceRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
