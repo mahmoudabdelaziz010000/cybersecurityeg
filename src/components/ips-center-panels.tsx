@@ -18,7 +18,10 @@ export function IpsDashboard() {
         <div className="surface p-4"><p className="label-mono">Scenarios</p><p className="mt-2 text-lg font-semibold">3 simulations</p><p className="mt-1 text-xs text-muted-foreground">Scan, brute force, SQL injection</p></div>
         <div className="surface p-4"><p className="label-mono">Knowledge Center</p><p className="mt-2 text-lg font-semibold">{IPS_ARTICLES.length} guides</p><p className="mt-1 text-xs text-muted-foreground">Detection, products, signatures, CVEs</p></div>
       </div>
-      <a href="#ips-lab" className="mt-5 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open interactive lab</a>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link to="/xdr/firewalls" search={{ section: "ips" }} className="inline-flex rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-accent">Open Sophos IPS Dashboard</Link>
+        <a href="#ips-lab" className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open interactive lab</a>
+      </div>
       <IpsLab />
     </section>
   );
