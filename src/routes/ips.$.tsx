@@ -6,7 +6,7 @@ import { IpsDashboard, IpsKnowledgeCenter } from "@/components/ips-center-panels
 export const Route = createFileRoute("/ips/$")({
   head: (ctx) => {
     const article = getIpsArticle(ctx.params._splat?.split("/").filter(Boolean)[0]);
-    if (!article) return { ...pageHead({ path: "/ips/", title: "IPS guide not found | SentinelGrid", description: "The requested IPS guide was not found.", lang: headLanguage(ctx) }) };
+    if (!article) return { meta: [{ title: "IPS guide not found | SentinelGrid" }, { name: "robots", content: "noindex" }] };
     const path = `/ips/${article.slug}/`;
     return { ...pageHead({ path, title: `${article.title} | SentinelGrid`, description: article.description, lang: headLanguage(ctx), type: "article" }), scripts: [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: article.title, description: article.description, mainEntityOfPage: `${SITE_URL}${path}`, publisher: { "@type": "Organization", name: "SentinelGrid", url: SITE_URL } }) }] };
   },

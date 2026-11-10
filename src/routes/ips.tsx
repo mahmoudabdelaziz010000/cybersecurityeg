@@ -3,7 +3,7 @@ import { headLanguage, pageHead } from "@/lib/seo";
 import { IPS_ARTICLES } from "@/lib/ips-content";
 import { IpsDashboard, IpsKnowledgeCenter } from "@/components/ips-center-panels";
 
-const TITLE = "IPS Security Center: Intrusion Prevention Guides and Lab | SentinelGrid";
+const TITLE = "IPS Security Center: Guides and Lab | SentinelGrid";
 const DESCRIPTION = "Learn intrusion prevention fundamentals, compare IDS and IPS, explore Sophos, Suricata and Snort, and try a browser-only simulated IPS lab.";
 
 export const Route = createFileRoute("/ips")({
