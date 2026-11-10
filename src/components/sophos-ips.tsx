@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Copy, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IpsDashboard, type IpsTab } from "@/components/ips-dashboard";
 import { sophosLabel, type IpsData, type IpsSignature } from "@/lib/sophos-catalog";
 import type { Severity } from "@/lib/xdr-demo";
 
@@ -12,7 +13,7 @@ const SEV_STYLE: Record<string, string> = {
 };
 const PAGE = 10;
 type SortKey = "id" | "name" | "category" | "severity" | "platform" | "action";
-type Tab = "dashboard" | "signatures" | "policies" | "coverage";
+type Tab = IpsTab;
 
 const chip = (on: boolean) => `rounded-full border px-3 py-1 text-xs transition-colors ${on ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`;
 const selectClass = "h-9 rounded-md border border-border bg-background px-2.5 text-sm";
@@ -64,11 +65,6 @@ export function IpsView({ ips, isArabic }: { ips: IpsData; isArabic: boolean }) 
   const actionLabel = (a: string) => (a === "Drop" ? l("Drop", "حظر") : a === "Recommended" ? l("Recommended", "موصى به") : l("Detect", "كشف"));
 
   const tabs: [Tab, string][] = [["dashboard", l("Dashboard", "لوحة المعلومات")], ["signatures", l("Signatures", "التواقيع")], ["policies", l("IPS policies", "سياسات IPS")], ["coverage", l("Rule coverage", "تغطية القواعد")]];
-  const blockingCount = ips.signatures.filter((signature) => signature.action !== "Detect").length;
-  const detectCount = ips.signatures.length - blockingCount;
-  const coveredCount = ips.coverage.filter((rule) => rule.covered).length;
-  const severityCounts = SEVERITIES.map((level) => ({ level, count: ips.signatures.filter((signature) => signature.severity === level).length }));
-  const maxSeverityCount = Math.max(1, ...severityCounts.map((item) => item.count));
 
   return (
     <section className="space-y-4" aria-label={l("Intrusion prevention", "منع التسلل")}>
@@ -79,64 +75,7 @@ export function IpsView({ ips, isArabic }: { ips: IpsData; isArabic: boolean }) 
         ))}
       </div>
 
-      {tab === "dashboard" && (
-        <div className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {[
-              [l("IPS policies", "سياسات IPS"), String(ips.policies.length), l("Read from firewall configuration", "من إعدادات الجدار الناري")],
-              [l("Signatures / rule groups", "التواقيع / مجموعات القواعد"), String(ips.signatures.length), l("Available in this source", "المتاح في هذا المصدر")],
-              [l("Rules protected by IPS", "قواعد محمية بـ IPS"), ips.coverage.length ? `${coveredCount}/${ips.coverage.length}` : "—", l("Firewall accept rules", "قواعد السماح")],
-              [l("Blocking", "الحظر"), String(blockingCount), l("Drop or recommended action", "إجراء الحظر أو الموصى به")],
-              [l("Detect-only", "الكشف فقط"), String(detectCount), l("Monitor without blocking", "مراقبة دون حظر")],
-            ].map(([label, value, detail]) => (
-              <article key={label} className="surface min-w-0 p-4">
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="mt-3 font-display text-3xl font-semibold">{value}</p>
-                <p className="mt-2 text-[11px] text-muted-foreground">{detail}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="grid gap-4 xl:grid-cols-2">
-            <section className="surface space-y-4 p-5" aria-labelledby="ips-policy-posture">
-              <div><h3 id="ips-policy-posture" className="font-semibold">{l("Policy posture", "حالة السياسات")}</h3><p className="mt-1 text-xs text-muted-foreground">{l("Blocking and detect-only rule groups by policy.", "مجموعات قواعد الحظر والكشف فقط حسب السياسة.")}</p></div>
-              {ips.policies.length === 0 && <p className="text-sm text-muted-foreground">{l("No IPS policies were returned by this source.", "لم يُرجع هذا المصدر سياسات IPS.")}</p>}
-              {ips.policies.map((item) => {
-                const total = Math.max(1, item.rules);
-                const blockingPercent = Math.round((item.blocking / total) * 100);
-                return <div key={item.name} className="space-y-2">
-                  <div className="flex items-center justify-between gap-3 text-sm"><span className="font-medium" dir="auto">{item.name}</span><span className="font-mono text-xs text-muted-foreground" dir="ltr">{item.rules} {l("groups", "مجموعات")}</span></div>
-                  <div className="flex h-2 overflow-hidden rounded-full bg-muted" role="img" aria-label={l(`${blockingPercent}% blocking in ${item.name}`, `${blockingPercent}% حظر في ${item.name}`)}>
-                    <div className="bg-clean" style={{ width: `${blockingPercent}%` }} /><div className="bg-caution" style={{ width: `${100 - blockingPercent}%` }} />
-                  </div>
-                  <div className="flex justify-between text-[11px] text-muted-foreground"><span className="text-clean">{item.blocking} {l("blocking", "حظر")}</span><span className="text-caution">{item.detectOnly} {l("detect-only", "كشف فقط")}</span></div>
-                </div>;
-              })}
-              <Button variant="outline" size="sm" onClick={() => setTab("policies")}>{l("Inspect policies", "استعراض السياسات")}</Button>
-            </section>
-
-            <section className="surface space-y-4 p-5" aria-labelledby="ips-coverage-summary">
-              <div><h3 id="ips-coverage-summary" className="font-semibold">{l("Coverage & severity", "التغطية والخطورة")}</h3><p className="mt-1 text-xs text-muted-foreground">{l("Signature rule groups currently returned by the firewall.", "مجموعات قواعد التواقيع التي أعادها الجدار الناري.")}</p></div>
-              {severityCounts.map(({ level, count }) => (
-                <div key={level} className="grid grid-cols-[72px_1fr_32px] items-center gap-3 text-xs">
-                  <span className={SEV_STYLE[level].split(" ")[0]}>{sophosLabel(`ui.severity.${level}`, isArabic)}</span>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted"><div className={`h-full ${level === "Critical" ? "bg-malicious" : level === "High" ? "bg-caution" : level === "Medium" ? "bg-xdr-cloud" : "bg-primary"}`} style={{ width: `${Math.round((count / maxSeverityCount) * 100)}%` }} /></div>
-                  <span className="text-end font-mono" dir="ltr">{count}</span>
-                </div>
-              ))}
-              <div className="border-t border-border pt-3 text-sm">
-                <div className="flex items-center justify-between gap-3"><span>{l("Firewall rules protected", "قواعد الجدار الناري المحمية")}</span><strong className="font-mono" dir="ltr">{ips.coverage.length ? `${coveredCount} / ${ips.coverage.length}` : "—"}</strong></div>
-                <Button variant="outline" size="sm" className="mt-3" onClick={() => setTab("coverage")}>{l("Inspect rule coverage", "استعراض تغطية القواعد")}</Button>
-              </div>
-            </section>
-          </div>
-
-          <section className="surface flex flex-wrap items-start justify-between gap-3 p-5" aria-label={l("IPS event monitoring status", "حالة مراقبة أحداث IPS")}>
-            <div><h3 className="font-semibold">{l("IPS event monitoring", "مراقبة أحداث IPS")}</h3><p className="mt-1 max-w-3xl text-sm text-muted-foreground">{l("This read-only configuration API response does not include event logs. No live attack events are being shown here.", "استجابة واجهة الإعدادات للقراءة فقط لا تتضمن سجلات الأحداث. لا تُعرض هنا أحداث هجوم مباشرة.")}</p></div>
-            <a href="/ips/#ips-lab" className="text-sm font-medium text-primary hover:underline">{l("Open simulated lab and log parser", "افتح المختبر التجريبي ومحلل السجلات")}</a>
-          </section>
-        </div>
-      )}
+      {tab === "dashboard" && <IpsDashboard ips={ips} isArabic={isArabic} onOpen={setTab} />}
 
       {tab === "signatures" && (
         <>
