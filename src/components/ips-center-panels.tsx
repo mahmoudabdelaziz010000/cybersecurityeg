@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { IPS_ARTICLES } from "@/lib/ips-content";
+import { IpsLab } from "@/components/ips-lab";
 
 export function IpsDashboard() {
   return (
@@ -18,6 +19,7 @@ export function IpsDashboard() {
         <div className="surface p-4"><p className="label-mono">Knowledge Center</p><p className="mt-2 text-lg font-semibold">{IPS_ARTICLES.length} guides</p><p className="mt-1 text-xs text-muted-foreground">Detection, products, signatures, CVEs</p></div>
       </div>
       <a href="#ips-lab" className="mt-5 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open interactive lab</a>
+      <IpsLab />
     </section>
   );
 }

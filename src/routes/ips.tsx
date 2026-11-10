@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { headLanguage, pageHead } from "@/lib/seo";
 import { IPS_ARTICLES } from "@/lib/ips-content";
-import { IpsLab } from "@/components/ips-lab";
 import { IpsDashboard, IpsKnowledgeCenter } from "@/components/ips-center-panels";
 
 const TITLE = "IPS Security Center: Intrusion Prevention Guides and Lab | SentinelGrid";
@@ -17,7 +16,6 @@ function IpsHome() {
     <header className="max-w-3xl"><p className="label-mono">IPS Security Center</p><h1 className="mt-3 text-4xl font-bold">Intrusion prevention, explained and explored</h1><p className="mt-4 text-muted-foreground">Practical guides to intrusion prevention systems, signatures, and network defense. Use the lab to explore sample policy outcomes; all lab events are simulated.</p></header>
     <IpsDashboard />
     <IpsKnowledgeCenter />
-    <section className="mt-10 grid gap-3 sm:grid-cols-2"><Link to="/threat-intel" className="surface p-5"><h2 className="font-semibold">CVE Threat Intelligence</h2><p className="mt-2 text-sm text-muted-foreground">Review recent vulnerability disclosures and prioritize validation and patching.</p></Link><a href="#ips-lab" className="surface p-5"><h2 className="font-semibold">Interactive IPS Lab</h2><p className="mt-2 text-sm text-muted-foreground">Simulate scanning, brute force, and injection policy outcomes.</p></a></section>
-    <IpsLab />
+    <section className="mt-10"><Link to="/threat-intel" className="surface block p-5"><h2 className="font-semibold">CVE Threat Intelligence</h2><p className="mt-2 text-sm text-muted-foreground">Review recent vulnerability disclosures and prioritize validation and patching.</p></Link></section>
   </main>;
 }
