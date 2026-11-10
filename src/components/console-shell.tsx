@@ -11,7 +11,7 @@ import { SECTION_META, SOPHOS_SECTIONS, type SophosSectionId } from "@/lib/sopho
 import { GROUPS, type Group } from "@/lib/xdr-demo";
 import { GROUP_STYLE, groupLabel } from "@/lib/xdr-ui";
 
-type StaticTo = "/" | "/xdr" | "/osint-hub" | "/owasp" | "/workflows" | "/attack-surface" | "/threat-intel" | "/recon-guide" | "/platform" | "/contact";
+type StaticTo = "/" | "/xdr" | "/osint-hub" | "/owasp" | "/workflows" | "/attack-surface" | "/threat-intel" | "/ips" | "/recon-guide" | "/platform" | "/contact";
 /** Where a menu entry goes: a fixed page, a /telemetry/* page, the Sophos dashboard, or one Sophos section. */
 type Dest = { to: StaticTo } | { splat: string } | { section: SophosSectionId } | { sophos: true };
 
@@ -21,6 +21,7 @@ const TOOLS: { dest: { to: StaticTo }; label: readonly [string, string]; icon: L
   { dest: { to: "/workflows" }, label: ["Workflows", "سير العمل"], icon: GitBranch },
   { dest: { to: "/attack-surface" }, label: ["Attack surface", "سطح الهجوم"], icon: Radar },
   { dest: { to: "/threat-intel" }, label: ["Threat intel", "استخبارات التهديدات"], icon: Activity },
+  { dest: { to: "/ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
   { dest: { to: "/recon-guide" }, label: ["Recon guide", "دليل الاستطلاع"], icon: BookOpen },
   { dest: { to: "/platform" }, label: ["Platform overview", "نظرة عامة على المنصة"], icon: Boxes },
 ];
