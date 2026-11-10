@@ -15,13 +15,13 @@ type StaticTo = "/" | "/xdr" | "/osint-hub" | "/owasp" | "/workflows" | "/attack
 /** Where a menu entry goes: a fixed page, a /telemetry/* page, the Sophos dashboard, or one Sophos section. */
 type Dest = { to: StaticTo } | { splat: string } | { section: SophosSectionId } | { sophos: true };
 
-const TOOLS: { dest: { to: StaticTo }; label: readonly [string, string]; icon: LucideIcon }[] = [
+const TOOLS: { dest: Dest; label: readonly [string, string]; icon: LucideIcon }[] = [
   { dest: { to: "/osint-hub" }, label: ["OSINT Hub", "مركز OSINT"], icon: ScanSearch },
   { dest: { to: "/owasp" }, label: ["OWASP Scanner", "فاحص OWASP"], icon: ShieldCheck },
   { dest: { to: "/workflows" }, label: ["Workflows", "سير العمل"], icon: GitBranch },
   { dest: { to: "/attack-surface" }, label: ["Attack surface", "سطح الهجوم"], icon: Radar },
   { dest: { to: "/threat-intel" }, label: ["Threat intel", "استخبارات التهديدات"], icon: Activity },
-  { dest: { to: "/ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
+  { dest: { section: "ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
   { dest: { to: "/recon-guide" }, label: ["Recon guide", "دليل الاستطلاع"], icon: BookOpen },
   { dest: { to: "/platform" }, label: ["Platform overview", "نظرة عامة على المنصة"], icon: Boxes },
 ];
@@ -151,9 +151,14 @@ function ConsoleNav({ active, pathname, onNavigate }: { active: NavActive; pathn
       <p className="label-mono mt-5 px-3 pb-1.5">{l("TOOLS", "الأدوات")}</p>
       <ul className="space-y-0.5">
         {TOOLS.map((tool) => {
-          const isActive = pathname === tool.dest.to;
+          const isActive = "to" in tool.dest
+            ? pathname === tool.dest.to
+            : "section" in tool.dest
+              ? active.area === "telemetry" && active.providerId === SOPHOS_PROVIDER_ID && active.section === tool.dest.section
+              : false;
+          const key = "to" in tool.dest ? tool.dest.to : "section" in tool.dest ? tool.dest.section : "sophos";
           return (
-            <li key={tool.dest.to}>
+            <li key={key}>
               <DestLink dest={tool.dest} active={isActive} onClick={onNavigate} className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${isActive ? "bg-accent text-foreground" : IDLE}`}>
                 <tool.icon className="size-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">{tool.label[idx]}</span>
