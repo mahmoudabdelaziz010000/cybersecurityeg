@@ -10,6 +10,8 @@ interface SitemapEntry {
   priority?: string;
 }
 
+const BUILD_DATE = new Date().toISOString().slice(0, 10);
+
 function escapeXml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 }
@@ -18,6 +20,8 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Date of the deployment's first sitemap request; refreshed whenever the server restarts on a new build.
+        const lastmod = BUILD_DATE;
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/platform", changefreq: "monthly", priority: "0.8" },
@@ -47,6 +51,7 @@ export const Route = createFileRoute("/sitemap.xml")({
               `    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(localizedUrl(e.path, "en"))}"/>`,
               `    <xhtml:link rel="alternate" hreflang="ar" href="${escapeXml(localizedUrl(e.path, "ar"))}"/>`,
               `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(localizedUrl(e.path, "en"))}"/>`,
+              `    <lastmod>${lastmod}</lastmod>`,
               e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
               e.priority ? `    <priority>${e.priority}</priority>` : null,
               `  </url>`,
