@@ -591,29 +591,6 @@ function buildWeb(input: BuildInput) {
   return out;
 }
 
-function buildIps(input: BuildInput) {
-  const out = { summary: [] as SummaryItem[], tables: [] as TableData[] };
-  const policies = recordsOf(input, "IPSPolicy");
-  if (!policies) return out;
-  const ruleRows: string[][] = [];
-  const rows = policies.map((policy) => {
-    const rules = asList(path(policy, "RuleList", "Rule"));
-    for (const rule of rules) {
-      ruleRows.push([
-        cell(pick(policy, "Name")), cell(pick(rule, "RuleName")), cell(pick(rule, "RuleType")),
-        cell(pick(rule, "SignaturSelectionType")), categoryNames(pick(rule, "CategoryList"), "Category"),
-        categoryNames(pick(rule, "SeverityList"), "Severity"), categoryNames(pick(rule, "PlatformList"), "Platform"),
-        categoryNames(pick(rule, "TargetList"), "Target"), categoryNames(pick(rule, "SignatureList"), "Signature"), cell(pick(rule, "Action")),
-      ]);
-    }
-    return [cell(pick(policy, "Name")), cell(pick(policy, "Description")), cell(pick(policy, "Template")), String(rules.length)];
-  });
-  out.summary.push(count("count.ipsPolicies", policies.length), count("count.ipsRules", ruleRows.length));
-  out.tables.push(table("table.ipsPolicies", ["name", "description", "template", "rules"], rows));
-  out.tables.push(table("table.ipsRules", ["policy", "name", "type", "signatureSelection", "categories", "severity", "platform", "target", "signatures", "action"], ruleRows));
-  return out;
-}
-
 function buildApps(input: BuildInput) {
   const out = { summary: [] as SummaryItem[], tables: [] as TableData[] };
   const policies = recordsOf(input, "ApplicationFilterPolicy");
