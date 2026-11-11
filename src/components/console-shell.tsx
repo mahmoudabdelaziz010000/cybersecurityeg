@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Activity, BookOpen, Boxes, ChevronRight, GitBranch, LayoutDashboard, Menu, Radar, ScanSearch, ShieldCheck, ShieldHalf, type LucideIcon } from "lucide-react";
+import { BookOpen, ChevronRight, LayoutDashboard, Menu, ShieldCheck, ShieldHalf, type LucideIcon } from "lucide-react";
 import { FacebookCta } from "@/components/facebook-cta";
 import { LanguageToggle } from "@/components/language-toggle";
 import { SiteFooter } from "@/components/site-footer";
@@ -17,14 +17,7 @@ type Dest = { to: StaticTo } | { splat: string } | { section: SophosSectionId } 
 
 const TOOLS: { dest: Dest; label: readonly [string, string]; icon: LucideIcon }[] = [
   { dest: { to: "/assessment-center" }, label: ["Security Assessment Center", "مركز التقييم الأمني"], icon: ShieldCheck },
-  { dest: { to: "/osint-hub" }, label: ["OSINT Hub", "مركز OSINT"], icon: ScanSearch },
-  { dest: { to: "/owasp" }, label: ["OWASP Scanner", "فاحص OWASP"], icon: ShieldCheck },
-  { dest: { to: "/workflows" }, label: ["Workflows", "سير العمل"], icon: GitBranch },
-  { dest: { to: "/attack-surface" }, label: ["Attack surface", "سطح الهجوم"], icon: Radar },
-  { dest: { to: "/threat-intel" }, label: ["Threat intel", "استخبارات التهديدات"], icon: Activity },
-  { dest: { to: "/ips" }, label: ["IPS Security Center", "مركز أمن IPS"], icon: ShieldHalf },
   { dest: { to: "/recon-guide" }, label: ["Recon guide", "دليل الاستطلاع"], icon: BookOpen },
-  { dest: { to: "/platform" }, label: ["Platform overview", "نظرة عامة على المنصة"], icon: Boxes },
 ];
 
 function DestLink({ dest, active, className, onClick, children }: { dest: Dest; active: boolean; className: string; onClick?: (() => void) | undefined; children: ReactNode }) {
