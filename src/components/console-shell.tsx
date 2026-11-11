@@ -11,11 +11,12 @@ import { SECTION_META, SOPHOS_SECTIONS, type SophosSectionId } from "@/lib/sopho
 import { GROUPS, type Group } from "@/lib/xdr-demo";
 import { GROUP_STYLE, groupLabel } from "@/lib/xdr-ui";
 
-type StaticTo = "/" | "/xdr" | "/osint-hub" | "/owasp" | "/workflows" | "/attack-surface" | "/threat-intel" | "/ips" | "/recon-guide" | "/platform" | "/contact";
+type StaticTo = "/" | "/xdr" | "/assessment-center" | "/osint-hub" | "/owasp" | "/workflows" | "/attack-surface" | "/threat-intel" | "/ips" | "/recon-guide" | "/platform" | "/contact";
 /** Where a menu entry goes: a fixed page, a /telemetry/* page, the Sophos dashboard, or one Sophos section. */
 type Dest = { to: StaticTo } | { splat: string } | { section: SophosSectionId } | { sophos: true };
 
 const TOOLS: { dest: Dest; label: readonly [string, string]; icon: LucideIcon }[] = [
+  { dest: { to: "/assessment-center" }, label: ["Security Assessment Center", "مركز التقييم الأمني"], icon: ShieldCheck },
   { dest: { to: "/osint-hub" }, label: ["OSINT Hub", "مركز OSINT"], icon: ScanSearch },
   { dest: { to: "/owasp" }, label: ["OWASP Scanner", "فاحص OWASP"], icon: ShieldCheck },
   { dest: { to: "/workflows" }, label: ["Workflows", "سير العمل"], icon: GitBranch },

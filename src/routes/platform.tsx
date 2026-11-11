@@ -66,7 +66,7 @@ const CAPABILITIES = [
   {
     icon: Network,
     title: "Sophos Firewall (NGFW)",
-    body: "Live, read-only view of your Sophos firewall: IP settings, policies, misconfigurations, DoS protection, web, application and email control, and Sophos Central sync.",
+    body: "Live, read-only view of your Sophos firewall: IP settings, firewall and IPS policies, misconfigurations, DoS protection, web, application and email control, and Sophos Central sync.",
     to: "/xdr/firewalls" as const,
     cta: "Open firewall dashboard",
   },

@@ -5,10 +5,11 @@ import { useLanguage } from "@/lib/language";
 import { headLanguage, pageHead } from "@/lib/seo";
 import { GROUPS } from "@/lib/xdr-demo";
 import { groupLabel } from "@/lib/xdr-ui";
+import { ArrowUpRight, ShieldCheck } from "lucide-react";
 
 const TITLE = "SentinelGrid XDR Console | SOC Dashboard & Telemetry";
 const DESCRIPTION =
-  "Free XDR console: SOC dashboard, firewall, endpoint, server, cloud and email telemetry, a live Sophos Firewall view, plus OSINT and OWASP tools.";
+  "Free XDR console: SOC dashboard, firewall, endpoint, server, cloud and email telemetry, a live Sophos Firewall view, plus a Security Assessment Center, OSINT and OWASP tools.";
 
 export const Route = createFileRoute("/")({
   head: (ctx) => ({
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/")({
             "Live read-only Sophos Firewall (NGFW) dashboard",
             "OSINT data hub",
             "OWASP scanner",
+            "Security Assessment Center",
             "Attack surface monitoring",
           ],
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free to use, with no signup." },
@@ -65,6 +67,10 @@ function Home() {
             </li>
           ))}
         </ul>
+        <Link to="/assessment-center" className="surface mt-5 flex flex-wrap items-center justify-between gap-4 border-primary/30 p-5 transition-colors hover:border-primary/60 hover:bg-accent/30">
+          <span className="flex items-start gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><ShieldCheck className="size-5" aria-hidden="true" /></span><span><span className="block font-semibold">{l("Security Assessment Center", "مركز التقييم الأمني")}</span><span className="mt-1 block text-sm text-muted-foreground">{l("Run OSINT, OWASP and vulnerability checks together, then review live evidence in one workspace.", "شغّل فحوصات OSINT وOWASP والثغرات معاً، وراجع الأدلة المباشرة في مساحة واحدة.")}</span></span></span>
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">{l("Open assessment center", "فتح مركز التقييم")} <ArrowUpRight className="size-4" aria-hidden="true" /></span>
+        </Link>
         <p className="mt-6 text-sm text-muted-foreground">
           {l("Also: ", "أيضاً: ")}
           <Link to="/osint-hub" className="text-primary hover:underline">{l("OSINT Data Hub", "مركز OSINT")}</Link> · <Link to="/owasp" className="text-primary hover:underline">{l("OWASP Scanner", "فاحص OWASP")}</Link> · <Link to="/workflows" className="text-primary hover:underline">{l("Automation Workflows", "سير العمل الآلي")}</Link> · <Link to="/attack-surface" className="text-primary hover:underline">{l("Attack Surface Monitoring", "مراقبة سطح الهجوم")}</Link> · <Link to="/threat-intel" className="text-primary hover:underline">{l("Threat Intelligence", "استخبارات التهديدات")}</Link> · <Link to="/platform" className="text-primary hover:underline">{l("Platform overview", "نظرة عامة على المنصة")}</Link>

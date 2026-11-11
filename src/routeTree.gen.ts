@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as IpsRouteImport } from './routes/ips'
 import { Route as IpsSplatRouteImport } from './routes/ips.$'
 import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
+import { Route as AssessmentCenterRouteImport } from './routes/assessment-center'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OsintHubRouteImport } from './routes/osint-hub'
@@ -47,6 +48,11 @@ const IpsSplatRoute = IpsSplatRouteImport.update({
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   id: '/attack-surface',
   path: '/attack-surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssessmentCenterRoute = AssessmentCenterRouteImport.update({
+  id: '/assessment-center',
+  path: '/assessment-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/assessment-center': typeof AssessmentCenterRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/assessment-center': typeof AssessmentCenterRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -172,7 +180,10 @@ export interface FileRoutesById {
   '/ips/$': typeof IpsSplatRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ips': typeof IpsRoute
+  '/ips/$': typeof IpsSplatRoute
   '/attack-surface': typeof AttackSurfaceRoute
+  '/assessment-center': typeof AssessmentCenterRoute
   '/contact': typeof ContactRoute
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/ips/$'
     | '/'
     | '/attack-surface'
+    | '/assessment-center'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -217,6 +229,7 @@ export interface FileRouteTypes {
     | '/ips/$'
     | '/'
     | '/attack-surface'
+    | '/assessment-center'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -237,7 +250,10 @@ export interface FileRouteTypes {
     | '/ips/$'
     | '__root__'
     | '/'
+    | '/ips'
+    | '/ips/$'
     | '/attack-surface'
+    | '/assessment-center'
     | '/contact'
     | '/osint'
     | '/osint-hub'
@@ -259,7 +275,10 @@ export interface RootRouteChildren {
   IpsRoute: typeof IpsRoute
   IpsSplatRoute: typeof IpsSplatRoute
   IndexRoute: typeof IndexRoute
+  IpsRoute: typeof IpsRoute
+  IpsSplatRoute: typeof IpsSplatRoute
   AttackSurfaceRoute: typeof AttackSurfaceRoute
+  AssessmentCenterRoute: typeof AssessmentCenterRoute
   ContactRoute: typeof ContactRoute
   OsintRoute: typeof OsintRoute
   OsintHubRoute: typeof OsintHubRoute
@@ -305,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/attack-surface'
       fullPath: '/attack-surface'
       preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assessment-center': {
+      id: '/assessment-center'
+      path: '/assessment-center'
+      fullPath: '/assessment-center'
+      preLoaderRoute: typeof AssessmentCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -420,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   IpsRoute: IpsRoute,
   IpsSplatRoute: IpsSplatRoute,
   AttackSurfaceRoute: AttackSurfaceRoute,
+  AssessmentCenterRoute: AssessmentCenterRoute,
   ContactRoute: ContactRoute,
   OsintRoute: OsintRoute,
   OsintHubRoute: OsintHubRoute,

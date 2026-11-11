@@ -14,7 +14,7 @@ import {
 import type { Severity } from "@/lib/xdr-demo";
 
 const TITLE = "Sophos Firewall Telemetry | SentinelGrid";
-const DESCRIPTION = "Live, read-only Sophos Next-Gen Firewall dashboard: IP settings, policies, misconfigurations, DoS protection, web, application and email control, and Sophos Central sync.";
+const DESCRIPTION = "Live, read-only Sophos Next-Gen Firewall dashboard: IP settings, firewall and IPS policies, misconfigurations, DoS protection, web, application and email control, and Sophos Central sync.";
 
 export const Route = createFileRoute("/xdr_/firewalls")({
   validateSearch: (search: Record<string, unknown>): { section?: SophosSectionId } => {
