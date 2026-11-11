@@ -10,11 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as IpsRouteImport } from './routes/ips'
-import { Route as IpsSplatRouteImport } from './routes/ips.$'
-import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as AssessmentCenterRouteImport } from './routes/assessment-center'
+import { Route as AttackSurfaceRouteImport } from './routes/attack-surface'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as IpsRouteImport } from './routes/ips'
 import { Route as OsintRouteImport } from './routes/osint'
 import { Route as OsintHubRouteImport } from './routes/osint-hub'
 import { Route as OwaspRouteImport } from './routes/owasp'
@@ -26,6 +25,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThreatIntelRouteImport } from './routes/threat-intel'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as XdrRouteImport } from './routes/xdr'
+import { Route as IpsSplatRouteImport } from './routes/ips.$'
 import { Route as TelemetrySplatRouteImport } from './routes/telemetry.$'
 import { Route as XdrFirewallsRouteImport } from './routes/xdr_.firewalls'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
@@ -35,14 +35,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IpsRoute = IpsRouteImport.update({
-  id: '/ips',
-  path: '/ips',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IpsSplatRoute = IpsSplatRouteImport.update({
-  id: '/ips/$',
-  path: '/ips/$',
+const AssessmentCenterRoute = AssessmentCenterRouteImport.update({
+  id: '/assessment-center',
+  path: '/assessment-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
@@ -50,14 +45,14 @@ const AttackSurfaceRoute = AttackSurfaceRouteImport.update({
   path: '/attack-surface',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AssessmentCenterRoute = AssessmentCenterRouteImport.update({
-  id: '/assessment-center',
-  path: '/assessment-center',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IpsRoute = IpsRouteImport.update({
+  id: '/ips',
+  path: '/ips',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OsintRoute = OsintRouteImport.update({
@@ -115,6 +110,11 @@ const XdrRoute = XdrRouteImport.update({
   path: '/xdr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IpsSplatRoute = IpsSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => IpsRoute,
+} as any)
 const TelemetrySplatRoute = TelemetrySplatRouteImport.update({
   id: '/telemetry/$',
   path: '/telemetry/$',
@@ -132,12 +132,11 @@ const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/ips': typeof IpsRoute
-  '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
-  '/attack-surface': typeof AttackSurfaceRoute
   '/assessment-center': typeof AssessmentCenterRoute
+  '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/ips': typeof IpsRouteWithChildren
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -149,17 +148,17 @@ export interface FileRoutesByFullPath {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/ips/$': typeof IpsSplatRoute
   '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesByTo {
-  '/ips': typeof IpsRoute
-  '/ips/$': typeof IpsSplatRoute
   '/': typeof IndexRoute
-  '/attack-surface': typeof AttackSurfaceRoute
   '/assessment-center': typeof AssessmentCenterRoute
+  '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/ips': typeof IpsRouteWithChildren
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -171,20 +170,18 @@ export interface FileRoutesByTo {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/ips/$': typeof IpsSplatRoute
   '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
 }
 export interface FileRoutesById {
-  '/ips': typeof IpsRoute
-  '/ips/$': typeof IpsSplatRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ips': typeof IpsRoute
-  '/ips/$': typeof IpsSplatRoute
-  '/attack-surface': typeof AttackSurfaceRoute
   '/assessment-center': typeof AssessmentCenterRoute
+  '/attack-surface': typeof AttackSurfaceRoute
   '/contact': typeof ContactRoute
+  '/ips': typeof IpsRouteWithChildren
   '/osint': typeof OsintRoute
   '/osint-hub': typeof OsintHubRoute
   '/owasp': typeof OwaspRoute
@@ -196,6 +193,7 @@ export interface FileRoutesById {
   '/threat-intel': typeof ThreatIntelRoute
   '/workflows': typeof WorkflowsRoute
   '/xdr': typeof XdrRoute
+  '/ips/$': typeof IpsSplatRoute
   '/telemetry/$': typeof TelemetrySplatRoute
   '/xdr_/firewalls': typeof XdrFirewallsRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
@@ -203,12 +201,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/ips'
-    | '/ips/$'
     | '/'
-    | '/attack-surface'
     | '/assessment-center'
+    | '/attack-surface'
     | '/contact'
+    | '/ips'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -220,17 +217,17 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/ips/$'
     | '/telemetry/$'
     | '/xdr/firewalls'
     | '/api/public/indexnow'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/ips'
-    | '/ips/$'
     | '/'
-    | '/attack-surface'
     | '/assessment-center'
+    | '/attack-surface'
     | '/contact'
+    | '/ips'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -242,19 +239,17 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/ips/$'
     | '/telemetry/$'
     | '/xdr/firewalls'
     | '/api/public/indexnow'
   id:
-    | '/ips'
-    | '/ips/$'
     | '__root__'
     | '/'
-    | '/ips'
-    | '/ips/$'
-    | '/attack-surface'
     | '/assessment-center'
+    | '/attack-surface'
     | '/contact'
+    | '/ips'
     | '/osint'
     | '/osint-hub'
     | '/owasp'
@@ -266,20 +261,18 @@ export interface FileRouteTypes {
     | '/threat-intel'
     | '/workflows'
     | '/xdr'
+    | '/ips/$'
     | '/telemetry/$'
     | '/xdr_/firewalls'
     | '/api/public/indexnow'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IpsRoute: typeof IpsRoute
-  IpsSplatRoute: typeof IpsSplatRoute
   IndexRoute: typeof IndexRoute
-  IpsRoute: typeof IpsRoute
-  IpsSplatRoute: typeof IpsSplatRoute
-  AttackSurfaceRoute: typeof AttackSurfaceRoute
   AssessmentCenterRoute: typeof AssessmentCenterRoute
+  AttackSurfaceRoute: typeof AttackSurfaceRoute
   ContactRoute: typeof ContactRoute
+  IpsRoute: typeof IpsRouteWithChildren
   OsintRoute: typeof OsintRoute
   OsintHubRoute: typeof OsintHubRoute
   OwaspRoute: typeof OwaspRoute
@@ -298,32 +291,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/ips': {
-      id: '/ips'
-      path: '/ips'
-      fullPath: '/ips'
-      preLoaderRoute: typeof IpsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ips/$': {
-      id: '/ips/$'
-      path: '/ips/$'
-      fullPath: '/ips/$'
-      preLoaderRoute: typeof IpsSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/attack-surface': {
-      id: '/attack-surface'
-      path: '/attack-surface'
-      fullPath: '/attack-surface'
-      preLoaderRoute: typeof AttackSurfaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessment-center': {
@@ -333,11 +305,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/attack-surface': {
+      id: '/attack-surface'
+      path: '/attack-surface'
+      fullPath: '/attack-surface'
+      preLoaderRoute: typeof AttackSurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ips': {
+      id: '/ips'
+      path: '/ips'
+      fullPath: '/ips'
+      preLoaderRoute: typeof IpsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/osint': {
@@ -417,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof XdrRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ips/$': {
+      id: '/ips/$'
+      path: '/$'
+      fullPath: '/ips/$'
+      preLoaderRoute: typeof IpsSplatRouteImport
+      parentRoute: typeof IpsRoute
+    }
     '/telemetry/$': {
       id: '/telemetry/$'
       path: '/telemetry/$'
@@ -441,13 +434,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface IpsRouteChildren {
+  IpsSplatRoute: typeof IpsSplatRoute
+}
+
+const IpsRouteChildren: IpsRouteChildren = {
+  IpsSplatRoute: IpsSplatRoute,
+}
+
+const IpsRouteWithChildren = IpsRoute._addFileChildren(IpsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  IpsRoute: IpsRoute,
-  IpsSplatRoute: IpsSplatRoute,
-  AttackSurfaceRoute: AttackSurfaceRoute,
   AssessmentCenterRoute: AssessmentCenterRoute,
+  AttackSurfaceRoute: AttackSurfaceRoute,
   ContactRoute: ContactRoute,
+  IpsRoute: IpsRouteWithChildren,
   OsintRoute: OsintRoute,
   OsintHubRoute: OsintHubRoute,
   OwaspRoute: OwaspRoute,
