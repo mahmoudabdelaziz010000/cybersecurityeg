@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, ShieldHalf } from "lucide-react";
+import { Facebook, MessageCircle, ShieldHalf } from "lucide-react";
 import { useLanguage } from "@/lib/language";
-import { FACEBOOK_PAGE_URL } from "@/lib/seo";
+import { FACEBOOK_PAGE_URL, whatsappUrl } from "@/lib/seo";
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   {
@@ -57,6 +57,10 @@ export function SiteFooter() {
           >
             <Facebook className="size-4 text-primary" aria-hidden="true" />
             {t("SentinelGrid on Facebook")}
+          </a>
+          <a href={whatsappUrl("Hello, I would like to discuss cybersecurity consulting.")} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center gap-2 text-sm font-medium text-[#25D366] hover:underline">
+            <MessageCircle className="size-4" aria-hidden="true" />
+            {t("Cybersecurity consulting on WhatsApp")} · +20 1000 033316
           </a>
         </div>
 

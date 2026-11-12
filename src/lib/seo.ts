@@ -9,6 +9,13 @@ export const SITE_URL = "https://cybersecurityeg.lovable.app";
 /** The SentinelGrid Facebook Page. */
 export const FACEBOOK_PAGE_URL = "https://www.facebook.com/cybersecurityeg";
 
+/** WhatsApp contact in international format without the leading plus sign. */
+export const WHATSAPP_NUMBER = "201000033316";
+
+export function whatsappUrl(message: string): string {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 /**
  * Languages the site is served in. English and Arabic share one route tree, so
  * every page has the same path in both; Arabic is the same path with `?lang=ar`.

@@ -1,19 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FACEBOOK_PAGE_URL, headLanguage, pageHead } from "@/lib/seo";
+import { FACEBOOK_PAGE_URL, headLanguage, pageHead, whatsappUrl, WHATSAPP_NUMBER } from "@/lib/seo";
 import { Clock3, Facebook, Linkedin, Mail, MessagesSquare, Phone, ShieldQuestion } from "lucide-react";
 import { useLanguage } from "@/lib/language";
 
-const TITLE = "Contact SentinelGrid — Sales, Support & Security Reports";
+const TITLE = "Cybersecurity Consulting in Egypt | Contact SentinelGrid";
 const DESCRIPTION =
-  "Talk to the SentinelGrid team about Enterprise terms, managed triage retainers, custom connectors or responsible disclosure.";
+  "Contact SentinelGrid for cybersecurity consulting in Egypt. Discuss security assessments, attack-surface reviews, SOC/XDR and firewall security on WhatsApp.";
 
 export const Route = createFileRoute("/contact")({
-  head: (ctx) => pageHead({ path: "/contact", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
+  head: (ctx) => ({
+    ...pageHead({ path: "/contact", title: TITLE, description: DESCRIPTION, lang: headLanguage(ctx) }),
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        name: "SentinelGrid Cybersecurity Consulting",
+        url: "https://cybersecurityeg.lovable.app/contact",
+        telephone: `+${WHATSAPP_NUMBER}`,
+        areaServed: { "@type": "Country", name: "Egypt" },
+        serviceType: ["Cybersecurity consulting", "Security assessments", "SOC and XDR advisory", "Firewall security"],
+      }),
+    }],
+  }),
   component: Contact,
 });
 
 const CHANNELS = [
-  { icon: Mail, title: "Sales", body: "For Enterprise pricing, pilots and procurement.", email: "mahmoudabdelaziz@live.com" },
+  { icon: MessagesSquare, title: "Cybersecurity consulting", body: "Discuss security assessments, attack-surface reviews, SOC/XDR and firewall security.", email: "mahmoudabdelaziz@live.com" },
   {
     icon: MessagesSquare,
     title: "Support",
@@ -24,7 +38,7 @@ const CHANNELS = [
 ];
 
 function Contact() {
-  const { t } = useLanguage();
+  const { t, isArabic } = useLanguage();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -34,6 +48,9 @@ function Contact() {
         <p className="mt-4 text-muted-foreground">
           {t("Tell us what you're trying to defend")}
         </p>
+        <a href={whatsappUrl(isArabic ? "مرحباً، أود مناقشة استشارات الأمن السيبراني لمؤسستي." : "Hello, I would like to discuss cybersecurity consulting for my organization.")} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#25D366] px-5 py-3 text-sm font-semibold text-[#071b10] hover:brightness-95">
+          {isArabic ? "تواصل عبر واتساب" : "Chat on WhatsApp"} · +20 1000 033316
+        </a>
       </header>
 
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -50,6 +67,11 @@ function Contact() {
                   {c.email}
                 </a>
               ) : null}
+              {c.title === "Cybersecurity consulting" && (
+                <a href={whatsappUrl(isArabic ? "مرحباً، أود مناقشة استشارات الأمن السيبراني لمؤسستي." : "Hello, I would like to discuss cybersecurity consulting for my organization.")} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
+                  {t("Start a WhatsApp conversation")}
+                </a>
+              )}
             </div>
           ))}
           <div className="surface p-5">
@@ -57,7 +79,7 @@ function Contact() {
             <ul className="mt-3 space-y-3 text-sm">
               <li className="flex items-center gap-2">
                 <Phone className="size-4 text-primary" aria-hidden="true" />
-                <a href="tel:+201000033316" className="text-primary hover:underline">
+                <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   +20 1000 033 316
                 </a>
                 <span className="text-muted-foreground">({t("Phone / WhatsApp")})</span>
