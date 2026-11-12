@@ -10,6 +10,16 @@ CREATE TABLE public.monitored_domains (
   UNIQUE (user_id, fqdn),
   CHECK (length(fqdn) BETWEEN 3 AND 253)
 );
+
+-- Included verified-domain slots scale with the existing subscription plans.
+ALTER TABLE public.plans ADD COLUMN max_monitored_domains integer;
+UPDATE public.plans
+SET max_monitored_domains = CASE id
+  WHEN 'recon' THEN 1
+  WHEN 'team' THEN 10
+  WHEN 'enterprise' THEN NULL
+  ELSE 1
+END;
 CREATE INDEX monitored_domains_user_created_idx ON public.monitored_domains (user_id, created_at DESC);
 ALTER TABLE public.monitored_domains ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON public.monitored_domains TO service_role;

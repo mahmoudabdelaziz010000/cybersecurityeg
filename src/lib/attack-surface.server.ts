@@ -67,8 +67,6 @@ async function dnsAnswers(name: string, type: string): Promise<string[]> {
 
 export async function registerMonitoredDomain(userId: string, rawDomain: string) {
   const fqdn = normalizeOwnedDomain(rawDomain);
-  const challenge = randomChallenge();
-  const expiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
   const { data: existing, error: readError } = await supabaseAdmin
     .from("monitored_domains")
     .select("id, verified_at")
@@ -77,6 +75,27 @@ export async function registerMonitoredDomain(userId: string, rawDomain: string)
     .maybeSingle();
   if (readError) throw new Error("Could not access monitored domains.");
   if (existing?.verified_at) throw new Error("This domain is already verified on your account.");
+  if (!existing) {
+    const [{ data: profile }, { count, error: countError }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("plan_id").eq("id", userId).maybeSingle(),
+      supabaseAdmin.from("monitored_domains").select("id", { count: "exact", head: true }).eq("user_id", userId),
+    ]);
+    if (countError) throw new Error("Could not check your monitored-domain allowance.");
+    const { data: plan, error: planError } = await supabaseAdmin
+      .from("plans")
+      .select("name, max_monitored_domains")
+      .eq("id", profile?.plan_id ?? "recon")
+      .maybeSingle();
+    if (planError) throw new Error("Could not load your subscription allowance.");
+    const allowance = plan?.max_monitored_domains ?? null;
+    if (allowance !== null && (count ?? 0) >= allowance) {
+      throw new Error(
+        `${plan?.name ?? "Your current plan"} includes ${allowance} monitored domain${allowance === 1 ? "" : "s"}. Upgrade your plan to monitor more.`,
+      );
+    }
+  }
+  const challenge = randomChallenge();
+  const expiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
   const values = {
     user_id: userId,
     fqdn,
@@ -131,20 +150,31 @@ export async function verifyMonitoredDomain(userId: string, domainId: string) {
 }
 
 export async function listMonitoredDomains(userId: string) {
-  const { data, error } = await supabaseAdmin
+  const [{ data, error }, { data: profile }, { count, error: countError }] = await Promise.all([
+    supabaseAdmin
     .from("monitored_domains")
     .select("id, fqdn, verified_at, challenge_expires_at, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
-    .limit(25);
+    .limit(1000),
+    supabaseAdmin.from("profiles").select("plan_id").eq("id", userId).maybeSingle(),
+    supabaseAdmin.from("monitored_domains").select("id", { count: "exact", head: true }).eq("user_id", userId),
+  ]);
   if (error) throw new Error("Could not load monitored domains.");
-  return (data ?? []).map((row) => ({
+  if (countError) throw new Error("Could not load monitored-domain usage.");
+  const { data: plan, error: planError } = await supabaseAdmin
+    .from("plans")
+    .select("name, max_monitored_domains")
+    .eq("id", profile?.plan_id ?? "recon")
+    .maybeSingle();
+  if (planError) throw new Error("Could not load your subscription allowance.");
+  return { domains: (data ?? []).map((row) => ({
     id: row.id,
     fqdn: row.fqdn,
     verifiedAt: row.verified_at,
     challengeExpiresAt: row.challenge_expires_at,
     createdAt: row.created_at,
-  }));
+  })), usage: { planName: plan?.name ?? "Recon", used: count ?? 0, limit: plan?.max_monitored_domains ?? null } };
 }
 
 export async function removeMonitoredDomain(userId: string, domainId: string) {

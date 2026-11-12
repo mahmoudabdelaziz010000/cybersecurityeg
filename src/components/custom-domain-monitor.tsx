@@ -34,6 +34,7 @@ export function CustomDomainMonitor() {
   const assess = useServerFn(runAttackSurfaceAssessment);
   const remove = useServerFn(removeAttackSurfaceDomain);
   const [domains, setDomains] = useState<MonitoredDomain[]>([]);
+  const [usage, setUsage] = useState<{ planName: string; used: number; limit: number | null } | null>(null);
   const [domainInput, setDomainInput] = useState("");
   const [challenge, setChallenge] = useState<{
     domainId: string;
@@ -47,7 +48,9 @@ export function CustomDomainMonitor() {
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
-    setDomains(await list());
+    const result = await list();
+    setDomains(result.domains);
+    setUsage(result.usage);
   }, [list]);
   useEffect(() => {
     void reload().catch((failure) =>
@@ -174,6 +177,13 @@ export function CustomDomainMonitor() {
             <Globe2 className="size-4 text-primary" />
             {l("My authorized domains", "نطاقاتي المصرح بها")}
           </h3>
+          {usage && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {usage.limit === null
+                ? l(`${usage.planName} · ${usage.used} domains monitored`, `${usage.planName} · تتم مراقبة ${usage.used} نطاقات`)
+                : l(`${usage.planName} · ${usage.used} of ${usage.limit} monitored domains`, `${usage.planName} · ${usage.used} من ${usage.limit} نطاقات مراقبة`)}
+            </p>
+          )}
           <form onSubmit={addDomain} className="mt-4 flex flex-col gap-2 sm:flex-row">
             <label htmlFor="monitor-domain" className="sr-only">
               {l("Domain name", "اسم النطاق")}

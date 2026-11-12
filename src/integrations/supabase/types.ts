@@ -193,6 +193,7 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          max_monitored_domains: number | null
           max_targets_per_run: number
           monthly_scan_limit: number | null
           name: string
@@ -203,6 +204,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id: string
+          max_monitored_domains?: number | null
           max_targets_per_run?: number
           monthly_scan_limit?: number | null
           name: string
@@ -213,6 +215,7 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          max_monitored_domains?: number | null
           max_targets_per_run?: number
           monthly_scan_limit?: number | null
           name?: string
