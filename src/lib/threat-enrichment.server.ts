@@ -2,7 +2,7 @@ import type { EnrichmentFinding, IndicatorType, SourceResult } from "./threat-en
 
 const TIMEOUT_MS = 10_000;
 const CACHE_TTL_MS = 15 * 60_000;
-const SOURCE_NAMES = ["ThreatFox", "AbuseIPDB", "Pulsedive", "URLhaus"] as const;
+const SOURCE_NAMES = ["ThreatFox", "AbuseIPDB", "Pulsedive", "URLhaus", "PhishTank"] as const;
 type SourceName = (typeof SOURCE_NAMES)[number];
 // Provider schemas vary by response status; preserve the raw fields while normalizing below.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,12 +131,56 @@ async function urlhaus(indicator: string, type: IndicatorType): Promise<SourceRe
   return result(source, findings, findings.length ? `${findings.length} matching URLhaus record(s).` : "No matching URLhaus record.");
 }
 
+async function phishTank(indicator: string, type: IndicatorType): Promise<SourceResult> {
+  const source: SourceName = "PhishTank";
+  if (type !== "domain" && type !== "url") return unavailable(source, "PhishTank checks domains and URLs only.");
+  const key = process.env["PHISHTANK_API_KEY"];
+  if (!key) return unavailable(source, "PHISHTANK_API_KEY is not configured.");
+  const checkedUrl = type === "url" ? indicator : `https://${indicator}/`;
+  const body = new URLSearchParams({ url: checkedUrl, format: "json", ...(key ? { app_key: key } : {}) });
+  const data = await fetchJson("https://checkurl.phishtank.com/checkurl/", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "SentinelGrid/1.0 security assessment" },
+    body,
+  });
+  const item = data.results ?? data;
+  const isTrue = (value: unknown) => value === true || String(value).toLowerCase() === "true";
+  const confirmed = isTrue(item.in_database) && isTrue(item.verified) && isTrue(item.valid);
+  const findings = confirmed ? [finding(source, {
+    id: String(item.phish_id ?? item.url ?? checkedUrl),
+    title: "Verified phishing URL",
+    detail: [item.target ? `Target: ${item.target}` : null, item.url].filter(Boolean).map(String).join(" · "),
+    observedAt: item.verified_at ?? item.verification_time ?? item.submission_time ?? null,
+    reference: item.phish_detail_url ?? "https://phishtank.org/",
+    confidence: 100,
+  })] : [];
+  return result(source, findings, findings.length ? "PhishTank has a verified phishing record." : "No verified PhishTank match.");
+}
+
 const adapters: Record<SourceName, (indicator: string, type: IndicatorType) => Promise<SourceResult>> = {
   ThreatFox: async (indicator) => threatFox(indicator),
   AbuseIPDB: abuseIpDb,
   Pulsedive: pulsedive,
   URLhaus: urlhaus,
+  PhishTank: phishTank,
 };
+
+/** Check only the three campaign feeds; never query IP reputation or general enrichment sources. */
+export async function checkCampaignFeeds(indicator: string): Promise<SourceResult[]> {
+  const type: IndicatorType = "domain";
+  return Promise.all(([
+    "ThreatFox", "URLhaus", "PhishTank",
+  ] as const).map(async (source) => {
+    const previous = cached(source, indicator);
+    if (previous) return previous;
+    try {
+      return save(source, indicator, await adapters[source](indicator, type));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Source request failed.";
+      return save(source, indicator, { source, state: "error", message: message.slice(0, 240), checkedAt: new Date().toISOString(), findings: [] });
+    }
+  }));
+}
 
 export async function enrichIndicator(indicator: string, type: IndicatorType) {
   const sources = await Promise.all(SOURCE_NAMES.map(async (source) => {
@@ -158,6 +202,7 @@ export function availableThreatSources() {
     AbuseIPDB: Boolean(process.env["ABUSEIPDB_API_KEY"]),
     Pulsedive: Boolean(process.env["PULSEDIVE_API_KEY"]),
     URLhaus: Boolean(process.env["URLHAUS_API_KEY"]),
+    PhishTank: Boolean(process.env["PHISHTANK_API_KEY"]),
   };
 }
 

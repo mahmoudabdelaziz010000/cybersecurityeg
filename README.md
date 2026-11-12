@@ -10,7 +10,7 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- **Full ownership**: this code is yours. Push to the Lovable-connected `claude/work` branch on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -43,7 +43,7 @@ Only `<Get>` requests are ever sent to the firewall. All credentials are **serve
 On the firewall, enable API configuration and allow the app server's IP address (see Sophos' "XML API" documentation for your firmware), and make sure the firewall's admin port is reachable from wherever the server runs.
 # Aggregated Threat Enrichment
 
-The Security Assessment Center includes a server-side IOC enrichment dashboard for IPv4/IPv6, domain names, HTTP(S) URLs, and MD5/SHA-1/SHA-256 hashes. It queries ThreatFox, AbuseIPDB, Pulsedive, and URLhaus when their server keys are configured. Unsupported source/indicator combinations and missing credentials are shown as unavailable; provider errors and no-match results remain distinct.
+The Security Assessment Center includes a server-side IOC enrichment dashboard for IPv4/IPv6, domain names, HTTP(S) URLs, and MD5/SHA-1/SHA-256 hashes. It queries ThreatFox, AbuseIPDB, Pulsedive, URLhaus, and PhishTank when their server keys are configured. Unsupported source/indicator combinations and missing credentials are shown as unavailable; provider errors and no-match results remain distinct.
 
 ## Setup
 
@@ -55,8 +55,9 @@ Configure these environment variables in the server deployment or local server e
 | `ABUSEIPDB_API_KEY` | AbuseIPDB | AbuseIPDB account API key |
 | `PULSEDIVE_API_KEY` | Pulsedive | Pulsedive API key |
 | `URLHAUS_API_KEY` | URLhaus | Free abuse.ch authentication portal key |
+| `PHISHTANK_API_KEY` | PhishTank | PhishTank application key |
 
-The feature does not ask users to enter credentials. Each configured key stays on the server. The four keys are independent; an absent key disables only that provider.
+The feature does not ask users to enter credentials. Each configured key stays on the server. The keys are independent; an absent key disables only that provider.
 
 ## Supported lookups and service limits
 
@@ -64,6 +65,13 @@ The feature does not ask users to enter credentials. Each configured key stays o
 - AbuseIPDB checks IPv4 and IPv6 only, looking back 90 days. Its free individual tier currently allows 1,000 checks and reports per day.
 - Pulsedive searches IPs, domains, and URLs. Its free account tier is noncommercial and currently limited to 1 request/second, 50 API requests/day, and 500/month. Requests are paced server-side at roughly one per second.
 - URLhaus queries URLs, hostnames/IPs, and MD5/SHA-256 payload hashes. SHA-1 is not supported by its payload lookup. The community API requires an abuse.ch Auth-Key and is subject to abuse.ch fair-use principles.
+- PhishTank checks the exact domain/URL against its phishing database. This provider is separate from URLhaus and ThreatFox, which are malware-intelligence sources. It requires a server-side application key for this feature.
+
+## Custom Attack Surface & Threat Monitoring
+
+The Security Assessment Center lets signed-in users register a public domain and prove control with a time-limited DNS TXT challenge at `_sentinelgrid-verification.<domain>`. Only verified domains can be assessed. Assessment collects passive DNS, RDAP, and certificate-transparency evidence; it does not port-scan, crawl, or contact the customer domain.
+
+Campaign checks query ThreatFox, URLhaus, and PhishTank for the verified domain plus up to six generated brand-name variants. These variants are candidates for analyst review, not evidence of ownership or attribution. Feed-listed URLs are never opened or downloaded. Results are saved in user-scoped Supabase tables with RLS, and only server functions write records. Configure the provider keys above as server environment secrets; do not add them to `.env` or any `VITE_` variable.
 
 Limits and terms can change. Confirm each provider's current terms before use; Pulsedive's free tier is explicitly noncommercial, and AbuseIPDB free access is intended for personal/evaluation use. Do not use a free community key for commercial service unless the provider's terms allow it.
 

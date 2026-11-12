@@ -13,6 +13,7 @@ import type { CveItem } from "@/lib/cve.server";
 import { PLAYBOOKS, type WorkflowRun } from "@/lib/playbooks";
 import { runPlaybook } from "@/lib/workflows.functions";
 import { ThreatEnrichmentDashboard } from "@/components/threat-enrichment-dashboard";
+import { CustomDomainMonitor } from "@/components/custom-domain-monitor";
 
 const TITLE = "Security Assessment Center | SentinelGrid";
 const DESCRIPTION = "Run real OSINT, OWASP and vulnerability intelligence checks from one authorized security assessment workflow.";
@@ -132,6 +133,7 @@ function AssessmentCenter() {
     </form>
 
     <ThreatEnrichmentDashboard />
+    <CustomDomainMonitor />
 
     {complete && <section className="mt-8 space-y-4" aria-live="polite"><div className="flex items-center gap-2"><CheckCircle2 className="size-5 text-clean" /><h2 className="text-xl font-semibold">{l("Assessment results", "نتائج التقييم")}</h2></div>
       {moduleErrors.osint && <p className="surface p-4 text-sm text-caution">OSINT: {moduleErrors.osint}</p>}

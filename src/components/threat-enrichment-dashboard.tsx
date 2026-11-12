@@ -6,7 +6,7 @@ import { getThreatEnrichmentConfig, runThreatEnrichment } from "@/lib/threat-enr
 import type { IndicatorResult, SourceResult } from "@/lib/threat-enrichment";
 
 type Config = Record<SourceResult["source"], boolean>;
-const SOURCES: SourceResult["source"][] = ["ThreatFox", "AbuseIPDB", "Pulsedive", "URLhaus"];
+const SOURCES: SourceResult["source"][] = ["ThreatFox", "AbuseIPDB", "Pulsedive", "URLhaus", "PhishTank"];
 
 function stateLabel(source: SourceResult, configured: boolean, l: (en: string, ar: string) => string) {
   if (!configured || source.state === "unavailable") return l("Unavailable", "غير متاح");
@@ -62,11 +62,11 @@ export function ThreatEnrichmentDashboard() {
       <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div><p className="label-mono flex items-center gap-2"><Activity className="size-4 text-primary" />{l("COMMUNITY INTELLIGENCE · MULTI-SOURCE", "استخبارات مجتمعية · مصادر متعددة")}</p>
           <h2 id="threat-enrichment-title" className="mt-2 text-2xl font-semibold">{l("Aggregated Threat Enrichment Engine", "محرك إثراء التهديدات الموحّد")}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{l("Check IPs, domains, URLs and file hashes against ThreatFox, AbuseIPDB, Pulsedive and URLhaus. Each provider reports its own status; a missing match does not establish that an indicator is safe.", "افحص عناوين IP والنطاقات والروابط وبصمات الملفات في ThreatFox وAbuseIPDB وPulsedive وURLhaus. تظهر حالة كل مصدر على حدة؛ وعدم العثور على تطابق لا يثبت سلامة المؤشر.")}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{l("Check IPs, domains, URLs and file hashes against ThreatFox, AbuseIPDB, Pulsedive, URLhaus and PhishTank. Each provider reports its own status; a missing match does not establish that an indicator is safe.", "افحص عناوين IP والنطاقات والروابط وبصمات الملفات في ThreatFox وAbuseIPDB وPulsedive وURLhaus وPhishTank. تظهر حالة كل مصدر على حدة؛ وعدم العثور على تطابق لا يثبت سلامة المؤشر.")}</p>
         </div>
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs text-muted-foreground"><Database className="size-3.5" />{l("Server-side lookups", "استعلامات عبر الخادم")}</span>
       </div>
-      <div className="relative mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="relative mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         {SOURCES.map((source) => <div key={source} className="flex items-center justify-between gap-2 rounded-md border border-border bg-background/50 px-3 py-2 text-xs"><span className="font-medium">{source}</span><span className={`inline-flex items-center gap-1.5 ${config?.[source] ? "text-clean" : "text-caution"}`}><CircleDot className="size-3" />{config ? config[source] ? l("Configured", "مُعدّ") : l("Key required", "مفتاح مطلوب") : l("Checking", "جارٍ التحقق")}</span></div>)}
       </div>
       <p className="relative mt-3 text-xs text-muted-foreground">{l("API credentials stay on the server. Configure the provider keys in the deployment environment; none are entered in this page.", "تبقى مفاتيح API على الخادم. أضف مفاتيح المصادر إلى إعدادات بيئة الخادم؛ لا تُدخل المفاتيح في هذه الصفحة.")}</p>
@@ -96,7 +96,7 @@ function IndicatorCard({ item, config, l }: { item: IndicatorResult; config: Con
       <div className="min-w-0"><p className="label-mono">{item.type.toUpperCase()}</p><h3 className="mt-1 break-all font-mono text-base font-semibold">{item.indicator}</h3><p className="mt-2 text-xs text-muted-foreground">{l("Enriched", "وقت الإثراء")}: <time dateTime={item.enrichedAt}>{new Date(item.enrichedAt).toLocaleString(l("en-US", "ar-EG"))}</time></p></div>
       <div className="flex items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-semibold uppercase ${severityClass}`}>{item.severity}</span><span className="rounded-full border border-border px-2.5 py-1 font-mono text-xs">{item.score}/100</span></div>
     </div>
-    <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4 sm:p-5">{SOURCES.map((name) => {
+    <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5 sm:p-5">{SOURCES.map((name) => {
       const source = item.sources.find((entry) => entry.source === name)!;
       const configured = Boolean(config?.[name]);
       return <div key={name} className="min-w-0 rounded-md border border-border bg-background/40 p-3">

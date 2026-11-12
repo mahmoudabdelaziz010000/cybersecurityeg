@@ -4,7 +4,7 @@ export type SourceState = "matched" | "no-match" | "unavailable" | "error";
 
 export interface EnrichmentFinding {
   id: string;
-  source: "ThreatFox" | "AbuseIPDB" | "Pulsedive" | "URLhaus";
+  source: "ThreatFox" | "AbuseIPDB" | "Pulsedive" | "URLhaus" | "PhishTank";
   title: string;
   detail: string;
   observedAt: string | null;

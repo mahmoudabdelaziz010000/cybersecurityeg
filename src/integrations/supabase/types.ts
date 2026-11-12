@@ -289,6 +289,80 @@ export type Database = {
         }
         Relationships: []
       }
+      monitored_domains: {
+        Row: {
+          challenge_expires_at: string
+          challenge_hash: string
+          created_at: string
+          fqdn: string
+          id: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          challenge_expires_at: string
+          challenge_hash: string
+          created_at?: string
+          fqdn: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          challenge_expires_at?: string
+          challenge_hash?: string
+          created_at?: string
+          fqdn?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      domain_assessment_runs: {
+        Row: {
+          campaign_matches: Json
+          collection_mode: string
+          completed_at: string
+          created_at: string
+          id: string
+          monitored_domain_id: string
+          surface: Json
+          user_id: string
+        }
+        Insert: {
+          campaign_matches?: Json
+          collection_mode?: string
+          completed_at?: string
+          created_at?: string
+          id?: string
+          monitored_domain_id: string
+          surface?: Json
+          user_id: string
+        }
+        Update: {
+          campaign_matches?: Json
+          collection_mode?: string
+          completed_at?: string
+          created_at?: string
+          id?: string
+          monitored_domain_id?: string
+          surface?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_assessment_runs_monitored_domain_id_fkey"
+            columns: ["monitored_domain_id"]
+            isOneToOne: false
+            referencedRelation: "monitored_domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
