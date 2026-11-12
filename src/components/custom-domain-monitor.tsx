@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   Globe2,
   Loader2,
+  LogIn,
   Plus,
   Radar,
   RefreshCw,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useLanguage } from "@/lib/language";
+import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import type {
   CampaignMatch,
   DomainAssessment,
@@ -45,9 +48,11 @@ export function CustomDomainMonitor() {
   } | null>(null);
   const [assessment, setAssessment] = useState<DomainAssessment | null>(null);
   const [busy, setBusy] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    setError(null);
     const result = await list();
     setDomains(result.domains);
     setUsage(result.usage);
@@ -61,6 +66,43 @@ export function CustomDomainMonitor() {
       ),
     );
   }, [reload, l]);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    }).catch(() => {
+      if (active) setSignedIn(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(Boolean(session));
+      if (session) window.setTimeout(() => void reload(), 0);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [reload]);
+
+  async function signIn() {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await lovable.auth.signInWithOAuth("lovable", {
+        redirect_uri: window.location.href,
+      });
+      if (result.error) throw result.error;
+      if (!result.redirected) {
+        const { data } = await supabase.auth.getSession();
+        setSignedIn(Boolean(data.session));
+        if (data.session) await reload();
+      }
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : l("Sign-in failed.", "فشل تسجيل الدخول."));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function addDomain(event: FormEvent) {
     event.preventDefault();
@@ -184,6 +226,22 @@ export function CustomDomainMonitor() {
                 : l(`${usage.planName} · ${usage.used} of ${usage.limit} monitored domains`, `${usage.planName} · ${usage.used} من ${usage.limit} نطاقات مراقبة`)}
             </p>
           )}
+          {signedIn === false && (
+            <div className="mt-4 rounded-md border border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm text-muted-foreground">
+                {l("Sign in to add and manage domains verified by your organization.", "سجّل الدخول لإضافة النطاقات التي تثبت مؤسستك ملكيتها وإدارتها.")}
+              </p>
+              <button
+                type="button"
+                onClick={() => void signIn()}
+                disabled={busy}
+                className="mt-3 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                <LogIn className="size-4" />
+                {l("Sign in with Lovable", "تسجيل الدخول عبر Lovable")}
+              </button>
+            </div>
+          )}
           <form onSubmit={addDomain} className="mt-4 flex flex-col gap-2 sm:flex-row">
             <label htmlFor="monitor-domain" className="sr-only">
               {l("Domain name", "اسم النطاق")}
@@ -192,13 +250,14 @@ export function CustomDomainMonitor() {
               id="monitor-domain"
               value={domainInput}
               onChange={(event) => setDomainInput(event.target.value)}
+              disabled={busy || signedIn === false}
               spellCheck={false}
               placeholder="example.com"
               className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm outline-none focus:border-ring"
             />
             <button
               type="submit"
-              disabled={busy || !domainInput.trim()}
+              disabled={busy || signedIn === false || !domainInput.trim()}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               <Plus className="size-4" />
