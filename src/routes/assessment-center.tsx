@@ -12,6 +12,7 @@ import { getRecentCves } from "@/lib/cve.functions";
 import type { CveItem } from "@/lib/cve.server";
 import { PLAYBOOKS, type WorkflowRun } from "@/lib/playbooks";
 import { runPlaybook } from "@/lib/workflows.functions";
+import { ThreatEnrichmentDashboard } from "@/components/threat-enrichment-dashboard";
 
 const TITLE = "Security Assessment Center | SentinelGrid";
 const DESCRIPTION = "Run real OSINT, OWASP and vulnerability intelligence checks from one authorized security assessment workflow.";
@@ -130,6 +131,8 @@ function AssessmentCenter() {
       {error && <p role="alert" className="mt-4 flex items-start gap-2 text-sm text-malicious"><AlertTriangle className="mt-0.5 size-4 shrink-0" />{error}</p>}
     </form>
 
+    <ThreatEnrichmentDashboard />
+
     {complete && <section className="mt-8 space-y-4" aria-live="polite"><div className="flex items-center gap-2"><CheckCircle2 className="size-5 text-clean" /><h2 className="text-xl font-semibold">{l("Assessment results", "نتائج التقييم")}</h2></div>
       {moduleErrors.osint && <p className="surface p-4 text-sm text-caution">OSINT: {moduleErrors.osint}</p>}
       {osint && <article className="surface p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="label-mono">OSINT · {osint.type}</p><h3 className="mt-1 font-mono text-lg">{osint.target}</h3></div><span className="rounded-full border border-border px-3 py-1 font-mono text-xs">{osint.verdict.toUpperCase()} · {osint.score}/100</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{osint.sources.map((s) => <div key={s.id} className="rounded-md border border-border p-3"><div className="flex justify-between gap-2 text-sm font-medium"><span>{s.label}</span><span className={s.ok ? "text-clean" : "text-caution"}>{s.ok ? l("Live", "مباشر") : s.error ?? l("Unavailable", "غير متاح")}</span></div>{s.facts.slice(0, 4).map((f) => <p key={f.key} className="mt-1 text-xs text-muted-foreground">{f.key}: <span className="font-mono text-foreground">{f.value}</span></p>)}</div>)}</div></article>}
@@ -151,3 +154,4 @@ function AssessmentCenter() {
     <p className="mt-8 text-xs text-muted-foreground">{l("Results are gathered through existing server-side integrations. External sources can rate-limit or fail; incomplete checks are shown as such. No credentials are entered or stored here.", "تُجمع النتائج عبر التكاملات الحالية من جهة الخادم. قد تحد المصادر الخارجية الطلبات أو تتعطل؛ وتُعرض الفحوصات غير المكتملة بوضوح. لا تُدخل أو تُحفظ بيانات اعتماد هنا.")}</p>
   </div>;
 }
+
