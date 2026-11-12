@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useLanguage } from "@/lib/language";
-import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import type {
   CampaignMatch,
@@ -49,6 +48,9 @@ export function CustomDomainMonitor() {
   const [assessment, setAssessment] = useState<DomainAssessment | null>(null);
   const [busy, setBusy] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
@@ -84,19 +86,29 @@ export function CustomDomainMonitor() {
     };
   }, [reload]);
 
-  async function signIn() {
+  async function signIn(createAccount = false) {
     setBusy(true);
     setError(null);
+    setAuthNotice(null);
     try {
-      const result = await lovable.auth.signInWithOAuth("lovable", {
-        redirect_uri: window.location.href,
-      });
-      if (result.error) throw result.error;
-      if (!result.redirected) {
-        const { data } = await supabase.auth.getSession();
-        setSignedIn(Boolean(data.session));
-        if (data.session) await reload();
+      if (createAccount) {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.href },
+        });
+        if (signUpError) throw signUpError;
+        if (!data.session) {
+          setAuthNotice(l("Check your email to confirm your account, then sign in.", "تحقق من بريدك لتأكيد الحساب، ثم سجّل الدخول."));
+          return;
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
       }
+      const { data } = await supabase.auth.getSession();
+      setSignedIn(Boolean(data.session));
+      if (data.session) await reload();
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : l("Sign-in failed.", "فشل تسجيل الدخول."));
     } finally {
@@ -229,17 +241,21 @@ export function CustomDomainMonitor() {
           {signedIn === false && (
             <div className="mt-4 rounded-md border border-primary/30 bg-primary/5 p-4">
               <p className="text-sm text-muted-foreground">
-                {l("Sign in to add and manage domains verified by your organization.", "سجّل الدخول لإضافة النطاقات التي تثبت مؤسستك ملكيتها وإدارتها.")}
+                {l("Sign in or create an account to add domains verified by your organization.", "سجّل الدخول أو أنشئ حساباً لإضافة نطاقات تثبت مؤسستك ملكيتها.")}
               </p>
-              <button
-                type="button"
-                onClick={() => void signIn()}
-                disabled={busy}
-                className="mt-3 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-              >
-                <LogIn className="size-4" />
-                {l("Sign in with Lovable", "تسجيل الدخول عبر Lovable")}
+              <form onSubmit={(event) => { event.preventDefault(); void signIn(); }} className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                <label className="sr-only" htmlFor="monitor-email">{l("Email", "البريد الإلكتروني")}</label>
+                <input id="monitor-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder={l("Email", "البريد الإلكتروني")} className="min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring" />
+                <label className="sr-only" htmlFor="monitor-password">{l("Password", "كلمة المرور")}</label>
+                <input id="monitor-password" type="password" autoComplete="current-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={l("Password", "كلمة المرور")} className="min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring" />
+                <button type="submit" disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                  <LogIn className="size-4" />{l("Sign in", "تسجيل الدخول")}
+                </button>
+              </form>
+              <button type="button" onClick={() => void signIn(true)} disabled={busy || !email || password.length < 8} className="mt-2 text-xs font-medium text-primary underline-offset-4 hover:underline disabled:opacity-50">
+                {l("Create an account", "إنشاء حساب")}
               </button>
+              {authNotice && <p role="status" className="mt-2 text-xs text-clean">{authNotice}</p>}
             </div>
           )}
           <form onSubmit={addDomain} className="mt-4 flex flex-col gap-2 sm:flex-row">
