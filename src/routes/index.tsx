@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { SocDashboard } from "@/components/soc-dashboard";
 import { GROUP_BLURB, telemetrySplat } from "@/lib/console-nav";
 import { useLanguage } from "@/lib/language";
-import { headLanguage, pageHead, whatsappUrl, WHATSAPP_NUMBER } from "@/lib/seo";
+import { headLanguage, pageHead, WHATSAPP_NUMBER } from "@/lib/seo";
 import { GROUPS } from "@/lib/xdr-demo";
 import { groupLabel } from "@/lib/xdr-ui";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
@@ -60,29 +60,6 @@ function Home() {
   const idx = isArabic ? 1 : 0;
   return (
     <>
-      <section className="hero-surface grid-backdrop border-b border-border">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between lg:py-20">
-          <div className="max-w-3xl">
-            <p className="label-mono">SENTINELGRID · CYBERSECURITY CONSULTING</p>
-            <h1 className="mt-3 text-4xl font-bold sm:text-5xl">{l("Practical cybersecurity guidance for your organization", "إرشادات عملية للأمن السيبراني لمؤسستك")}</h1>
-            <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-              {l("Discuss security assessments, attack-surface exposure, SOC/XDR architecture, and firewall security with SentinelGrid. Tell us what you need to protect and we’ll discuss a suitable next step.", "ناقش مع SentinelGrid التقييمات الأمنية والتعرض لسطح الهجوم وبنية SOC/XDR وأمن الجدران النارية. أخبرنا بما تريد حمايته لنتفق على الخطوة المناسبة.")}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a href={whatsappUrl(isArabic ? "مرحباً، أود مناقشة استشارات الأمن السيبراني لمؤسستي." : "Hello, I would like to discuss cybersecurity consulting for my organization.")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-5 py-3 text-sm font-semibold text-[#071b10] hover:brightness-95">
-                {l("Chat on WhatsApp", "تواصل عبر واتساب")} · +20 1000 033316
-              </a>
-              <Link to="/contact" className="inline-flex items-center rounded-md border border-border px-5 py-3 text-sm font-medium hover:bg-accent">{l("View contact options", "عرض طرق التواصل")}</Link>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">{l("WhatsApp opens a chat with a prefilled inquiry. No information is sent until you choose to send it.", "يفتح واتساب محادثة برسالة جاهزة. لن تُرسل أي معلومات حتى تختار إرسالها.")}</p>
-          </div>
-          <div className="grid w-full max-w-sm gap-3 text-sm md:shrink-0">
-            {[l("Security assessments", "التقييمات الأمنية"), l("Attack-surface reviews", "مراجعة سطح الهجوم"), l("SOC / XDR and firewall advisory", "استشارات SOC وXDR والجدران النارية")].map((item) => (
-              <div key={item} className="surface flex items-center gap-3 p-4"><ShieldCheck className="size-4 shrink-0 text-primary" />{item}</div>
-            ))}
-          </div>
-        </div>
-      </section>
       <SocDashboard />
       {/* Crawlable overview of what the console covers, with links to every telemetry dashboard. */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6" aria-labelledby="about-heading" data-no-translate>

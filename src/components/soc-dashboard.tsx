@@ -66,7 +66,7 @@ export function SocDashboard() {
             {l("SECURITY OPERATIONS CENTER", "مركز العمليات الأمنية")}
             <span className="rounded border border-caution/30 bg-caution/10 px-2 py-0.5 text-caution">{l("In development", "قيد التطوير")}</span>
           </div>
-          <h2 className="text-3xl font-semibold sm:text-4xl">{l("SOC Dashboard", "لوحة مركز العمليات الأمنية")}</h2>
+          <h1 className="text-3xl font-semibold sm:text-4xl">{l("SOC Dashboard", "لوحة مركز العمليات الأمنية")}</h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             {l("Threats, endpoints and telemetry health in one view for the analyst on shift.", "التهديدات والأجهزة وصحة البيانات في عرض واحد للمحلل المناوب.")}
           </p>
