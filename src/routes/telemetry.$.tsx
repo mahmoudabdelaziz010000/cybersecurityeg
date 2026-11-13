@@ -1,7 +1,7 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { TelemetryGroupPage, TelemetrySourcePage } from "@/components/telemetry-pages";
 import { GROUP_BLURB, SOPHOS_PROVIDER_ID, parseTelemetryPath, telemetryPath } from "@/lib/console-nav";
-import { absoluteUrl, headLanguage, pageHead } from "@/lib/seo";
+import { localizedUrl, headLanguage, pageHead } from "@/lib/seo";
 import { groupLabel } from "@/lib/xdr-ui";
 
 /**
@@ -31,8 +31,8 @@ export const Route = createFileRoute("/telemetry/$")({
     const description = `${summary} ${ar ? "بيانات تجريبية فقط." : "Sample data only."}`;
     const base = pageHead({ path, title, description, lang });
     const crumbs = [
-      { name: "Dashboard", path: "/" },
-      { name: groupName, path: telemetryPath(group) },
+      { name: ar ? "لوحة التحكم" : "Dashboard", path: "/" },
+      { name: ar ? groupNameAr : groupName, path: telemetryPath(group) },
       ...(provider ? [{ name: provider.name, path }] : []),
     ];
     return {
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/telemetry/$")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
-            itemListElement: crumbs.map((crumb, index) => ({ "@type": "ListItem", position: index + 1, name: crumb.name, item: absoluteUrl(crumb.path) })),
+            itemListElement: crumbs.map((crumb, index) => ({ "@type": "ListItem", position: index + 1, name: crumb.name, item: localizedUrl(crumb.path, lang) })),
           }),
         },
       ],
