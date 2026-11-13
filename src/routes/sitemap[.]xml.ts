@@ -10,18 +10,22 @@ interface SitemapEntry {
   priority?: string;
 }
 
-const BUILD_DATE = new Date().toISOString().slice(0, 10);
+/**
+ * Date of the current site release (YYYY-MM-DD). Fixed on purpose: on Cloudflare Workers the clock reads as
+ * 1970 when module code runs outside a request, so a date computed at load time came out as 1970-01-01.
+ * Bump this on each release so crawlers see fresh content.
+ */
+const LAST_MODIFIED = "2026-11-13";
 
 function escapeXml(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        // Date of the deployment's first sitemap request; refreshed whenever the server restarts on a new build.
-        const lastmod = BUILD_DATE;
+        const lastmod = LAST_MODIFIED;
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/platform", changefreq: "monthly", priority: "0.8" },
@@ -69,7 +73,11 @@ export const Route = createFileRoute("/sitemap.xml")({
         ].join("\n");
 
         return new Response(xml, {
-          headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=3600",
+            "Last-Modified": new Date(`${LAST_MODIFIED}T00:00:00Z`).toUTCString(),
+          },
         });
       },
     },
